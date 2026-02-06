@@ -1,0 +1,9 @@
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" fill-rule="evenodd">
+    <path d="M0 0h60v60H0z" fill="none"/>
+    <path d="M30 0L60 30 30 60 0 30z" fill="#D2B48C" fill-opacity="0.2"/> <!-- Diamond shape -->
+    <path d="M0 0h10v10H0zM50 50h10v10H50zM0 50h10v10H0zM50 0h10v10H50z" fill="#8B4513" fill-opacity="0.15"/> <!-- Corner squares -->
+    <path d="M30 15L45 30 30 45 15 30z" stroke="#8B4513" stroke-width="1" stroke-opacity="0.3"/> <!-- Inner diamond outline -->
+    <path d="M10 10l10 10M50 10L40 20M10 50l10-10M50 50l-10-10" stroke="#8B4513" stroke-width="1" stroke-opacity="0.2"/> <!-- Decorative lines -->
+  </g>
+</svg>

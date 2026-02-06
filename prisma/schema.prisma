@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Block {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false)
+  weeks     BlockWeek[]
+  sessions  Session[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockWeek {
+  id        String   @id @default(uuid())
+  blockId   String
+  block     Block    @relation(fields: [blockId], references: [id])
+  weekNumber Int
+  startDate DateTime
+  endDate   DateTime
+  
+  // Relations for logs/metrics linked to a specific week
+  kmLogs        KmLog[]
+  lifestyleLogs LifestyleLog[]
+  teamMetrics   TeamWeekMetric[]
+  teamAwards    TeamWeekAward[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  members   Member[]
+  metrics   TeamWeekMetric[]
+  awards    TeamWeekAward[]
+  pointLedger PointLedger[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Member {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  teamId    String?
+  team      Team?    @relation(fields: [teamId], references: [id])
+  isActive  Boolean  @default(true)
+  
+  attendance    Attendance[]
+  weighIns      WeighIn[]
+  kmLogs        KmLog[]
+  lifestyleLogs LifestyleLog[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  blockId   String
+  block     Block    @relation(fields: [blockId], references: [id])
+  date      DateTime
+  type      String   // "Monday", "Wednesday", "Friday"
+  attendance Attendance[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id])
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id])
+  isPresent Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sessionId, memberId])
+}
+
+model WeighIn {
+  id        String   @id @default(uuid())
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id])
+  date      DateTime // Should be typically the Monday date
+  weight    Float
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([memberId, date])
+}
+
+model KmLog {
+  id          String   @id @default(uuid())
+  memberId    String
+  member      Member   @relation(fields: [memberId], references: [id])
+  blockWeekId String
+  blockWeek   BlockWeek @relation(fields: [blockWeekId], references: [id])
+  totalKm     Float
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([memberId, blockWeekId])
+}
+
+model LifestyleLog {
+  id          String   @id @default(uuid())
+  memberId    String
+  member      Member   @relation(fields: [memberId], references: [id])
+  blockWeekId String
+  blockWeek   BlockWeek @relation(fields: [blockWeekId], references: [id])
+  postCount   Int
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([memberId, blockWeekId])
+}
+
+model TeamWeekMetric {
+  id          String   @id @default(uuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  blockWeekId String
+  blockWeek   BlockWeek @relation(fields: [blockWeekId], references: [id])
+  
+  // Metrics calculated
+  kmAverage         Float?
+  weightLossTotal   Float?
+  lifestyleAverage  Float?
+  attendanceAverage Float?
+  
+  // Points awarded for this week specific categories
+  pointsAwarded     Int @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([teamId, blockWeekId])
+}
+
+model TeamWeekAward {
+  id          String   @id @default(uuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  blockWeekId String
+  blockWeek   BlockWeek @relation(fields: [blockWeekId], references: [id])
+  category    String   // "KM_AVG", "WEIGHT_LOSS", "LIFESTYLE_AVG", "ATTENDANCE_AVG"
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PointLedger {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id])
+  amount    Int
+  reason    String   // "Week 1 KM Winner", "Correction", etc.
+  date      DateTime @default(now())
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   @default("admin") // "admin", "editor"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
