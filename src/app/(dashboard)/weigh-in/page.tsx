@@ -7,6 +7,7 @@ import { DateSelector } from "@/components/shared/DateSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { cn } from "@/lib/utils";
 import { WeighInLogList } from "@/components/weigh-in/WeighInLogList";
+import { ExportButton } from "@/components/shared/ExportButton";
 
 export default async function WeighInPage({ searchParams }: { searchParams: { date?: string } }) {
     const block = await getActiveBlock();
@@ -44,6 +45,7 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
                     ]}
                     selectedDate={selectedDateStr}
                 />
+                <ExportButton blockId={block.id} type="weigh-in" />
             </PageHeader>
 
             {/* Summary Cards */}

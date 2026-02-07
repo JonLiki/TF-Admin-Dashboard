@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { SessionSelector } from "@/components/attendance/SessionSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { AttendanceList } from "@/components/attendance/AttendanceList";
+import { ExportButton } from "@/components/shared/ExportButton";
 
 export default async function AttendancePage({ searchParams }: { searchParams: { sessionId?: string } }) {
     const block = await getActiveBlock();
@@ -37,6 +38,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: {
                     }))}
                     selectedSessionId={selectedSessionId}
                 />
+                <ExportButton blockId={block.id} type="attendance" />
             </PageHeader>
 
             {/* Summary Cards */}

@@ -7,6 +7,7 @@ import { WeekSelector } from "@/components/shared/WeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { cn } from "@/lib/utils";
 import { LifestyleLogList } from "@/components/lifestyle/LifestyleLogList";
+import { ExportButton } from "@/components/shared/ExportButton";
 
 export default async function LifestylePage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
@@ -36,6 +37,7 @@ export default async function LifestylePage({ searchParams }: { searchParams: { 
                     selectedWeekId={selectedWeekId}
                     basePath="/lifestyle"
                 />
+                <ExportButton blockId={block.id} type="lifestyle" />
             </PageHeader>
 
             {/* Summary Cards */}

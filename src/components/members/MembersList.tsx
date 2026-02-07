@@ -73,7 +73,7 @@ export function MembersList({ members, teams }: MembersListProps) {
 
     return (
         <div className="lg:col-span-3">
-            <PremiumCard className="overflow-hidden border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm">
+            <PremiumCard className="border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm">
                 {/* Search and Filters Header */}
                 <div className="relative z-20 p-6 border-b border-lagoon/20 space-y-4 bg-ocean/20 backdrop-blur-md">
                     {/* Search Input */}

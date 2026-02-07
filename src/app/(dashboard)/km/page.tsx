@@ -7,6 +7,7 @@ import { WeekSelector } from "@/components/shared/WeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { cn } from "@/lib/utils";
 import { KmLogList } from "@/components/km/KmLogList";
+import { ExportButton } from "@/components/shared/ExportButton";
 
 export default async function KmPage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
@@ -36,6 +37,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                     selectedWeekId={selectedWeekId}
                     basePath="/km"
                 />
+                <ExportButton blockId={block.id} type="km" />
             </PageHeader>
 
             {/* Summary Cards */}

@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/ui/Components";
+import { Suspense } from "react";
 import { getActiveBlock } from "@/actions/data";
 import DashboardAnalytics from "@/components/analytics/DashboardAnalytics";
 import LoginFeedback from "@/components/auth/LoginFeedback";
@@ -106,7 +107,9 @@ export default async function Home() {
   return (
     <div className="min-h-full pb-10">
       <PageHeader title="Dashboard" subtitle="Command Center" />
-      <LoginFeedback />
+      <Suspense fallback={null}>
+        <LoginFeedback />
+      </Suspense>
 
       {/* Hand off to Client Component for Animations and Interactivity */}
       <DashboardClientView stats={stats} />

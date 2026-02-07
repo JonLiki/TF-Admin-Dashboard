@@ -22,7 +22,7 @@ export default async function MembersPage() {
             <div className="px-6 md:px-10 mt-6 grid grid-cols-1 lg:grid-cols-4 gap-8 relative z-10">
                 {/* Create Member Form */}
                 <div className="lg:col-span-1">
-                    <PremiumCard className="p-6 sticky top-6 bg-ocean-deep/80 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden group">
+                    <PremiumCard className="p-6 sticky top-6 bg-ocean-deep/80 backdrop-blur-md border border-white/10 shadow-2xl group">
                         {/* Decorative Glow */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-lagoon/10 blur-[50px] rounded-full pointer-events-none -mr-10 -mt-10" />
 
