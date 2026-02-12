@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { LoadingSkeleton, StatCardSkeleton } from "./LoadingSkeleton";
 
 export function DashboardSkeleton() {

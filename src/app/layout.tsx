@@ -28,21 +28,30 @@ export const metadata: Metadata = {
   description: "Fat Loss & Fitness Team Management",
 };
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(inter.variable, jetbrainsMono.variable, outfit.variable)}>
-      <body className="antialiased bg-ocean-deep text-white font-sans h-full relative selection:bg-lagoon/30">
-        {/* Global Background Pattern */}
-        <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply">
-          <TonganNgatu />
-        </div>
+    <html lang="en" className={cn(inter.variable, jetbrainsMono.variable, outfit.variable)} suppressHydrationWarning>
+      <body className="antialiased bg-background text-foreground font-sans h-full relative selection:bg-lagoon/30 transition-colors duration-300">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* Global Background Pattern */}
+          <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply dark:mix-blend-overlay">
+            <TonganNgatu />
+          </div>
 
-        {children}
-        <Toaster />
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

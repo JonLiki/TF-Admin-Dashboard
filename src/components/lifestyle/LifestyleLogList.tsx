@@ -7,7 +7,7 @@ import { Heart, Save, Filter, Camera } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { submitLifestyleLog } from "@/actions/data";
-import Link from 'next/link';
+import { ImportButton } from "@/components/ui/ImportButton";
 
 interface Member {
     id: string;
@@ -46,6 +46,9 @@ export function LifestyleLogList({ members, weekId }: LifestyleLogListProps) {
                         </div>
                         <h2 className="text-lg font-bold text-white">Lifestyle Tracker</h2>
                     </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <ImportButton type="lifestyle" />
                     <SearchInput
                         value={searchTerm}
                         onChange={setSearchTerm}
@@ -109,7 +112,7 @@ export function LifestyleLogList({ members, weekId }: LifestyleLogListProps) {
 
                             {/* Input Actions */}
                             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                                <form action={submitLifestyleLog} className="flex items-center space-x-2">
+                                <form action={async (formData) => { await submitLifestyleLog(formData); }} className="flex items-center space-x-2">
                                     <input type="hidden" name="memberId" value={member.id} />
                                     <input type="hidden" name="blockWeekId" value={weekId} />
                                     <div className="relative group/input">

@@ -1,17 +1,12 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Outfit, Inter, JetBrains_Mono } from 'next/font/google';
+
 
 interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
     children: React.ReactNode;
     className?: string;
     as?: React.ElementType;
 }
-
-// Ensure fonts are loaded if not already handled in layout
-const outfit = Outfit({ subsets: ['latin'], variable: '--font-display' });
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
 export function Heading({ children, className, as, size = 'h1', ...props }: TypographyProps & { size?: 'h1' | 'h2' | 'h3' | 'h4' }) {
     const Component = as || (size as React.ElementType);

@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { LucideIcon, Trophy, Flame, Footprints, Activity } from 'lucide-react';
-import { NgatuDivider, WinnerBadge } from '@/components/ui/Patterns';
+import { Trophy, Flame, Footprints, Activity } from 'lucide-react';
+import { NgatuDivider } from '@/components/ui/Patterns';
 
 interface WinnerCardProps {
     teamName: string;

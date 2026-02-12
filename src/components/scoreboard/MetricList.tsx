@@ -2,7 +2,7 @@
 
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { cn } from "@/lib/utils";
-import { LucideIcon, Medal, Scale, Heart, CalendarCheck } from "lucide-react";
+import { Medal, Scale, Heart, CalendarCheck } from "lucide-react";
 import Link from "next/link";
 import { Team, TeamWeekMetric } from "@prisma/client";
 

@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 
 import { revalidatePath } from 'next/cache';
 import { CreateTeamSchema, CreateMemberSchema } from '@/lib/schemas';
+import { auth } from '@/auth';
 
 // --- TEAMS ---
 export async function getTeams() {
@@ -18,6 +19,9 @@ export async function getTeams() {
 }
 
 export async function createTeam(formData: FormData) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
     const rawData = {
         name: formData.get('name'),
     };
@@ -31,6 +35,9 @@ export async function createTeam(formData: FormData) {
 }
 
 export async function deleteTeam(id: string) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
     // 1. Clean up dependencies
     // PointLedger
     await prisma.pointLedger.deleteMany({ where: { teamId: id } });
@@ -61,6 +68,9 @@ export async function getMembers() {
 }
 
 export async function createMember(formData: FormData) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
     const rawData = {
         firstName: formData.get('firstName'),
         lastName: formData.get('lastName'),
@@ -81,6 +91,9 @@ export async function createMember(formData: FormData) {
 }
 
 export async function updateMemberTeam(memberId: string, teamId: string) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
     await prisma.member.update({
         where: { id: memberId },
         data: { teamId }
@@ -89,6 +102,9 @@ export async function updateMemberTeam(memberId: string, teamId: string) {
 }
 
 export async function toggleMemberActive(memberId: string, currentState: boolean) {
+    const session = await auth();
+    if (!session?.user) return { success: false, message: "Unauthorized" };
+
     try {
         await prisma.member.update({
             where: { id: memberId },
@@ -102,6 +118,9 @@ export async function toggleMemberActive(memberId: string, currentState: boolean
 }
 
 export async function deleteMember(id: string) {
+    const session = await auth();
+    if (!session?.user) return { success: false, message: "Unauthorized" };
+
     try {
         // 1. Clean up dependencies
         await prisma.kmLog.deleteMany({ where: { memberId: id } });

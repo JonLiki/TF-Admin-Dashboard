@@ -1,5 +1,10 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { format } from 'date-fns';
+
+// --- Scoreboard Export Utilities (Existing) ---
 
 export interface ScoreboardExportData {
     weekNumber: number;
@@ -20,6 +25,7 @@ export interface ScoreboardExportData {
  * Generate and download a PDF of the scoreboard
  */
 export function generateScoreboardPDF(data: ScoreboardExportData): void {
+     
     const doc = new jsPDF();
 
     // Colors (dark ocean theme)
@@ -84,7 +90,9 @@ export function generateScoreboardPDF(data: ScoreboardExportData): void {
     });
 
     // Winners Section (if available)
+     
     if (data.winners) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const finalY = (doc as any).lastAutoTable.finalY || 100;
 
         doc.setFontSize(14);
@@ -167,17 +175,109 @@ export function generateScoreboardCSV(data: ScoreboardExportData): void {
 
     // Create blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `TOA-FATALONA-Week${data.weekNumber}-Scoreboard.csv`);
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Clean up
-    URL.revokeObjectURL(url);
+    saveAs(blob, `TOA-FATALONA-Week${data.weekNumber}-Scoreboard.csv`);
 }
+
+
+// --- New Summary Export Utilities ---
+
+export interface ExportData {
+    title: string;
+    headers: string[];
+    rows: (string | number | null)[][];
+    footers?: (string | number | null)[][];
+}
+
+export const exportToCSV = (data: ExportData, filename: string) => {
+    // Construct CSV content
+    let csvContent = `"${data.title}"\n\n`;
+
+    // Headers
+    csvContent += data.headers.map(h => `"${h}"`).join(",") + "\n";
+
+    // Rows
+    data.rows.forEach(row => {
+        const line = row.map(cell => {
+            if (cell === null || cell === undefined) return "";
+            const stringCell = String(cell);
+            // Escape quotes
+            return `"${stringCell.replace(/"/g, '""')}"`;
+        }).join(",");
+        csvContent += line + "\n";
+    });
+
+    // Footers
+    if (data.footers) {
+        data.footers.forEach(footer => {
+            const line = footer.map(cell => {
+                if (cell === null || cell === undefined) return "";
+                const stringCell = String(cell);
+                return `"${stringCell.replace(/"/g, '""')}"`;
+            }).join(",");
+            csvContent += line + "\n";
+        });
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, `${filename}.csv`);
+};
+
+export const exportToExcel = (data: ExportData, filename: string) => {
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Prepare data array for sheet
+    const wsData: (string | number | null)[][] = [
+        [data.title],
+        Array(data.headers.length).fill(""), // Empty row for spacing
+        data.headers,
+        ...data.rows
+    ];
+
+    if (data.footers) {
+        data.footers.forEach(f => wsData.push(f));
+    }
+
+    // Create worksheet
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Merge title cells
+    if (data.headers.length > 1) {
+        ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: data.headers.length - 1 } }
+        ];
+    }
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Report");
+
+    // Write file
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `${filename}.xlsx`);
+};
+
+export const exportToPDF = (data: ExportData, filename: string) => {
+     
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text(data.title, 14, 22);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    const dateStr = format(new Date(), 'PPpp');
+    doc.text(`Generated on: ${dateStr}`, 14, 30);
+
+    autoTable(doc, {
+        startY: 36,
+        head: [data.headers],
+        body: data.rows,
+        foot: data.footers,
+        theme: 'grid',
+        headStyles: { fillColor: [22, 163, 74] }, // Green/Teal
+        styles: { fontSize: 8, cellPadding: 2 },
+    });
+
+    doc.save(`${filename}.pdf`);
+};

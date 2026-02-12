@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Components';
-import { Download, FileDown } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { exportBlockData } from '@/actions/export-actions';
 import { toast } from 'sonner';
 

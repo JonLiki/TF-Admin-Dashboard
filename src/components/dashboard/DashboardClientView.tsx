@@ -5,7 +5,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { Button } from '@/components/ui/Components';
-import { Users, Scale, Activity, ArrowRight, Trophy, LucideIcon, Crown } from 'lucide-react';
+import { Users, Scale, Activity, ArrowRight, LucideIcon, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { OceanWaves, TonganNgatu } from '@/components/ui/Patterns';
@@ -77,6 +77,7 @@ interface DashboardStats {
     teamsList: Team[];
     attendanceData: Record<string, unknown>[];
     leaderboard: LeaderboardItem[];
+    weeklyTotals: { weekNumber: number; totalKm: number; totalLifestyle: number }[];
 }
 
 interface DashboardClientViewProps {
@@ -156,6 +157,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                             metrics={stats.allMetrics}
                             teams={stats.teamsList}
                             attendanceData={stats.attendanceData}
+                            weeklyTotals={stats.weeklyTotals}
                             title="Performance Matrix"
                         />
                     </ClientOnly>
@@ -177,17 +179,14 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                         {stats.leaderboard.map((team, index) => {
                             // Rank Styles
                             let rankStyle = "bg-ocean/20 border-white/5 text-slate-400";
-                            let iconColor = "bg-ocean-deep text-slate-500";
+                            // let iconColor = "bg-ocean-deep text-slate-500";
 
                             if (index === 0) {
                                 rankStyle = "bg-gradient-to-r from-tongan/20 to-tongan/5 border-tongan/30 shadow-lg shadow-tongan/10";
-                                iconColor = "bg-gradient-to-br from-yellow-400 to-yellow-600 text-transparent bg-clip-text text-black border-yellow-500/30";
                             } else if (index === 1) {
                                 rankStyle = "bg-ocean/30 border-lagoon/20 hover:border-lagoon/40";
-                                iconColor = "bg-gradient-to-br from-slate-300 to-slate-400 text-ocean-deep border-slate-400/30";
                             } else if (index === 2) {
                                 rankStyle = "bg-ocean/20 border-orange-700/20 hover:border-orange-700/40";
-                                iconColor = "bg-gradient-to-br from-orange-400 to-amber-700 text-white border-orange-500/30";
                             }
 
                             return (

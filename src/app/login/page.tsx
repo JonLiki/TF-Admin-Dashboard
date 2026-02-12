@@ -10,7 +10,7 @@ export default function LoginPage() {
     const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
 
     return (
-        <div className="fixed inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-ocean-deep via-[#0A1F2E] to-black overflow-hidden p-4">
+        <div className="fixed inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-ocean-deep via-surface-ocean to-black overflow-hidden p-4">
             {/* Animated Tapa Pattern Overlay */}
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-overlay">
                 <TonganNgatu />
@@ -51,6 +51,7 @@ export default function LoginPage() {
                                     <LockKeyhole className="w-3.5 h-3.5" />
                                     <p className="text-xs font-bold uppercase tracking-[0.25em]">Command Access</p>
                                 </div>
+                                <p className="text-slate-400 mt-2">Enter your credentials to access the To&apos;a Fatalona dashboard.</p>
 
                                 {/* Decorative Divider */}
                                 <div className="flex items-center justify-center gap-3 mt-6 mb-2">
@@ -72,7 +73,7 @@ export default function LoginPage() {
                                     </label>
                                     <div className="relative group/input">
                                         <input
-                                            className="w-full bg-[#0B1521]/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-slate-600 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-[#0B1521]"
+                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-slate-600 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep"
                                             id="email"
                                             type="email"
                                             name="email"
@@ -93,7 +94,7 @@ export default function LoginPage() {
                                     </label>
                                     <div className="relative group/input">
                                         <input
-                                            className="w-full bg-[#0B1521]/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-slate-600 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-[#0B1521]"
+                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-slate-600 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep"
                                             id="password"
                                             type="password"
                                             name="password"
@@ -140,8 +141,8 @@ export default function LoginPage() {
                     <p className="text-[11px] text-slate-400 font-medium tracking-wide">
                         Authorized Personnel Only
                     </p>
-                    <p className="text-[10px] text-slate-600">
-                        © 2026 To'a Fatalona. All rights reserved.
+                    <p className="text-slate-500 text-xs text-center mt-8">
+                        &copy; 2026 To&apos;a Fatalona. All rights reserved.
                     </p>
                 </div>
             </div>

@@ -150,7 +150,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                         <div className="ml-auto">Actions</div>
                     </div>
 
-                    {filteredMembers.map((member, index) => (
+                    {filteredMembers.map((member) => (
                         <div
                             key={member.id}
                             className={cn(

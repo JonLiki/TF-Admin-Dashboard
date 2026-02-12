@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 
 import { revalidatePath } from 'next/cache';
 import { WeighInSchema, KmLogSchema, LifestyleLogSchema } from '@/lib/schemas';
+import { auth } from '@/auth';
 
 // --- HELPERS ---
 export async function getActiveBlock() {
@@ -37,88 +38,153 @@ export async function getWeighIns(date: Date) {
 }
 
 export async function submitWeighIn(formData: FormData) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
+    const weightStr = formData.get('weight') as string;
+    const weightVal = weightStr ? parseFloat(weightStr) : undefined;
+
+    // If weight is not a number (empty or invalid), we can either return error or ignore.
+    // If it's NaN, Zod might fail or we handle it here.
+    if (weightVal === undefined || isNaN(weightVal)) {
+        console.error("Invalid weight input:", weightStr);
+        return { success: false, message: "Invalid weight" };
+    }
+
     const rawData = {
         memberId: formData.get('memberId'),
-        weight: parseFloat(formData.get('weight') as string),
+        weight: weightVal,
         date: formData.get('date'),
     };
 
-    const validated = WeighInSchema.parse(rawData);
+    const validated = WeighInSchema.safeParse(rawData);
+
+    if (!validated.success) {
+        console.error("WeighIn validation failed:", validated.error);
+        return { success: false, message: validated.error.issues[0].message };
+    }
+
     // Parse date correctly as it might be string from form
-    const dateObj = new Date(validated.date);
+    // validated.data.date is Date or string from schema, but we need Date object
+    const dateObj = new Date(validated.data.date);
 
-    await prisma.weighIn.upsert({
-        where: {
-            memberId_date: {
-                memberId: validated.memberId,
-                date: dateObj
+    try {
+        await prisma.weighIn.upsert({
+            where: {
+                memberId_date: {
+                    memberId: validated.data.memberId,
+                    date: dateObj
+                }
+            },
+            update: { weight: validated.data.weight },
+            create: {
+                memberId: validated.data.memberId,
+                date: dateObj,
+                weight: validated.data.weight
             }
-        },
-        update: { weight: validated.weight },
-        create: {
-            memberId: validated.memberId,
-            date: dateObj,
-            weight: validated.weight
-        }
-    });
-
-    revalidatePath('/weigh-in');
+        });
+        revalidatePath('/weigh-in');
+        return { success: true, message: "Weigh-in saved" };
+    } catch (error) {
+        console.error("Database error saving weigh-in:", error);
+        return { success: false, message: "Failed to save weigh-in" };
+    }
 }
 
 // --- KM LOGS ---
 // --- KM LOGS ---
 export async function submitKmLog(formData: FormData) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
+    const kmStr = formData.get('totalKm') as string;
+    const kmVal = kmStr ? parseFloat(kmStr) : undefined;
+
+    if (kmVal === undefined || isNaN(kmVal)) {
+        return { success: false, message: "Invalid KM value" };
+    }
+
     const rawData = {
         memberId: formData.get('memberId'),
         blockWeekId: formData.get('blockWeekId'),
-        totalKm: parseFloat(formData.get('totalKm') as string),
+        totalKm: kmVal,
     };
 
-    const validated = KmLogSchema.parse(rawData);
+    const validated = KmLogSchema.safeParse(rawData);
 
-    await prisma.kmLog.upsert({
-        where: {
-            memberId_blockWeekId: {
-                memberId: validated.memberId,
-                blockWeekId: validated.blockWeekId
+    if (!validated.success) {
+        return { success: false, message: validated.error.issues[0].message };
+    }
+
+    try {
+        await prisma.kmLog.upsert({
+            where: {
+                memberId_blockWeekId: {
+                    memberId: validated.data.memberId,
+                    blockWeekId: validated.data.blockWeekId
+                }
+            },
+            update: { totalKm: validated.data.totalKm },
+            create: {
+                memberId: validated.data.memberId,
+                blockWeekId: validated.data.blockWeekId,
+                totalKm: validated.data.totalKm
             }
-        },
-        update: { totalKm: validated.totalKm },
-        create: {
-            memberId: validated.memberId,
-            blockWeekId: validated.blockWeekId,
-            totalKm: validated.totalKm
-        }
-    });
-    revalidatePath('/km');
+        });
+        revalidatePath('/km');
+        return { success: true };
+    } catch (error) {
+        console.error("Error saving KM Log:", error);
+        return { success: false, message: "Failed to save" };
+    }
 }
 
 // --- LIFESTYLE LOGS ---
 // --- LIFESTYLE LOGS ---
 export async function submitLifestyleLog(formData: FormData) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
+    const postCountStr = formData.get('postCount') as string;
+    const postCountVal = postCountStr ? parseInt(postCountStr) : undefined;
+
+    if (postCountVal === undefined || isNaN(postCountVal)) {
+        return { success: false, message: "Invalid post count" };
+    }
+
     const rawData = {
         memberId: formData.get('memberId'),
         blockWeekId: formData.get('blockWeekId'),
-        postCount: parseInt(formData.get('postCount') as string),
+        postCount: postCountVal,
     };
 
-    const validated = LifestyleLogSchema.parse(rawData);
+    const validated = LifestyleLogSchema.safeParse(rawData);
 
-    await prisma.lifestyleLog.upsert({
-        where: {
-            memberId_blockWeekId: {
-                memberId: validated.memberId,
-                blockWeekId: validated.blockWeekId
+    if (!validated.success) {
+        return { success: false, message: validated.error.issues[0].message };
+    }
+
+    try {
+        await prisma.lifestyleLog.upsert({
+            where: {
+                memberId_blockWeekId: {
+                    memberId: validated.data.memberId,
+                    blockWeekId: validated.data.blockWeekId
+                }
+            },
+            update: { postCount: validated.data.postCount },
+            create: {
+                memberId: validated.data.memberId,
+                blockWeekId: validated.data.blockWeekId,
+                postCount: validated.data.postCount
             }
-        },
-        update: { postCount: validated.postCount },
-        create: {
-            memberId: validated.memberId,
-            blockWeekId: validated.blockWeekId,
-            postCount: validated.postCount
-        }
-    });
-    revalidatePath('/lifestyle');
+        });
+        revalidatePath('/lifestyle');
+        return { success: true };
+    } catch (error) {
+        console.error("Error saving Lifestyle Log:", error);
+        return { success: false, message: "Failed to save" };
+    }
 }
 
 // --- ATTENDANCE ---
@@ -130,6 +196,9 @@ export async function getSession(sessionId: string) {
 }
 
 export async function toggleAttendance(sessionId: string, memberId: string, isPresent: boolean) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
     await prisma.attendance.upsert({
         where: {
             sessionId_memberId: {
@@ -182,4 +251,55 @@ export async function getMembersWithWeighIn(date: Date) {
         },
         orderBy: { lastName: 'asc' }
     });
+}
+
+// --- SUMMARY REPORT ---
+export async function getFullBlockSummary(blockWeekId?: string) {
+    const block = await prisma.block.findFirst({
+        where: { isActive: true },
+        include: {
+            weeks: { orderBy: { weekNumber: 'asc' } },
+        }
+    });
+
+    if (!block) return null;
+
+    const members = await prisma.member.findMany({
+        where: { isActive: true },
+        include: {
+            team: true,
+            weighIns: {
+                where: {
+                    date: {
+                        gte: block.startDate,
+                        lte: block.endDate
+                    }
+                },
+                orderBy: { date: 'asc' }
+            },
+            kmLogs: {
+                include: { blockWeek: true }
+            },
+            lifestyleLogs: {
+                include: { blockWeek: true }
+            },
+            attendance: {
+                include: { session: { include: { block: true } } },
+                where: {
+                    session: {
+                        blockId: block.id
+                    }
+                }
+            }
+        },
+        orderBy: { lastName: 'asc' }
+    });
+
+    // Also fetch all sessions for the block to calculate attendance totals/percentages if needed
+    const sessions = await prisma.session.findMany({
+        where: { blockId: block.id },
+        orderBy: { date: 'asc' }
+    });
+
+    return { block, members, sessions };
 }

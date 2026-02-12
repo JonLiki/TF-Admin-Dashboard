@@ -145,7 +145,7 @@ export function Select({
                 disabled={disabled}
                 className={cn(
                     "flex items-center justify-between w-full px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200",
-                    "bg-[#0B1220] border border-white/10 text-white",
+                    "bg-ocean-deep border border-white/10 text-white",
                     "hover:bg-white/5 hover:border-white/20",
                     "focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50",
                     disabled && "opacity-50 cursor-not-allowed",
@@ -175,7 +175,7 @@ export function Select({
                     ref={dropdownRef}
                     className={cn(
                         "absolute z-50 w-full mt-2 py-1 rounded-xl",
-                        "bg-[#0F172A] border border-white/10 shadow-2xl",
+                        "bg-ocean-deep border border-white/10 shadow-2xl",
                         "max-h-[300px] overflow-auto",
                         "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20",
                         "animate-in fade-in-0 zoom-in-95 duration-200"
@@ -191,10 +191,10 @@ export function Select({
                             disabled={option.disabled}
                             className={cn(
                                 "w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors duration-150",
-                                "text-white hover:bg-[#12394D]",
+                                "text-white hover:bg-ocean",
                                 option.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
-                                focusedIndex === index && "bg-[#12394D]",
-                                currentValue === option.value && "bg-[#12394D]/50"
+                                focusedIndex === index && "bg-ocean",
+                                currentValue === option.value && "bg-ocean/50"
                             )}
                             role="option"
                             aria-selected={currentValue === option.value}

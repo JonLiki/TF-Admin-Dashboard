@@ -7,7 +7,7 @@ import { Scale, Save, Filter } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { submitWeighIn } from "@/actions/data";
-import Link from 'next/link';
+import { ImportButton } from "@/components/ui/ImportButton";
 
 interface Member {
     id: string;
@@ -46,6 +46,9 @@ export function WeighInLogList({ members, dateStr }: WeighInLogListProps) {
                         </div>
                         <h2 className="text-lg font-bold text-white">Daily Weigh-In</h2>
                     </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <ImportButton type="weigh-in" />
                     <SearchInput
                         value={searchTerm}
                         onChange={setSearchTerm}
@@ -108,7 +111,7 @@ export function WeighInLogList({ members, dateStr }: WeighInLogListProps) {
 
                             {/* Input Actions */}
                             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                                <form action={submitWeighIn} className="flex items-center space-x-2">
+                                <form action={async (formData) => { await submitWeighIn(formData); }} className="flex items-center space-x-2">
                                     <input type="hidden" name="memberId" value={member.id} />
                                     <input type="hidden" name="date" value={dateStr} />
                                     <div className="relative group/input">

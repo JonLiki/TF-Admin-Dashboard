@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { Button } from './Components';
 import { Calculator, Loader2 } from 'lucide-react';
 

@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { toggleAttendance } from "@/actions/data";
 import { format } from "date-fns";
+import { ImportButton } from "@/components/ui/ImportButton";
 
 interface Member {
     id: string;
@@ -59,6 +60,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                             <div className="text-2xl font-black text-white leading-none">{presentCount}</div>
                             <div className="text-[10px] uppercase font-bold text-lagoon-100/60">Present</div>
                         </div>
+                        <ImportButton type="attendance" />
                         <SearchInput
                             value={searchTerm}
                             onChange={setSearchTerm}

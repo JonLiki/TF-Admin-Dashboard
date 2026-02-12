@@ -89,16 +89,63 @@
 }
 
 :root {
-  --background: #071A2B;
-  /* Dark Ocean */
-  --foreground: #F7F6F2;
-  /* Offwhite */
-  --tongan-red: #C8102E;
+  /* Default (Light Mode) Variables */
+  --background: #F7F6F2; /* Offwhite */
+  --foreground: #071A2B; /* Deep Ocean */
+  
+  /* Semantic Colors - Light Mode */
+  --color-primary: #0B3C5D;
+  --color-secondary: #1C7293;
+  --color-accent: #C8102E;
+  --color-neutral: #F3E9DC;
+  
+  /* Card/Surface Colors */
+  --card-background: #FFFFFF;
+  --card-foreground: #071A2B;
+  --popover-background: #FFFFFF;
+  --popover-foreground: #071A2B;
+  
+  /* Surface colors replacing hardcoded #0A1F2E, #111827 etc */
+  --surface-ocean: #0A1F2E; 
+  --surface-deep: #051621;
+  
+  /* Border Colors */
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0B3C5D;
+}
+
+.dark {
+  /* Dark Mode Variables */
+  --background: #071A2B; /* Deep Ocean */
+  --foreground: #F7F6F2; /* Offwhite */
+  
+  /* Semantic Colors - Dark Mode */
+  --color-primary: #1C7293;
+  --color-secondary: #0B3C5D;
+  --color-accent: #C8102E;
+  --color-neutral: #1E2933;
+  
+    /* Card/Surface Colors */
+  --card-background: #0B3C5D;
+  --card-foreground: #F7F6F2;
+  --popover-background: #0B3C5D;
+  --popover-foreground: #F7F6F2;
+  
+  /* Surface colors */
+  --surface-ocean: #0A1F2E;
+  --surface-deep: #051621;
+
+  /* Border Colors */
+  --border: #1E2933;
+  --input: #1E2933;
+  --ring: #1C7293;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  transition: colors 0.3s ease;
 }
 
 /* Custom scrollbar for modern feel */
