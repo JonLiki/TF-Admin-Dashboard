@@ -1,16 +1,64 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import React, { useState, Fragment } from "react";
 import { format, startOfDay, endOfDay } from "date-fns";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { cn } from "@/lib/utils";
 import { Scale, Activity, Heart, CalendarCheck, FileSpreadsheet, FileText, FileType } from "lucide-react";
 import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/exportUtils";
 
+interface WeighIn {
+    date: Date | string;
+    weight: number;
+}
+
+interface KmLog {
+    blockWeekId: string;
+    totalKm: number;
+}
+
+interface LifestyleLog {
+    blockWeekId: string;
+    postCount: number;
+}
+
+interface Attendance {
+    sessionId: string;
+    isPresent: boolean;
+}
+
+interface Member {
+    id: string;
+    firstName: string;
+    lastName: string;
+    team?: { name: string } | null;
+    weighIns: WeighIn[];
+    kmLogs: KmLog[];
+    lifestyleLogs: LifestyleLog[];
+    attendance: Attendance[];
+}
+
+interface BlockWeek {
+    id: string;
+    startDate: Date | string;
+    endDate: Date | string;
+    weekNumber: number;
+}
+
+interface Session {
+    id: string;
+    date: Date | string;
+}
+
+interface Block {
+    name: string;
+    weeks: BlockWeek[];
+}
+
 interface SummaryReportViewProps {
-    block: any;
-    members: any[];
-    sessions: any[];
+    block: Block;
+    members: Member[];
+    sessions: Session[];
 }
 
 type TabType = 'weight' | 'km' | 'lifestyle' | 'attendance';
@@ -19,37 +67,37 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
     const [activeTab, setActiveTab] = useState<TabType>('weight');
 
     // Group members by team
-    const teamsMap = new Map();
+    const teamsMap = new Map<string, Member[]>();
     members.forEach(member => {
         const teamName = member.team?.name || 'Unassigned';
         if (!teamsMap.has(teamName)) {
             teamsMap.set(teamName, []);
         }
-        teamsMap.get(teamName).push(member);
+        teamsMap.get(teamName)?.push(member);
     });
 
     // Helper to get weigh-in for a specific week
-    const getWeighInForWeek = (member: any, week: any) => {
+    const getWeighInForWeek = (member: Member, week: BlockWeek) => {
         const start = startOfDay(new Date(week.startDate));
         const end = endOfDay(new Date(week.endDate));
-        return member.weighIns.find((w: any) => {
+        return member.weighIns.find((w) => {
             const d = new Date(w.date);
             return d >= start && d <= end;
         });
     };
 
     // Helper to get KM log for a week
-    const getKmLogForWeek = (member: any, weekId: string) => {
-        return member.kmLogs.find((log: any) => log.blockWeekId === weekId);
+    const getKmLogForWeek = (member: Member, weekId: string) => {
+        return member.kmLogs.find((log) => log.blockWeekId === weekId);
     };
 
     // Helper to get Lifestyle log for a week
-    const getLifestyleLogForWeek = (member: any, weekId: string) => {
-        return member.lifestyleLogs.find((log: any) => log.blockWeekId === weekId);
+    const getLifestyleLogForWeek = (member: Member, weekId: string) => {
+        return member.lifestyleLogs.find((log) => log.blockWeekId === weekId);
     };
 
     // Helper to get Attendance for a week
-    const getAttendanceForWeek = (member: any, week: any) => {
+    const getAttendanceForWeek = (member: Member, week: BlockWeek) => {
         const weekStart = startOfDay(new Date(week.startDate));
         const weekEnd = endOfDay(new Date(week.endDate));
 
@@ -61,7 +109,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
         });
 
         const presentCount = weekSessions.reduce((acc, session) => {
-            const isPresent = member.attendance.some((a: any) => a.sessionId === session.id && a.isPresent);
+            const isPresent = member.attendance.some((a: Attendance) => a.sessionId === session.id && a.isPresent);
             return acc + (isPresent ? 1 : 0);
         }, 0);
 
@@ -77,12 +125,12 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
     const handleExport = (type: 'pdf' | 'csv' | 'excel') => {
         const headers = ['Member'];
-        block.weeks.forEach((week: any, i: number) => {
+        block.weeks.forEach((week: BlockWeek, i: number) => {
             headers.push(`Week ${i + 1} (${format(new Date(week.startDate), 'MMM d')})`);
         });
         headers.push('Total');
 
-        const rows: any[] = [];
+        const rows: (string | number)[][] = [];
         const sortedTeams = Array.from(teamsMap.entries()).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }));
 
         sortedTeams.forEach(([teamName, teamMembers]) => {
@@ -91,24 +139,24 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
             // For PDF, we can rely on order or styling, but let's just add a row
             rows.push([`${teamName} (Team)`, ...Array(headers.length - 1).fill('')]);
 
-            teamMembers.forEach((member: any) => {
-                const rowData: any[] = [`${member.firstName} ${member.lastName}`];
+            teamMembers.forEach((member: Member) => {
+                const rowData: (string | number)[] = [`${member.firstName} ${member.lastName}`];
                 let rowTotal = 0;
 
                 // Calculate Row Total first
                 if (activeTab === 'weight') {
-                    const sorted = member.weighIns.filter((w: any) => w.weight > 0).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                    const sorted = member.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
                     if (sorted.length >= 2) rowTotal = sorted[0].weight - sorted[sorted.length - 1].weight;
                 } else if (activeTab === 'km') {
-                    rowTotal = member.kmLogs.reduce((s: number, k: any) => s + k.totalKm, 0);
+                    rowTotal = member.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
                 } else if (activeTab === 'lifestyle') {
-                    rowTotal = member.lifestyleLogs.reduce((s: number, l: any) => s + l.postCount, 0);
+                    rowTotal = member.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
                 } else if (activeTab === 'attendance') {
-                    rowTotal = member.attendance.filter((a: any) => a.isPresent).length;
+                    rowTotal = member.attendance.filter((a: Attendance) => a.isPresent).length;
                 }
 
                 // Calculate Week Cells
-                block.weeks.forEach((week: any, weekIndex: number) => {
+                block.weeks.forEach((week, weekIndex) => {
                     let cellValue: string | number = '-';
 
                     if (activeTab === 'weight') {
@@ -153,9 +201,9 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
             // Calculate Team Footer Totals
             const teamFooterRow = [`${teamName} Totals`];
             // Week Totals
-            const teamWeekTotals = block.weeks.map((week: any, weekIndex: number) => {
+            const teamWeekTotals = block.weeks.map((week, weekIndex) => {
                 let sum = 0;
-                teamMembers.forEach((m: any) => {
+                teamMembers.forEach((m) => {
                     if (activeTab === 'weight') {
                         const w = getWeighInForWeek(m, week);
                         if (weekIndex === 0) {
@@ -196,20 +244,20 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
             });
 
             // Grand Total for Team
-            const teamGrandTotal = teamMembers.reduce((acc: number, m: any) => {
+            const teamGrandTotal = teamMembers.reduce((acc: number, m: Member) => {
                 if (activeTab === 'weight') {
-                    const sorted = m.weighIns.filter((w: any) => w.weight > 0).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                    const sorted = m.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
                     if (sorted.length >= 2) {
                         const loss = sorted[0].weight - sorted[sorted.length - 1].weight;
                         if (loss > 0) return acc + loss;
                     }
                     return acc;
                 } else if (activeTab === 'km') {
-                    return acc + m.kmLogs.reduce((s: number, k: any) => s + k.totalKm, 0);
+                    return acc + m.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
                 } else if (activeTab === 'lifestyle') {
-                    return acc + m.lifestyleLogs.reduce((s: number, l: any) => s + l.postCount, 0);
+                    return acc + m.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
                 } else if (activeTab === 'attendance') {
-                    return acc + m.attendance.filter((a: any) => a.isPresent).length;
+                    return acc + m.attendance.filter((a: Attendance) => a.isPresent).length;
                 }
                 return acc;
             }, 0);
@@ -297,7 +345,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                 <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider sticky left-0 z-20 bg-[#0c1a25]">
                                     Member
                                 </th>
-                                {block.weeks.map((week: any, i: number) => (
+                                {block.weeks.map((week: BlockWeek, i: number) => (
                                     <th key={week.id} className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center min-w-[100px]">
                                         W{i + 1}<br />
                                         <span className="text-[9px] opacity-50 lowercase font-normal">
@@ -315,9 +363,9 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                 .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
                                 .map(([teamName, teamMembers]) => {
                                     // Calculate Team Totals for Footer
-                                    const teamWeekTotals = block.weeks.map((week: any, weekIndex: number) => {
+                                    const teamWeekTotals = block.weeks.map((week, weekIndex) => {
                                         let sum = 0;
-                                        teamMembers.forEach((m: any) => {
+                                        teamMembers.forEach((m) => {
                                             if (activeTab === 'weight') {
                                                 const w = getWeighInForWeek(m, week);
 
@@ -352,11 +400,11 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                         return sum;
                                     });
 
-                                    const teamGrandTotal = teamMembers.reduce((acc: number, m: any) => {
+                                    const teamGrandTotal = teamMembers.reduce((acc: number, m: Member) => {
                                         if (activeTab === 'weight') {
                                             // Net change: First valid weigh-in - Last valid weigh-in
                                             // Request: "Total the members that had a weight loss and discard weight gain"
-                                            const sorted = m.weighIns.filter((w: any) => w.weight > 0).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                                            const sorted = m.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
                                             if (sorted.length >= 2) {
                                                 const loss = sorted[0].weight - sorted[sorted.length - 1].weight;
                                                 // Only include if it's a loss (positive value in Start - End)
@@ -366,12 +414,12 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                             }
                                             return acc;
                                         } else if (activeTab === 'km') {
-                                            return acc + m.kmLogs.reduce((s: number, k: any) => s + k.totalKm, 0);
+                                            return acc + m.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
                                         } else if (activeTab === 'lifestyle') {
-                                            return acc + m.lifestyleLogs.reduce((s: number, l: any) => s + l.postCount, 0);
+                                            return acc + m.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
                                         } else if (activeTab === 'attendance') {
                                             // Total present
-                                            return acc + m.attendance.filter((a: any) => a.isPresent).length;
+                                            return acc + m.attendance.filter((a: Attendance) => a.isPresent).length;
                                         }
                                         return acc;
                                     }, 0);
@@ -386,19 +434,19 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                             </tr>
 
                                             {/* Member Rows */}
-                                            {teamMembers.map((member: any) => {
+                                            {teamMembers.map((member: Member) => {
                                                 // Calculate Row Total/Net
                                                 let rowTotal = 0;
                                                 if (activeTab === 'weight') {
-                                                    const sorted = member.weighIns.filter((w: any) => w.weight > 0).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                                                    const sorted = member.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
                                                     if (sorted.length >= 2) rowTotal = sorted[0].weight - sorted[sorted.length - 1].weight;
                                                     else rowTotal = 0;
                                                 } else if (activeTab === 'km') {
-                                                    rowTotal = member.kmLogs.reduce((s: number, k: any) => s + k.totalKm, 0);
+                                                    rowTotal = member.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
                                                 } else if (activeTab === 'lifestyle') {
-                                                    rowTotal = member.lifestyleLogs.reduce((s: number, l: any) => s + l.postCount, 0);
+                                                    rowTotal = member.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
                                                 } else if (activeTab === 'attendance') {
-                                                    rowTotal = member.attendance.filter((a: any) => a.isPresent).length;
+                                                    rowTotal = member.attendance.filter((a: Attendance) => a.isPresent).length;
                                                 }
 
                                                 return (
@@ -406,8 +454,8 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                         <td className="p-3 pl-6 text-sm font-medium text-white sticky left-0 bg-[#0b1620] group-hover:bg-[#112231] transition-colors border-r border-white/5">
                                                             {member.firstName} {member.lastName}
                                                         </td>
-                                                        {block.weeks.map((week: any, weekIndex: number) => {
-                                                            let content: any = '-';
+                                                        {block.weeks.map((week, weekIndex) => {
+                                                            let content: React.ReactNode = '-';
                                                             if (activeTab === 'weight') {
                                                                 const w = getWeighInForWeek(member, week);
                                                                 if (weekIndex === 0) {
@@ -472,7 +520,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                 </td>
                                                 {teamWeekTotals.map((total: number, idx: number) => {
                                                     // Formatting for Totals
-                                                    let displayTotal: any = total.toFixed(1).replace('.0', '');
+                                                    let displayTotal: React.ReactNode = total.toFixed(1).replace('.0', '');
 
                                                     if (activeTab === 'weight') {
                                                         // Week 1 is absolute sum, so just show number

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { MetricAreaChart, MetricBarChart, AttendanceSessionChart, MetricDataPoint, AttendanceDataPoint } from './Charts';
-import { MetricType } from './DashboardAnalytics';
+import { MetricType } from '@/components/dashboard/MetricTabs';
 
 interface AnalyticsChartsProps {
     activeMetric: MetricType;

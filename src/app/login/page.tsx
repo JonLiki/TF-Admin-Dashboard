@@ -43,7 +43,7 @@ export default function LoginPage() {
 
                                 {/* Title */}
                                 <h1 className="text-4xl font-black text-white tracking-tight mb-3">
-                                    TO'A FATALONA
+                                    TO&apos;A FATALONA
                                 </h1>
 
                                 {/* Subtitle */}

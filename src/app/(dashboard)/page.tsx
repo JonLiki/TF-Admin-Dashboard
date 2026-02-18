@@ -1,11 +1,14 @@
 import { PageHeader } from "@/components/ui/Components";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { Suspense } from "react";
 import { getActiveBlock } from "@/actions/data";
 import LoginFeedback from "@/components/auth/LoginFeedback";
 import { DashboardClientView } from "@/components/dashboard/DashboardClientView";
 import prisma from "@/lib/prisma";
 
-async function getStats() {
+import { unstable_cache } from "next/cache";
+
+const getStats = unstable_cache(async () => {
   const activeBlock = await getActiveBlock();
   if (!activeBlock) return null;
 
@@ -121,7 +124,7 @@ async function getStats() {
     weeklyTotals,
     charts: {}
   };
-}
+}, ['dashboard-stats'], { revalidate: 60, tags: ['dashboard-stats'] });
 
 export default async function Home() {
   const stats = await getStats();
@@ -140,7 +143,7 @@ export default async function Home() {
   return (
     <div className="min-h-full pb-10">
       <PageHeader title="Dashboard" subtitle="Command Center" />
-      <Suspense fallback={null}>
+      <Suspense fallback={<DashboardSkeleton />}>
         <LoginFeedback />
       </Suspense>
 

@@ -73,16 +73,28 @@ export function Sidebar() {
 
             {/* Sidebar */}
             <div className={cn(
-                "flex flex-col h-full bg-ocean-deep border-r border-white/5 shadow-2xl relative overflow-hidden",
+                "flex flex-col h-full bg-[#0B0C10] border-r border-[#66FCF1]/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden",
                 // Mobile: fixed, slide in from left
                 "fixed inset-y-0 left-0 z-50 w-64",
                 "transform transition-transform duration-300 ease-in-out",
                 "lg:translate-x-0 lg:static lg:z-auto",
                 isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
             )}>
-                {/* Tapa Pattern Overlay */}
-                <div className="absolute inset-0 z-0 pointer-events-none mix-blend-overlay opacity-10">
-                    <TonganNgatu opacity={0.15} />
+                {/* --- TONGAN WARRIOR VISUALS (CSS FALLBACK) --- */}
+
+                {/* 1. Deep Obsidian Base */}
+                <div className="absolute inset-0 bg-[#0B0C10] z-0" />
+
+                {/* 2. Atmospheric Glows (Bioluminescence & Volcanic) */}
+                <div className="absolute top-[-10%] left-[-20%] w-[150%] h-[50%] bg-[radial-gradient(circle,rgba(102,252,241,0.15)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-20%] w-[120%] h-[60%] bg-[radial-gradient(circle,rgba(197,0,0,0.1)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
+
+                {/* 3. Warrior Silhouette Concept (Central Shadow) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 z-0 pointer-events-none" />
+
+                {/* 4. Tapa Pattern Overlay */}
+                <div className="absolute inset-0 z-0 pointer-events-none mix-blend-overlay opacity-20">
+                    <TonganNgatu opacity={0.3} />
                 </div>
 
                 <div className="absolute bottom-4 left-4 right-4 text-[10px] text-slate-600 text-center font-mono">

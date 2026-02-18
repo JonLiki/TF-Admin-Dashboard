@@ -16,6 +16,8 @@ import {
 } from 'recharts';
 import { PremiumCard } from '../ui/PremiumCard';
 
+import { CHART_COLORS } from '@/lib/theme';
+
 interface ChartProps {
     data: Record<string, string | number>[];
     colors?: string[];
@@ -36,12 +38,10 @@ export interface MetricDataPoint {
     Total: number;
 }
 
-const COLORS = ['#C8102E', '#1C7293', '#0B3C5D', '#FBB117', '#8884d8'];
-
 export function TeamComparisonChart({ data, title, subtitle, colors }: ChartProps) {
     // Extract team keys dynamically (exclude 'name' or 'week')
     const keys = data.length > 0 ? Object.keys(data[0]).filter(k => k !== 'name' && k !== 'week') : [];
-    const chartColors = colors || COLORS;
+    const chartColors = colors || CHART_COLORS.series;
 
     return (
         <PremiumCard className="p-6">

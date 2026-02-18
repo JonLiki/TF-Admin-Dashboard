@@ -1,5 +1,4 @@
 import { Sidebar } from "@/components/layout/Sidebar";
-import { TonganNgatu } from "@/components/ui/Patterns";
 
 export default function DashboardLayout({
     children,

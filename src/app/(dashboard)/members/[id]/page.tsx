@@ -91,20 +91,28 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
     }) || [];
 
     // Post-process for Weekly Loss
-    let lastWeight = startWeight;
     const processedStats = weeklyStats.map((stat, index) => {
         let loss = 0;
-        if (stat.weight && lastWeight) {
-            // If it's the very first week and we have a weight, loss is 0 (or undefined) unless we have a "Week 0"?
-            // Let's assume Week 1 is baseline.
+        const currentWeight = stat.weight;
+
+        // Find previous valid weight
+        let prevWeight: number | undefined = startWeight;
+        if (index > 0) {
+            // Look backwards for the last valid weight
+            for (let i = index - 1; i >= 0; i--) {
+                if (weeklyStats[i].weight) {
+                    prevWeight = weeklyStats[i].weight;
+                    break;
+                }
+            }
+        }
+
+        if (currentWeight !== undefined && prevWeight !== undefined) {
             if (index === 0) {
                 loss = 0;
             } else {
-                loss = lastWeight - stat.weight;
+                loss = prevWeight - currentWeight;
             }
-            lastWeight = stat.weight;
-        } else if (stat.weight) {
-            lastWeight = stat.weight;
         }
 
         return {

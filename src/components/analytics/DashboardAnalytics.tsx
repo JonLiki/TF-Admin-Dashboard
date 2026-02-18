@@ -2,14 +2,13 @@
 
 import { useState, useMemo } from 'react';
 import { PremiumCard } from '../ui/PremiumCard';
-import { BarChart, Activity, Scale, Trophy, Users as UsersIcon } from 'lucide-react'; // Fixed Users import
+import { MetricTabs, MetricType } from '@/components/dashboard/MetricTabs';
 import { cn } from '@/lib/utils';
 import { Team, TeamWeekMetric, BlockWeek } from '@prisma/client';
 import { AnalyticsCharts } from './AnalyticsCharts';
 import { AnalyticsTable } from './AnalyticsTable';
 import { TeamHealthRadar } from './TeamHealthRadar';
-
-export type MetricType = 'weight' | 'km' | 'attendance' | 'lifestyle';
+import { AttendanceDataPoint } from './Charts';
 
 interface ExtendedMetric extends TeamWeekMetric {
     team: Team;
@@ -20,7 +19,7 @@ interface DashboardAnalyticsProps {
     metrics: ExtendedMetric[];
     teams: Team[];
     title?: string;
-    attendanceData?: Record<string, unknown>[];
+    attendanceData?: AttendanceDataPoint[];
     weeklyTotals?: { weekNumber: number; totalKm: number; totalLifestyle: number }[];
 }
 
@@ -159,32 +158,7 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
                 </div>
 
                 {viewMode === 'charts' && (
-                    <div className="flex bg-ocean/20 p-1 rounded-lg border border-white/5 shadow-inner overflow-x-auto">
-                        <TabButton
-                            active={activeMetric === 'weight'}
-                            onClick={() => setActiveMetric('weight')}
-                            icon={Scale}
-                            label="Weight"
-                        />
-                        <TabButton
-                            active={activeMetric === 'km'}
-                            onClick={() => setActiveMetric('km')}
-                            icon={Activity}
-                            label="KM"
-                        />
-                        <TabButton
-                            active={activeMetric === 'lifestyle'}
-                            onClick={() => setActiveMetric('lifestyle')}
-                            icon={Trophy}
-                            label="Lifestyle"
-                        />
-                        <TabButton
-                            active={activeMetric === 'attendance'}
-                            onClick={() => setActiveMetric('attendance')}
-                            icon={UsersIcon}
-                            label="Attendance"
-                        />
-                    </div>
+                    <MetricTabs activeMetric={activeMetric} onChange={setActiveMetric} />
                 )}
             </div>
 
@@ -196,8 +170,8 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
                         attendanceData={attendanceData}
                     />
                 ) : (
-                    <div className="h-[400px] w-full mb-8">
-                        <TeamHealthRadar teams={teams} metrics={metrics} />
+                    <div className="h-[400px] w-full mb-8 flex flex-col">
+                        <TeamHealthRadar teams={teams} metrics={metrics} className="flex-1 w-full min-h-0" />
                         <p className="text-center text-xs text-slate-500 mt-2">
                             Visualizes team balance across all 4 metrics. Higher values indicate better performance relative to other teams.
                         </p>
@@ -211,21 +185,4 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
             </div>
         </PremiumCard>
     );
-}
-
-function TabButton({ active, onClick, icon: Icon, label }: { active: boolean, onClick: () => void, icon: React.ElementType, label: string }) {
-    return (
-        <button
-            onClick={onClick}
-            className={cn(
-                "flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-semibold transition-all duration-200 ease-out",
-                active
-                    ? "bg-lagoon text-white shadow-sm"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
-            )}
-        >
-            <Icon className={cn("w-4 h-4", active ? "text-white" : "stroke-[2.5px] opacity-70")} />
-            <span className="hidden sm:inline">{label}</span>
-        </button>
-    )
 }

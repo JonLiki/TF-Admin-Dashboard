@@ -1,11 +1,10 @@
-import { getActiveBlock, getMembersWithWeighIn, submitWeighIn } from "@/actions/data";
+import { getActiveBlock, getMembersWithWeighIn } from "@/actions/data";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button, PageHeader } from "@/components/ui/Components";
-import { Scale, Save, TrendingDown, Users, Award, CheckCircle } from "lucide-react";
+import { Scale, Award, CheckCircle, Users } from "lucide-react";
 import { format } from "date-fns";
 import { DateSelector } from "@/components/shared/DateSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
-import { cn } from "@/lib/utils";
 import { WeighInLogList } from "@/components/weigh-in/WeighInLogList";
 import { ExportButton } from "@/components/shared/ExportButton";
 
@@ -22,11 +21,6 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
     // We'll show participation stats instead of weight loss for now
     const totalRecorded = members.filter(m => m.weighIns.length > 0).length;
     const avgWeight = members.length > 0 ? members.reduce((sum, m) => sum + (m.weighIns[0]?.weight || 0), 0) / totalRecorded : 0;
-    const lightestMember = members.reduce((lightest, m) => {
-        const weight = m.weighIns[0]?.weight || Infinity;
-        const lightestWeight = lightest.weighIns[0]?.weight || Infinity;
-        return weight < lightestWeight && weight > 0 ? m : lightest;
-    }, members[0]);
     const participation = members.length > 0 ? (totalRecorded / members.length) * 100 : 0;
 
     return (

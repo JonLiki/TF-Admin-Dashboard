@@ -69,25 +69,30 @@ export async function getMembers() {
 
 export async function createMember(formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized" };
 
-    const rawData = {
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        teamId: formData.get('teamId'),
-    };
+    try {
+        const rawData = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            teamId: formData.get('teamId'),
+        };
 
-    const validated = CreateMemberSchema.parse(rawData);
+        const validated = CreateMemberSchema.parse(rawData);
 
-    await prisma.member.create({
-        data: {
-            firstName: validated.firstName,
-            lastName: validated.lastName,
-            teamId: validated.teamId || null,
-            isActive: true
-        }
-    });
-    revalidatePath('/members');
+        await prisma.member.create({
+            data: {
+                firstName: validated.firstName,
+                lastName: validated.lastName,
+                teamId: validated.teamId || null,
+                isActive: true
+            }
+        });
+        revalidatePath('/members');
+        return { success: true, message: 'Member created successfully' };
+    } catch (error) {
+        return { success: false, message: 'Failed to create member' };
+    }
 }
 
 export async function updateMemberTeam(memberId: string, teamId: string) {

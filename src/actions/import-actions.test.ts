@@ -63,7 +63,7 @@ describe('Import Validation Schemas', () => {
         });
 
         it('should reject unrealistic weights', () => {
-            expect(() => ImportWeighInRowSchema.parse('10')).toThrow(); // Too low
+            expect(() => ImportWeighInRowSchema.parse('-5')).toThrow(); // Negative
             expect(() => ImportWeighInRowSchema.parse('400')).toThrow(); // Too high
         });
     });

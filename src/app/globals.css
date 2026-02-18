@@ -31,7 +31,7 @@
 
   /* --- UI Colors (Existing) --- */
   --color-offwhite: #F7F6F2;
-  
+
   /* --- Charcoal Colors (Existing) --- */
   --color-charcoal: #1E2933;
   --color-charcoal-muted: #4B5563;
@@ -46,100 +46,172 @@
   --color-earth-dark: #3E2723;
 
   /* ========================================= */
-  /* === NEW PROFESSIONAL DESIGN TOKENS === */
+  /* === TONGAN MARVEL THEME TOKENS === */
   /* ========================================= */
 
+  /* --- Cinematic / High-Tech Colors --- */
+  --color-obsidian: #0B0C10;
+  /* Deepest Dark (Background) */
+  --color-deep-ocean: #1F2833;
+  /* Dark Grey/Blue (Cards) */
+  --color-steel: #C5C6C7;
+  /* Text / Subtle Elements */
+
+  /* --- Glowing Accents --- */
+  --color-bio-cyan: #66FCF1;
+  /* Primary Glow (Tongan Motifs) */
+  --color-cyan-dim: #45A29E;
+  /* Secondary Cyan */
+  --color-volcanic-red: #C50000;
+  /* Aggressive/Alert Accent */
+
+  /* --- Glassmorphism --- */
+  --glass-bg: rgba(31, 40, 51, 0.4);
+  --glass-border: rgba(102, 252, 241, 0.1);
+  --glass-blur: 12px;
+
+  /* --- Legacy Mapping (Backwards Compatibility) --- */
+  /* Mapping old variables to Tongan Marvel palette */
+  --color-ocean-deep: var(--color-obsidian);
+  --color-ocean: var(--color-deep-ocean);
+  --color-ocean-light: var(--color-cyan-dim);
+
+  --color-lagoon: var(--color-bio-cyan);
+  /* Accents -> Cyan */
+  --color-lagoon-100: #E0FFF1;
+
+  --color-tongan: var(--color-volcanic-red);
+  /* Primary Action -> Red */
+  --color-tongan-red: var(--color-volcanic-red);
+  --color-tongan-dark: #8B0000;
+
+  --color-sand: var(--color-deep-ocean);
+  --color-offwhite: #F8FAFC;
+
   /* --- Typography Scale --- */
-  --text-xs: 0.75rem;      /* 12px */
-  --text-sm: 0.875rem;     /* 14px */
-  --text-base: 1rem;       /* 16px */
-  --text-lg: 1.125rem;     /* 18px */
-  --text-xl: 1.25rem;      /* 20px */
-  --text-2xl: 1.5rem;      /* 24px */
-  --text-3xl: 1.875rem;    /* 30px */
-  --text-4xl: 2.25rem;     /* 36px */
+  --text-xs: 0.75rem;
+  /* 12px */
+  --text-sm: 0.875rem;
+  /* 14px */
+  --text-base: 1rem;
+  /* 16px */
+  --text-lg: 1.125rem;
+  /* 18px */
+  --text-xl: 1.25rem;
+  /* 20px */
+  --text-2xl: 1.5rem;
+  /* 24px */
+  --text-3xl: 1.875rem;
+  /* 30px */
+  --text-4xl: 2.25rem;
+  /* 36px */
 
   /* --- Spacing System (8px Grid) --- */
-  --spacing-xs: 0.5rem;    /* 8px */
-  --spacing-sm: 0.75rem;   /* 12px */
-  --spacing-md: 1rem;      /* 16px */
-  --spacing-lg: 1.5rem;    /* 24px */
-  --spacing-xl: 2rem;      /* 32px */
-  --spacing-2xl: 3rem;     /* 48px */
-  
+  --spacing-xs: 0.5rem;
+  /* 8px */
+  --spacing-sm: 0.75rem;
+  /* 12px */
+  --spacing-md: 1rem;
+  /* 16px */
+  --spacing-lg: 1.5rem;
+  /* 24px */
+  --spacing-xl: 2rem;
+  /* 32px */
+  --spacing-2xl: 3rem;
+  /* 48px */
+
   /* --- Semantic Colors (Accessibility) --- */
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #CBD5E1;      /* slate-300 */
-  --color-text-muted: #94A3B8;          /* slate-400 */
-  --color-text-disabled: #64748B;       /* slate-500 */
-  
-  --color-interactive-hover: #3B82F6;
-  --color-interactive-active: #2563EB;
-  --color-focus-ring: rgba(28, 114, 147, 0.5); /* lagoon */
+  --color-text-secondary: #C5C6C7;
+  /* Steel Grey */
+  --color-text-muted: #6B7280;
+
+  --color-interactive-hover: #66FCF1;
+  /* Cyan hover */
+  --color-interactive-active: #45A29E;
+  --color-focus-ring: rgba(102, 252, 241, 0.5);
 
   /* --- Elevation & Shadows --- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5), 0 8px 10px rgba(0, 0, 0, 0.2);
-  
-  /* --- Colored Accent Shadows --- */
-  --shadow-tongan: 0 4px 20px rgba(200, 16, 46, 0.25);
-  --shadow-lagoon: 0 4px 20px rgba(28, 114, 147, 0.25);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6), 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.7), 0 8px 10px rgba(0, 0, 0, 0.5);
+
+  /* --- Glowing Neon Shadows --- */
+  --shadow-neon-cyan: 0 0 15px rgba(102, 252, 241, 0.4);
+  --shadow-neon-red: 0 0 20px rgba(197, 0, 0, 0.4);
 }
 
 :root {
-  /* Default (Light Mode) Variables */
-  --background: #F7F6F2; /* Offwhite */
-  --foreground: #071A2B; /* Deep Ocean */
-  
-  /* Semantic Colors - Light Mode */
-  --color-primary: #0B3C5D;
-  --color-secondary: #1C7293;
-  --color-accent: #C8102E;
-  --color-neutral: #F3E9DC;
-  
-  /* Card/Surface Colors */
-  --card-background: #FFFFFF;
-  --card-foreground: #071A2B;
-  --popover-background: #FFFFFF;
-  --popover-foreground: #071A2B;
-  
-  /* Surface colors replacing hardcoded #0A1F2E, #111827 etc */
-  --surface-ocean: #0A1F2E; 
-  --surface-deep: #051621;
-  
+  /* Default (Tongan Marvel Theme) Variables */
+  --background: #0B0C10;
+  /* Obsidian */
+  --foreground: #FFFFFF;
+
+  /* Semantic Colors */
+  --color-primary: #66FCF1;
+  /* Bio-Cyan */
+  --color-secondary: #C50000;
+  /* Volcanic Red */
+  --color-accent: #45A29E;
+  /* Dim Cyan */
+  --color-neutral: #1F2833;
+  /* Deep Ocean */
+
+  /* Card/Surface Colors (Glassmorphism Base) */
+  --card-background: #1F2833;
+  --card-foreground: #FFFFFF;
+  --popover-background: #0B0C10;
+  --popover-foreground: #FFFFFF;
+
+  /* Surface colors */
+  --surface-ocean: #1F2833;
+  --surface-deep: #0B0C10;
+
   /* Border Colors */
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #0B3C5D;
+  --border: rgba(102, 252, 241, 0.1);
+  /* Subtle Cyan Tint */
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #66FCF1;
 }
 
 .dark {
-  /* Dark Mode Variables */
-  --background: #071A2B; /* Deep Ocean */
-  --foreground: #F7F6F2; /* Offwhite */
-  
-  /* Semantic Colors - Dark Mode */
-  --color-primary: #1C7293;
-  --color-secondary: #0B3C5D;
-  --color-accent: #C8102E;
-  --color-neutral: #1E2933;
-  
-    /* Card/Surface Colors */
-  --card-background: #0B3C5D;
-  --card-foreground: #F7F6F2;
-  --popover-background: #0B3C5D;
-  --popover-foreground: #F7F6F2;
-  
+  /* Dark Mode Variables (Same as Root) */
+  --background: #0B0C10;
+  --foreground: #FFFFFF;
+
+  /* Semantic Colors */
+  --color-primary: #66FCF1;
+  --color-secondary: #C50000;
+  --color-accent: #45A29E;
+  --color-neutral: #1F2833;
+
+  /* Card/Surface Colors */
+  --card-background: #1F2833;
+  --card-foreground: #FFFFFF;
+  --popover-background: #0B0C10;
+  --popover-foreground: #FFFFFF;
+
   /* Surface colors */
-  --surface-ocean: #0A1F2E;
-  --surface-deep: #051621;
+  --surface-ocean: #1F2833;
+  --surface-deep: #0B0C10;
 
   /* Border Colors */
-  --border: #1E2933;
-  --input: #1E2933;
-  --ring: #1C7293;
+  --border: rgba(102, 252, 241, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #66FCF1;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
 }
 
 body {

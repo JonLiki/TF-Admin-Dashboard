@@ -55,7 +55,6 @@ export async function importAttendance(formData: FormData) {
         }
 
         let successCount = 0;
-        const errorCount = 0;
         const errors: string[] = [];
 
         // 2. Process Rows

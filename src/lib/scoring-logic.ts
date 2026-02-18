@@ -71,14 +71,7 @@ export function calculateTeamMetrics(teams: ScorableTeam[], config: BlockWeekCon
             // Filter weigh-ins strictly strictly within the configured week for the "End Weight"
             const weekWeighIns = member.weighIns.filter(w => {
                 const d = toDateKey(w.date);
-                return d >= startDateKey && d <= endDateKey; // Inclusive of end date to capture next-week start as boundary
-                // Ideally use date objects comparisons if possible, but let's stick to the keys for consistency or original logic
-                // Use raw date object comparison for safety vs helper string
-                const dateObj = new Date(w.date);
-                const start = new Date(config.startDate);
-                const end = new Date(config.endDate);
-                // Inclusive of end date
-                return dateObj >= start && dateObj <= end;
+                return d >= startDateKey && d <= endDateKey;
             }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
             // If no weigh-in IN this week, they can't contribute to "This Week's Loss"

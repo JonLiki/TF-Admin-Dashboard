@@ -1,10 +1,9 @@
-import { getActiveBlock, getSession, toggleAttendance } from "@/actions/data";
+import { getActiveBlock, getSession } from "@/actions/data";
 import { getMembers } from "@/actions";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button, PageHeader } from "@/components/ui/Components";
-import { CalendarCheck, Check, X, TrendingUp, CheckCircle, XCircle, Calendar } from "lucide-react";
+import { CalendarCheck, TrendingUp, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { SessionSelector } from "@/components/attendance/SessionSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { AttendanceList } from "@/components/attendance/AttendanceList";

@@ -1,11 +1,10 @@
-import { getActiveBlock, getMembersWithLogs, submitKmLog } from "@/actions/data";
+import { getActiveBlock, getMembersWithLogs } from "@/actions/data";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button, PageHeader } from "@/components/ui/Components";
-import { Activity, Save, TrendingUp, Users, Award, CheckCircle } from "lucide-react";
+import { Activity, TrendingUp, Award, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { WeekSelector } from "@/components/shared/WeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
-import { cn } from "@/lib/utils";
 import { KmLogList } from "@/components/km/KmLogList";
 import { ExportButton } from "@/components/shared/ExportButton";
 

@@ -15,8 +15,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
 
         const variants = {
-            primary: "bg-[#C8102E] text-white hover:bg-[#A50D24] shadow-sm shadow-tongan/10 hover:shadow-md hover:shadow-tongan/20 active:translate-y-px transition-all",
-            secondary: "bg-[#12394D] text-white hover:bg-[#1C4E68] shadow-sm active:translate-y-px transition-all",
+            primary: "bg-tongan text-white hover:bg-tongan-dark shadow-sm shadow-tongan/10 hover:shadow-md hover:shadow-tongan/20 active:translate-y-px transition-all",
+            secondary: "bg-ocean-deep text-white hover:bg-ocean shadow-sm active:translate-y-px transition-all",
             outline: "border border-white/10 bg-transparent hover:bg-white/5 text-white",
             ghost: "hover:bg-white/5 text-slate-400 hover:text-white",
             danger: "bg-red-600 text-white hover:bg-red-700 shadow-sm active:translate-y-px",
@@ -59,17 +59,17 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         return (
             <div className="w-full space-y-1.5">
                 {label && (
-                    <label className="text-sm font-medium text-charcoal pl-1">
+                    <label className="text-sm font-medium text-slate-300 pl-1">
                         {label}
                     </label>
                 )}
                 <input
                     type={type}
                     className={cn(
-                        "flex h-11 w-full rounded-xl border border-charcoal/20 bg-white px-4 py-2 text-sm font-medium text-charcoal shadow-sm transition-all duration-200",
-                        "placeholder:text-charcoal-muted/60 placeholder:font-normal",
-                        "focus-visible:outline-none focus-visible:border-ocean focus-visible:ring-4 focus-visible:ring-ocean/10 focus-visible:bg-white",
-                        "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500",
+                        "flex h-11 w-full rounded-xl border border-white/10 bg-surface-ocean/50 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200",
+                        "placeholder:text-slate-500 placeholder:font-normal",
+                        "focus-visible:outline-none focus-visible:border-ocean-light focus-visible:ring-4 focus-visible:ring-ocean-light/10 focus-visible:bg-surface-ocean",
+                        "disabled:cursor-not-allowed disabled:bg-gray-800 disabled:text-gray-500",
                         error && "border-tongan focus-visible:ring-tongan/10",
                         className
                     )}
@@ -92,7 +92,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, children }: PageHeaderProps) {
     return (
-        <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4 py-10 px-6 md:px-10 bg-[#0A1F2E] border-b border-white/5">
+        <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4 py-10 px-6 md:px-10 bg-surface-deep border-b border-white/5">
             <div className="relative z-10">
                 <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
                 {subtitle && <p className="text-offwhite/60 font-normal mt-1 text-sm">{subtitle}</p>}

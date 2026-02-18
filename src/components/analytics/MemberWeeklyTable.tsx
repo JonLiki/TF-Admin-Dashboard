@@ -2,7 +2,6 @@
 
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { cn } from '@/lib/utils';
-import { Check, X, Minus } from 'lucide-react';
 
 interface WeeklyStat {
     weekNumber: number;

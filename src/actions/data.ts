@@ -92,7 +92,6 @@ export async function submitWeighIn(formData: FormData) {
 }
 
 // --- KM LOGS ---
-// --- KM LOGS ---
 export async function submitKmLog(formData: FormData) {
     const session = await auth();
     if (!session?.user) throw new Error("Unauthorized");
@@ -139,7 +138,6 @@ export async function submitKmLog(formData: FormData) {
     }
 }
 
-// --- LIFESTYLE LOGS ---
 // --- LIFESTYLE LOGS ---
 export async function submitLifestyleLog(formData: FormData) {
     const session = await auth();
@@ -277,14 +275,9 @@ export async function getFullBlockSummary(blockWeekId?: string) {
                 },
                 orderBy: { date: 'asc' }
             },
-            kmLogs: {
-                include: { blockWeek: true }
-            },
-            lifestyleLogs: {
-                include: { blockWeek: true }
-            },
+            kmLogs: true,
+            lifestyleLogs: true,
             attendance: {
-                include: { session: { include: { block: true } } },
                 where: {
                     session: {
                         blockId: block.id

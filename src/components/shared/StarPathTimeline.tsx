@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Star, CheckCircle2 } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 interface WeekOption {
     value: string;

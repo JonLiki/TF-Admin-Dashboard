@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { MetricType } from './DashboardAnalytics';
+import { MetricType } from '@/components/dashboard/MetricTabs';
 
 interface TableRow {
     id: string;
