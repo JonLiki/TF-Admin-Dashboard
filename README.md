@@ -5,10 +5,10 @@ A production-quality fitness team management system for administering "TO’A FA
 ## Features
 
 - **Dashboard**: High-level summary of the training block.
-- **Teams & Members**: Manage teams (Va’a) and members (Kainga).
+- **Teams & Members**: Manage teams and members.
 - **Weigh-ins**: Weekly weight logging with auto-calculation of weight loss.
 - **KM Logs & Lifestyle**: Weekly activity tracking.
-- **Attendance**: Session tracking (Ha’u) for Mon/Wed/Fri.
+- **Attendance**: Session tracking for Mon/Wed/Fri.
 - **Scoreboard**: Automated calculation of weekly awards and points.
 - **Scoring Engine**: Implements rules for KM Avg, Weight Loss Total, and Lifestyle Avg (+1 point for winners).
 
