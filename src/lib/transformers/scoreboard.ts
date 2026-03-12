@@ -1,6 +1,39 @@
-
-import { Team, TeamWeekMetric } from "@prisma/client";
+import { BlockWeek, Team, TeamWeekMetric } from "@prisma/client";
 import { ScoreboardMetric, TeamPoints } from "@/types/scoreboard";
+
+export function getTrendData(allMetrics: (TeamWeekMetric & { team: Team, blockWeek: BlockWeek })[]) {
+    const weeks = Array.from(new Set(allMetrics.map(m => m.blockWeek.weekNumber))).sort((a, b) => a - b);
+
+    const result = {
+        kmAverage: [] as any[],
+        weightLossTotal: [] as any[],
+        lifestyleAverage: [] as any[],
+        attendanceAverage: [] as any[]
+    };
+
+    weeks.forEach(weekNumber => {
+        const weekMetrics = allMetrics.filter(m => m.blockWeek.weekNumber === weekNumber);
+
+        const kmPoint: any = { name: `W${weekNumber}` };
+        const weightPoint: any = { name: `W${weekNumber}` };
+        const lifePoint: any = { name: `W${weekNumber}` };
+        const attPoint: any = { name: `W${weekNumber}` };
+
+        weekMetrics.forEach(m => {
+            kmPoint[m.team.name] = m.kmAverage || 0;
+            weightPoint[m.team.name] = m.weightLossTotal || 0;
+            lifePoint[m.team.name] = m.lifestyleAverage || 0;
+            attPoint[m.team.name] = m.attendanceAverage || 0;
+        });
+
+        result.kmAverage.push(kmPoint);
+        result.weightLossTotal.push(weightPoint);
+        result.lifestyleAverage.push(lifePoint);
+        result.attendanceAverage.push(attPoint);
+    });
+
+    return result;
+}
 
 export function getLeaderboardStandings(
     teams: Team[],

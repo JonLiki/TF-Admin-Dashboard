@@ -1,24 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getActiveBlock } from "@/actions/data";
-import { calculateWeekResults } from "@/actions/scoring";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/Components";
-import { Trophy } from "lucide-react";
+import { Trophy, AlertCircle } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { BlockWeek, Team, TeamWeekAward } from "@prisma/client";
-import { FinalizeWeekButton } from "@/components/ui/FinalizeWeekButton";
+import { FinalizeWeekWizard } from "@/components/scoreboard/FinalizeWeekWizard";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { MetricList } from "@/components/scoreboard/MetricList";
 import { LeaderboardList } from "@/components/scoreboard/LeaderboardList";
 import { WeekSelector } from "@/components/ui/WeekSelector";
 import { Podium } from "@/components/scoreboard/Podium";
-import { WinnerCard } from "@/components/scoreboard/WinnerCard";
-import { getLeaderboardStandings, sortMetrics } from "@/lib/transformers/scoreboard";
+import { WinnerCard, AwardCategoryType } from "@/components/scoreboard/WinnerCard";
+import { PerformanceTrendsChart } from "@/components/scoreboard/PerformanceTrendsChart";
+import { getLeaderboardStandings, sortMetrics, getTrendData } from "@/lib/transformers/scoreboard";
 import { TeamPoints } from "@/types/scoreboard";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function ScoreboardPage({ searchParams }: { searchParams: Promise<{ weekId?: string }> }) {
     const block = await getActiveBlock();
-    if (!block) return <div>No active block found.</div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
 
     const resolvedParams = await searchParams;
     const selectedWeekId = resolvedParams?.weekId || block.weeks[0].id;
@@ -51,6 +51,15 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
     const overallLeaderboard = getLeaderboardStandings(allTeams, teamPoints);
     const sortedMetrics = sortMetrics(metrics);
 
+    // Trend Data
+    const allBlockMetrics = await prisma.teamWeekMetric.findMany({
+        where: { blockWeek: { blockId: block.id } },
+        include: { team: true, blockWeek: true },
+        orderBy: { blockWeek: { weekNumber: 'asc' } }
+    });
+    const trendData = getTrendData(allBlockMetrics);
+    const topTeamsForTrend = overallLeaderboard.map(t => t.name);
+
     return (
         <div className="min-h-full pb-10">
             <PageHeader title="Scoreboard" subtitle={`Scoreboard • Week ${selectedWeek.weekNumber}`}>
@@ -64,12 +73,10 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                         basePath="/scoreboard"
                     />
 
-                    <FinalizeWeekButton
+                    <FinalizeWeekWizard
                         weekId={selectedWeekId}
-                        onFinalize={async (weekId) => {
-                            'use server';
-                            await calculateWeekResults(weekId);
-                        }}
+                        weekNumber={selectedWeek.weekNumber}
+                        isFinalized={selectedWeek.isFinalized || false}
                     />
 
                     <ExportButton
@@ -130,6 +137,12 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                     </div>
                 </PremiumCard>
 
+                {/* PERFORMANCE TRENDS CHART */}
+                <PerformanceTrendsChart
+                    data={trendData}
+                    teams={topTeamsForTrend.length > 0 ? topTeamsForTrend : allTeams.map(t => t.name)}
+                />
+
                 {/* WEEKLY WINNERS CARDS */}
                 {awards.length > 0 && (
                     <div className="space-y-4">
@@ -147,7 +160,7 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                                 <WinnerCard
                                     key={award.id}
                                     teamName={award.team.name}
-                                    category={award.category as any}
+                                    category={award.category as AwardCategoryType}
                                     weekNumber={selectedWeek.weekNumber}
                                 />
                             ))}

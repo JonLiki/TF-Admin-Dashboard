@@ -90,7 +90,7 @@ export async function createMember(formData: FormData) {
         });
         revalidatePath('/members');
         return { success: true, message: 'Member created successfully' };
-    } catch (error) {
+    } catch {
         return { success: false, message: 'Failed to create member' };
     }
 }
@@ -117,7 +117,7 @@ export async function toggleMemberActive(memberId: string, currentState: boolean
         });
         revalidatePath('/members');
         return { success: true, message: `Member ${!currentState ? 'activated' : 'deactivated'} successfully` };
-    } catch (error) {
+    } catch {
         return { success: false, message: 'Failed to update member status' };
     }
 }
@@ -137,7 +137,7 @@ export async function deleteMember(id: string) {
         await prisma.member.delete({ where: { id } });
         revalidatePath('/members');
         return { success: true, message: 'Member deleted successfully' };
-    } catch (error) {
+    } catch {
         return { success: false, message: 'Failed to delete member' };
     }
 }

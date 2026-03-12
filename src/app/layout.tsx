@@ -4,6 +4,7 @@ import "./globals.css";
 import { TonganNgatu } from "@/components/ui/Patterns";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/Toaster";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,12 +24,28 @@ const outfit = Outfit({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "To’a Fatalona Admin",
-  description: "Fat Loss & Fitness Team Management",
+export const viewport = {
+  themeColor: "#051A24", // Ocean Deep
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
-import { ThemeProvider } from "@/components/ThemeProvider";
+export const metadata: Metadata = {
+  title: "To'a Fatalona | Admin Dashboard",
+  description: "Fat Loss & Fitness Team Management Dashboard — Track weigh-ins, KM, lifestyle, attendance, and team standings.",
+  keywords: ["fitness", "team management", "weigh-in", "Tongan", "fat loss"],
+  manifest: "/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "To'a Fatalona",
+  },
+  applicationName: "To'a Fatalona Dashboard",
+  formatDetection: {
+    telephone: false,
+  },
+};
 
 export default function RootLayout({
   children,
@@ -41,7 +58,7 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          forcedTheme="dark"
           disableTransitionOnChange
         >
           {/* Global Background Pattern */}

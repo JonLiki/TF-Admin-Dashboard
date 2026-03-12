@@ -1,41 +1,46 @@
-import { getActiveBlock, getSession } from "@/actions/data";
+import { getActiveBlock, getSessionsForWeek } from "@/actions/data";
 import { getMembers } from "@/actions";
-import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button, PageHeader } from "@/components/ui/Components";
-import { CalendarCheck, TrendingUp, CheckCircle, XCircle, Calendar } from "lucide-react";
+import { PageHeader } from "@/components/ui/Components";
+import { CalendarCheck, TrendingUp, CheckCircle, XCircle, Users, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
-import { SessionSelector } from "@/components/attendance/SessionSelector";
+import { WeekSelector } from "@/components/attendance/WeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
-import { AttendanceList } from "@/components/attendance/AttendanceList";
+import { WeeklyAttendanceTable } from "@/components/attendance/WeeklyAttendanceTable";
 import { ExportButton } from "@/components/shared/ExportButton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
-export default async function AttendancePage({ searchParams }: { searchParams: { sessionId?: string } }) {
+export default async function AttendancePage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center text-slate-400">No active block found.</div>;
-    if (!block.sessions || block.sessions.length === 0) return <div className="min-h-screen flex items-center justify-center text-slate-400">No sessions found for this block.</div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
 
-    const selectedSessionId = (await searchParams)?.sessionId || block.sessions[0]?.id;
-    const selectedSession = block.sessions.find(s => s.id === selectedSessionId) || block.sessions[0];
-    const session = await getSession(selectedSessionId);
+    if (!block.weeks || block.weeks.length === 0) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={CalendarCheck} title="No Weeks Found" description="No weeks have been created for this block yet." /></div>;
+
+    const selectedWeekId = (await searchParams)?.weekId || block.weeks[0]?.id;
+    const selectedWeek = block.weeks.find(w => w.id === selectedWeekId) || block.weeks[0];
+
+    const sessions = await getSessionsForWeek(selectedWeek.id);
     const members = await getMembers();
 
-    if (!session) return <div className="min-h-screen flex items-center justify-center text-slate-400">Session not found</div>;
+    // Calculate summary statistics across all sessions in the week
+    let totalPresent = 0;
 
-    // Calculate summary statistics
-    const attendanceMap = new Set(session.attendance.filter(a => a.isPresent).map(a => a.memberId));
-    const totalPresent = attendanceMap.size;
-    const totalAbsent = members.length - totalPresent;
-    const attendanceRate = members.length > 0 ? (totalPresent / members.length) * 100 : 0;
+    sessions.forEach(session => {
+        totalPresent += session.attendance.filter(a => a.isPresent).length;
+    });
+
+    const totalPossibleAttendances = members.length * sessions.length;
+    const totalAbsent = totalPossibleAttendances - totalPresent;
+    const attendanceRate = totalPossibleAttendances > 0 ? (totalPresent / totalPossibleAttendances) * 100 : 0;
 
     return (
         <div className="min-h-full pb-10">
-            <PageHeader title="Attendance" subtitle="Session Attendance">
-                <SessionSelector
-                    sessions={block.sessions.map((s) => ({
-                        value: s.id,
-                        label: `${format(s.date, 'eee, MMM d')} (${s.type})`
+            <PageHeader title="Attendance" subtitle="Weekly Attendance tracking">
+                <WeekSelector
+                    weeks={block.weeks.map((w) => ({
+                        value: w.id,
+                        label: `Week ${w.weekNumber} (${format(w.startDate, 'MMM d')} - ${format(w.endDate, 'MMM d')})`
                     }))}
-                    selectedSessionId={selectedSessionId}
+                    selectedWeekId={selectedWeek.id}
                 />
                 <ExportButton blockId={block.id} type="attendance" />
             </PageHeader>
@@ -47,7 +52,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: {
                         icon={TrendingUp}
                         iconColor="text-lagoon-100"
                         iconBg="bg-lagoon/10"
-                        label="Attendance Rate"
+                        label="Weekly Rate"
                         value={`${attendanceRate.toFixed(0)}%`}
                         subtitle="Overall attendance"
                     />
@@ -55,37 +60,43 @@ export default async function AttendancePage({ searchParams }: { searchParams: {
                         icon={CheckCircle}
                         iconColor="text-green-400"
                         iconBg="bg-green-500/10"
-                        label="Present"
+                        label="Present Logged"
                         value={totalPresent}
-                        subtitle="Members attended"
+                        subtitle="Total check-ins"
                     />
                     <SummaryCard
                         icon={XCircle}
                         iconColor="text-red-400"
                         iconBg="bg-red-500/10"
-                        label="Absent"
+                        label="Missed Sessions"
                         value={totalAbsent}
                         subtitle="Did not attend"
                     />
                     <SummaryCard
-                        icon={Calendar}
+                        icon={Users}
                         iconColor="text-blue-400"
                         iconBg="bg-blue-500/10"
-                        label="Session Type"
-                        value={selectedSession.type}
-                        subtitle={format(selectedSession.date, 'MMM d, yyyy')}
+                        label="Sessions this Week"
+                        value={sessions.length}
+                        subtitle={`Week ${selectedWeek.weekNumber} total`}
                     />
                 </div>
             </div>
 
             <div className="px-6 md:px-10 mt-6">
-                <div className="px-6 md:px-10 mt-6">
-                    <AttendanceList
+                {sessions.length > 0 ? (
+                    <WeeklyAttendanceTable
                         members={members}
-                        session={session}
-                        attendanceMap={attendanceMap}
+                        sessions={sessions}
+                        weekLabel={`Week ${selectedWeek.weekNumber}`}
                     />
-                </div>
+                ) : (
+                    <EmptyState
+                        icon={CalendarCheck}
+                        title="No Sessions"
+                        description="There are no sessions scheduled for this week."
+                    />
+                )}
             </div>
         </div>
     );

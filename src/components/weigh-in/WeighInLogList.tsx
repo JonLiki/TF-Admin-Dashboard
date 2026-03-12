@@ -8,6 +8,9 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { submitWeighIn } from "@/actions/data";
 import { ImportButton } from "@/components/ui/ImportButton";
+import { SubmitIconButton } from "@/components/ui/SubmitIconButton";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface Member {
     id: string;
@@ -67,86 +70,9 @@ export function WeighInLogList({ members, dateStr }: WeighInLogListProps) {
                     <div className="ml-auto">Status</div>
                 </div>
 
-                {filteredMembers.map((member) => {
-                    const currentWeight = member.weighIns[0]?.weight;
-                    const hasLog = currentWeight !== undefined && currentWeight > 0;
-
-                    return (
-                        <div key={member.id} className={cn(
-                            "group relative flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border transition-all duration-500 ease-out",
-                            "bg-ocean/20 border-lagoon/10 hover:border-tongan/40 hover:bg-ocean/40 hover:shadow-[0_0_15px_-3px_rgba(200,16,46,0.15)] hover:-translate-y-0.5"
-                        )}>
-                            {/* Hover Glow */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-tongan/0 via-tongan/5 to-tongan/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-xl pointer-events-none" />
-
-                            {/* Member Info */}
-                            <div className="flex items-center gap-4 w-full md:w-1/3 z-10 mb-3 md:mb-0">
-                                <div className={cn(
-                                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border transition-colors shadow-inner",
-                                    hasLog
-                                        ? "bg-tongan/10 text-tongan-red border-tongan/30 ring-2 ring-tongan/10"
-                                        : "bg-ocean-deep text-lagoon-100/50 border-white/5"
-                                )}>
-                                    {member.firstName[0]}{member.lastName[0]}
-                                </div>
-                                <div>
-                                    <div className="font-bold text-white text-lg group-hover:text-tongan-red transition-colors">
-                                        {member.firstName} {member.lastName}
-                                    </div>
-                                    <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
-                                        <span>Contender</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Group */}
-                            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                                <span className={cn(
-                                    "text-sm font-medium",
-                                    member.team ? "text-lagoon-100/80" : "text-lagoon-100/40 italic"
-                                )}>
-                                    {member.team?.name || 'Unassigned'}
-                                </span>
-                            </div>
-
-                            {/* Input Actions */}
-                            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                                <form action={async (formData) => { await submitWeighIn(formData); }} className="flex items-center space-x-2">
-                                    <input type="hidden" name="memberId" value={member.id} />
-                                    <input type="hidden" name="date" value={dateStr} />
-                                    <div className="relative group/input">
-                                        <input
-                                            name="weight"
-                                            type="number"
-                                            step="0.1"
-                                            placeholder="0.0"
-                                            className={cn(
-                                                "w-24 h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                                "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
-                                                "group-hover/input:border-tongan/50 group-hover/input:bg-ocean-deep",
-                                                "focus:outline-none focus:ring-2 focus:ring-tongan/40 focus:border-tongan/50"
-                                            )}
-                                            defaultValue={currentWeight}
-                                        />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-lagoon-100/50 pointer-events-none uppercase">kg</span>
-                                    </div>
-                                    <Button size="sm" type="submit" variant="secondary" className="h-10 w-10 p-0 rounded-lg bg-tongan/10 text-tongan-red hover:bg-tongan/20 border-tongan/20 hover:scale-105 transition-all">
-                                        <Save className="w-4 h-4" />
-                                    </Button>
-                                </form>
-                            </div>
-
-                            {/* Status Indicator */}
-                            <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
-                                {hasLog && (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-tongan/10 text-tongan-red border border-tongan/20 shadow-[0_0_10px_rgba(200,16,46,0.15)]">
-                                        Recorded
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
+                {filteredMembers.map((member) => (
+                    <WeighInRow key={member.id} member={member} dateStr={dateStr} />
+                ))}
 
                 {!hasResults && (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-lagoon-100/40">
@@ -156,5 +82,98 @@ export function WeighInLogList({ members, dateStr }: WeighInLogListProps) {
                 )}
             </div>
         </PremiumCard>
+    );
+}
+
+function WeighInRow({ member, dateStr }: { member: Member, dateStr: string }) {
+    const [state, formAction] = useActionState(submitWeighIn, null);
+
+    useEffect(() => {
+        if (state?.message) {
+            if (state.success) toast.success(state.message);
+            else toast.error(state.message);
+        }
+    }, [state]);
+
+    const currentWeight = member.weighIns[0]?.weight;
+    const hasLog = currentWeight !== undefined && currentWeight > 0;
+
+    return (
+        <div className={cn(
+            "group relative flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border transition-all duration-500 ease-out",
+            "bg-ocean/20 border-lagoon/10 hover:border-tongan/40 hover:bg-ocean/40 hover:shadow-[0_0_15px_-3px_rgba(200,16,46,0.15)] hover:-translate-y-0.5"
+        )}>
+            {/* Hover Glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-tongan/0 via-tongan/5 to-tongan/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-xl pointer-events-none" />
+
+            {/* Member Info */}
+            <div className="flex items-center gap-4 w-full md:w-1/3 z-10 mb-3 md:mb-0">
+                <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border transition-colors shadow-inner",
+                    hasLog
+                        ? "bg-tongan/10 text-tongan-red border-tongan/30 ring-2 ring-tongan/10"
+                        : "bg-ocean-deep text-lagoon-100/50 border-white/5"
+                )}>
+                    {member.firstName[0]}{member.lastName[0]}
+                </div>
+                <div>
+                    <div className="font-bold text-white text-lg group-hover:text-tongan-red transition-colors">
+                        {member.firstName} {member.lastName}
+                    </div>
+                    <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
+                        <span>Contender</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Group */}
+            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
+                <span className={cn(
+                    "text-sm font-medium",
+                    member.team ? "text-lagoon-100/80" : "text-lagoon-100/40 italic"
+                )}>
+                    {member.team?.name || 'Unassigned'}
+                </span>
+            </div>
+
+            {/* Input Actions */}
+            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
+                <form action={formAction} className="flex items-center space-x-2">
+                    <input type="hidden" name="memberId" value={member.id} />
+                    <input type="hidden" name="date" value={dateStr} />
+                    <div className="relative group/input">
+                        <input
+                            name="weight"
+                            type="number"
+                            inputMode="decimal"
+                            pattern="[0-9]*\.?[0-9]*"
+                            step="0.1"
+                            placeholder="0.0"
+                            className={cn(
+                                "w-24 h-12 md:h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                "group-hover/input:border-tongan/50 group-hover/input:bg-ocean-deep",
+                                "focus:outline-none focus:ring-2 focus:ring-tongan/40 focus:border-tongan/50"
+                            )}
+                            defaultValue={currentWeight}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-lagoon-100/50 pointer-events-none uppercase">kg</span>
+                    </div>
+                    <SubmitIconButton 
+                        icon={<Save className="w-4 h-4" />} 
+                        className="bg-tongan/10 text-tongan-red hover:bg-tongan/20 border-tongan/20 hover:scale-105"
+                    />
+                </form>
+            </div>
+
+            {/* Status Indicator */}
+            <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
+                {hasLog && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-tongan/10 text-tongan-red border border-tongan/20 shadow-[0_0_10px_rgba(200,16,46,0.15)]">
+                        Recorded
+                    </span>
+                )}
+            </div>
+        </div>
     );
 }

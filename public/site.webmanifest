@@ -1,0 +1,16 @@
+{
+    "name": "To'a Fatalona Dashboard",
+    "short_name": "To'a Admin",
+    "description": "Fat Loss & Fitness Team Management Dashboard",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#051A24",
+    "theme_color": "#051A24",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "192x192 512x512",
+            "type": "image/x-icon"
+        }
+    ]
+}

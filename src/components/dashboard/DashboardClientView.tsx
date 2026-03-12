@@ -3,42 +3,25 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PremiumCard } from '@/components/ui/PremiumCard';
 import { Button } from '@/components/ui/Components';
-import { Users, Scale, Activity, ArrowRight, LucideIcon, Crown } from 'lucide-react';
+import { Users, Scale, Activity, ArrowRight, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { OceanWaves, TonganNgatu } from '@/components/ui/Patterns';
+import { OceanWaves } from '@/components/ui/Patterns';
 import DashboardAnalytics from '@/components/analytics/DashboardAnalytics';
 import ClientOnly from '@/components/ui/ClientOnly';
-import { AnimatedNumber } from '@/components/ui/MicroAnimations';
 import { Team, TeamWeekMetric, BlockWeek } from '@prisma/client';
 import { AttendanceDataPoint } from '@/components/analytics/Charts';
 
 import { StatCard } from '@/components/dashboard/StatCard';
-
-interface ExtendedMetric extends TeamWeekMetric {
-    team: Team;
-    blockWeek: BlockWeek;
-}
-
+import { DataCompletenessWidget, DataCompletenessData } from '@/components/dashboard/DataCompletenessWidget';
+import { Prisma } from '@prisma/client';
+import type { getStats } from '@/app/(dashboard)/page';
 import { Variants } from 'framer-motion';
 
-interface LeaderboardItem {
-    id: string;
-    name: string;
-    points: number;
-}
-interface DashboardStats {
-    currentWeekNumber: number;
-    totalLoss: number;
-    teams: number;
-    allMetrics: ExtendedMetric[];
-    teamsList: Team[];
-    attendanceData: AttendanceDataPoint[];
-    leaderboard: LeaderboardItem[];
-    weeklyTotals: { weekNumber: number; totalKm: number; totalLifestyle: number }[];
-}
+type DashboardStats = NonNullable<Prisma.PromiseReturnType<typeof getStats>>;
+
+// Inferred from getStats
 
 interface DashboardClientViewProps {
     stats: DashboardStats;
@@ -124,7 +107,13 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                 </motion.div>
 
                 {/* 5. LEADERBOARD (Middle Right) - Stack on mobile, 1 col on desktop */}
-                <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-1 md:row-span-2 text-white flex flex-col h-full">
+                <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-1 md:row-span-2 text-white flex flex-col h-full space-y-4">
+                    {/* Data Completeness Widget */}
+                    <DataCompletenessWidget
+                        data={stats.dataCompleteness}
+                        currentWeekNumber={stats.currentWeekNumber}
+                    />
+
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Crown className="w-5 h-5 text-tongan" />
@@ -137,17 +126,14 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
 
                     <div className="flex-1 space-y-3">
                         {stats.leaderboard.map((team, index) => {
-                            // Rank Styles
-                            let rankStyle = "bg-ocean/20 border-white/5 text-slate-400";
-                            // let iconColor = "bg-ocean-deep text-slate-500";
-
-                            if (index === 0) {
-                                rankStyle = "bg-gradient-to-r from-tongan/20 to-tongan/5 border-tongan/30 shadow-lg shadow-tongan/10";
-                            } else if (index === 1) {
-                                rankStyle = "bg-ocean/30 border-lagoon/20 hover:border-lagoon/40";
-                            } else if (index === 2) {
-                                rankStyle = "bg-ocean/20 border-orange-700/20 hover:border-orange-700/40";
-                            }
+                            // Rank Styles Extracted
+                            const rankStyles = [
+                                "bg-gradient-to-r from-tongan/20 to-tongan/5 border-tongan/30 shadow-lg shadow-tongan/10", // 1st
+                                "bg-ocean/30 border-lagoon/20 hover:border-lagoon/40", // 2nd
+                                "bg-ocean/20 border-orange-700/20 hover:border-orange-700/40" // 3rd
+                            ];
+                            const defaultStyle = "bg-ocean/20 border-white/5 text-slate-400";
+                            const rankStyle = rankStyles[index] || defaultStyle;
 
                             return (
                                 <Link href={`/scoreboard/team/${team.id}`} key={team.id} className="block group">

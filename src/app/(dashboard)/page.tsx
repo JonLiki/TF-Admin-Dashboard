@@ -8,7 +8,7 @@ import prisma from "@/lib/prisma";
 
 import { unstable_cache } from "next/cache";
 
-const getStats = unstable_cache(async () => {
+export const getStats = unstable_cache(async () => {
   const activeBlock = await getActiveBlock();
   if (!activeBlock) return null;
 
@@ -83,7 +83,7 @@ const getStats = unstable_cache(async () => {
   });
 
   // 5. Optimized Attendance Data
-  // Fetch sessions with a COUNT of present attendance, not the full records
+  // Fetch sessions with a COUNT of present attendance
   const sessions = await prisma.session.findMany({
     where: { blockId: activeBlock.id },
     orderBy: { date: 'asc' },
@@ -91,15 +91,18 @@ const getStats = unstable_cache(async () => {
       id: true,
       date: true,
       type: true,
-      attendance: {
-        where: { isPresent: true },
-        select: { id: true } // Select minimal field to count in JS if _count not available in finding relations
+      _count: {
+        select: {
+          attendance: {
+            where: { isPresent: true }
+          }
+        }
       }
     }
   });
 
   const attendanceData = sessions.map(session => {
-    const presentCount = session.attendance.length; // Count of 'isPresent: true' records
+    const presentCount = session._count.attendance; // Count of 'isPresent: true' records
     const percentage = memberCount > 0 ? (presentCount / memberCount) * 100 : 0;
 
     return {
@@ -110,6 +113,68 @@ const getStats = unstable_cache(async () => {
       total: memberCount
     };
   });
+
+  // 6. Data Completeness for current week
+  const currentWeekId = currentWeek?.id;
+  let dataCompleteness = {
+    weighIns: { entered: 0, total: memberCount },
+    km: { entered: 0, total: memberCount },
+    lifestyle: { entered: 0, total: memberCount },
+    attendance: { sessionsWithData: 0, totalSessions: 0 },
+  };
+
+  if (currentWeekId && currentWeek) {
+    const [weighInUsers, kmUsers, lifestyleUsers] = await Promise.all([
+      prisma.weighIn.findMany({
+        where: {
+          member: { isActive: true },
+          date: {
+            gte: currentWeek.startDate,
+            lte: currentWeek.endDate,
+          },
+          weight: { gt: 0 }
+        },
+        distinct: ['memberId'],
+        select: { memberId: true }
+      }),
+      prisma.kmLog.findMany({
+        where: {
+          member: { isActive: true },
+          blockWeekId: currentWeekId,
+          totalKm: { gt: 0 }
+        },
+        distinct: ['memberId'],
+        select: { memberId: true }
+      }),
+      prisma.lifestyleLog.findMany({
+        where: {
+          member: { isActive: true },
+          blockWeekId: currentWeekId,
+          postCount: { gt: 0 }
+        },
+        distinct: ['memberId'],
+        select: { memberId: true }
+      }),
+    ]);
+
+    const weighInCount = weighInUsers.length;
+    const kmCount = kmUsers.length;
+    const lifestyleCount = lifestyleUsers.length;
+
+    // Count sessions in this week that have at least one attendance record
+    const weekSessions = sessions.filter(s => {
+      const sDate = new Date(s.date);
+      return sDate >= currentWeek.startDate && sDate <= currentWeek.endDate;
+    });
+    const sessionsWithData = weekSessions.filter(s => s._count.attendance > 0).length;
+
+    dataCompleteness = {
+      weighIns: { entered: weighInCount, total: memberCount },
+      km: { entered: kmCount, total: memberCount },
+      lifestyle: { entered: lifestyleCount, total: memberCount },
+      attendance: { sessionsWithData, totalSessions: weekSessions.length },
+    };
+  }
 
   return {
     teams: teamCount,
@@ -122,11 +187,12 @@ const getStats = unstable_cache(async () => {
     teamsList,
     attendanceData,
     weeklyTotals,
+    dataCompleteness,
     charts: {}
   };
 }, ['dashboard-stats'], { revalidate: 60, tags: ['dashboard-stats'] });
 
-export default async function Home() {
+async function DashboardContent() {
   const stats = await getStats();
 
   if (!stats) {
@@ -140,15 +206,24 @@ export default async function Home() {
     );
   }
 
+  return <DashboardClientView stats={stats} />;
+}
+
+export default function Home() {
   return (
     <div className="min-h-full pb-10">
       <PageHeader title="Dashboard" subtitle="Command Center" />
-      <Suspense fallback={<DashboardSkeleton />}>
+      
+      {/* Login Feedback handles its own Suspense internally or is client-driven, 
+          but adding Suspense wrapper is good practice */}
+      <Suspense fallback={null}>
         <LoginFeedback />
       </Suspense>
 
-      {/* Hand off to Client Component for Animations and Interactivity */}
-      <DashboardClientView stats={stats} />
+      {/* Wrapping the heavy DB queries in Suspense allows PageHeader and layout to paint instantly */}
+      <Suspense fallback={<DashboardSkeleton />}>
+          <DashboardContent />
+      </Suspense>
     </div>
   );
 }

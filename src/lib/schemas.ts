@@ -56,3 +56,10 @@ export const ImportLifestyleRowSchema = z.string().trim().regex(/^\d+$/, "Must b
 export const ImportWeighInRowSchema = z.string().transform(val => parseFloat(val)).pipe(
     z.number().min(0, "Weight cannot be negative").max(300, "Weight seems too high")
 );
+
+// --- Block Schemas ---
+export const CreateBlockSchema = z.object({
+    name: z.string().min(2, "Block name must be at least 2 characters").max(50, "Block name is too long"),
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+    numberOfWeeks: z.number().int().min(1, "Must have at least 1 week").max(20, "Cannot exceed 20 weeks"),
+});

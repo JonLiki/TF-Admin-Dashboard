@@ -8,6 +8,9 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { submitLifestyleLog } from "@/actions/data";
 import { ImportButton } from "@/components/ui/ImportButton";
+import { SubmitIconButton } from "@/components/ui/SubmitIconButton";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface Member {
     id: string;
@@ -67,85 +70,9 @@ export function LifestyleLogList({ members, weekId }: LifestyleLogListProps) {
                     <div className="ml-auto">Status</div>
                 </div>
 
-                {filteredMembers.map((member) => {
-                    const currentPosts = member.lifestyleLogs[0]?.postCount;
-                    const hasLog = currentPosts !== undefined && currentPosts > 0;
-
-                    return (
-                        <div key={member.id} className={cn(
-                            "group relative flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border transition-all duration-500 ease-out",
-                            "bg-ocean/20 border-lagoon/10 hover:border-pink-500/40 hover:bg-ocean/40 hover:shadow-[0_0_15px_-3px_rgba(236,72,153,0.15)] hover:-translate-y-0.5"
-                        )}>
-                            {/* Hover Glow */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-pink-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-xl pointer-events-none" />
-
-                            {/* Member Info */}
-                            <div className="flex items-center gap-4 w-full md:w-1/3 z-10 mb-3 md:mb-0">
-                                <div className={cn(
-                                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border transition-colors shadow-inner",
-                                    hasLog
-                                        ? "bg-pink-500/20 text-pink-400 border-pink-500/30 ring-2 ring-pink-500/10"
-                                        : "bg-ocean-deep text-lagoon-100/50 border-white/5"
-                                )}>
-                                    {member.firstName[0]}{member.lastName[0]}
-                                </div>
-                                <div>
-                                    <div className="font-bold text-white text-lg group-hover:text-pink-400 transition-colors">
-                                        {member.firstName} {member.lastName}
-                                    </div>
-                                    <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
-                                        <Camera className="w-3 h-3 mr-1" />
-                                        <span>Influencer</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Group */}
-                            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                                <span className={cn(
-                                    "text-sm font-medium",
-                                    member.team ? "text-lagoon-100/80" : "text-lagoon-100/40 italic"
-                                )}>
-                                    {member.team?.name || 'Unassigned'}
-                                </span>
-                            </div>
-
-                            {/* Input Actions */}
-                            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                                <form action={async (formData) => { await submitLifestyleLog(formData); }} className="flex items-center space-x-2">
-                                    <input type="hidden" name="memberId" value={member.id} />
-                                    <input type="hidden" name="blockWeekId" value={weekId} />
-                                    <div className="relative group/input">
-                                        <input
-                                            name="postCount"
-                                            type="number"
-                                            placeholder="0"
-                                            className={cn(
-                                                "w-24 h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                                "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
-                                                "group-hover/input:border-pink-500/50 group-hover/input:bg-ocean-deep",
-                                                "focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500/50"
-                                            )}
-                                            defaultValue={currentPosts}
-                                        />
-                                    </div>
-                                    <Button size="sm" type="submit" variant="secondary" className="h-10 w-10 p-0 rounded-lg bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border-pink-500/20 hover:scale-105 transition-all">
-                                        <Save className="w-4 h-4" />
-                                    </Button>
-                                </form>
-                            </div>
-
-                            {/* Status Indicator */}
-                            <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
-                                {hasLog && (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-pink-500/10 text-pink-400 border border-pink-500/20 shadow-[0_0_10px_rgba(236,72,153,0.15)]">
-                                        Active
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
+                {filteredMembers.map((member) => (
+                    <LifestyleRow key={member.id} member={member} weekId={weekId} />
+                ))}
 
                 {!hasResults && (
                     <div className="flex flex-col items-center justify-center py-12 text-center text-lagoon-100/40">
@@ -155,5 +82,97 @@ export function LifestyleLogList({ members, weekId }: LifestyleLogListProps) {
                 )}
             </div>
         </PremiumCard>
+    );
+}
+
+function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
+    const [state, formAction] = useActionState(submitLifestyleLog, null);
+
+    useEffect(() => {
+        if (state?.message) {
+            if (state.success) toast.success(state.message);
+            else toast.error(state.message);
+        }
+    }, [state]);
+
+    const currentPosts = member.lifestyleLogs[0]?.postCount;
+    const hasLog = currentPosts !== undefined && currentPosts > 0;
+
+    return (
+        <div className={cn(
+            "group relative flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border transition-all duration-500 ease-out",
+            "bg-ocean/20 border-lagoon/10 hover:border-pink-500/40 hover:bg-ocean/40 hover:shadow-[0_0_15px_-3px_rgba(236,72,153,0.15)] hover:-translate-y-0.5"
+        )}>
+            {/* Hover Glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-pink-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-xl pointer-events-none" />
+
+            {/* Member Info */}
+            <div className="flex items-center gap-4 w-full md:w-1/3 z-10 mb-3 md:mb-0">
+                <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border transition-colors shadow-inner",
+                    hasLog
+                        ? "bg-pink-500/20 text-pink-400 border-pink-500/30 ring-2 ring-pink-500/10"
+                        : "bg-ocean-deep text-lagoon-100/50 border-white/5"
+                )}>
+                    {member.firstName[0]}{member.lastName[0]}
+                </div>
+                <div>
+                    <div className="font-bold text-white text-lg group-hover:text-pink-400 transition-colors">
+                        {member.firstName} {member.lastName}
+                    </div>
+                    <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
+                        <Camera className="w-3 h-3 mr-1" />
+                        <span>Influencer</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Group */}
+            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
+                <span className={cn(
+                    "text-sm font-medium",
+                    member.team ? "text-lagoon-100/80" : "text-lagoon-100/40 italic"
+                )}>
+                    {member.team?.name || 'Unassigned'}
+                </span>
+            </div>
+
+            {/* Input Actions */}
+            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
+                <form action={formAction} className="flex items-center space-x-2">
+                    <input type="hidden" name="memberId" value={member.id} />
+                    <input type="hidden" name="blockWeekId" value={weekId} />
+                    <div className="relative group/input">
+                        <input
+                            name="postCount"
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="0"
+                            className={cn(
+                                "w-24 h-12 md:h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                "group-hover/input:border-pink-500/50 group-hover/input:bg-ocean-deep",
+                                "focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500/50"
+                            )}
+                            defaultValue={currentPosts}
+                        />
+                    </div>
+                    <SubmitIconButton 
+                        icon={<Save className="w-4 h-4" />} 
+                        className="bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border-pink-500/20 hover:scale-105"
+                    />
+                </form>
+            </div>
+
+            {/* Status Indicator */}
+            <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
+                {hasLog && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-pink-500/10 text-pink-400 border border-pink-500/20 shadow-[0_0_10px_rgba(236,72,153,0.15)]">
+                        Active
+                    </span>
+                )}
+            </div>
+        </div>
     );
 }

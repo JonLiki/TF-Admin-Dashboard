@@ -25,7 +25,7 @@ export interface ScoreboardExportData {
  * Generate and download a PDF of the scoreboard
  */
 export function generateScoreboardPDF(data: ScoreboardExportData): void {
-     
+
     const doc = new jsPDF();
 
     // Colors (dark ocean theme)
@@ -90,7 +90,7 @@ export function generateScoreboardPDF(data: ScoreboardExportData): void {
     });
 
     // Winners Section (if available)
-     
+
     if (data.winners) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const finalY = (doc as any).lastAutoTable.finalY || 100;
@@ -258,25 +258,44 @@ export const exportToExcel = (data: ExportData, filename: string) => {
 };
 
 export const exportToPDF = (data: ExportData, filename: string) => {
-     
-    const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text(data.title, 14, 22);
+    // Use landscape mode to fit wide week columns
+    const doc = new jsPDF('l', 'mm', 'a4');
 
-    doc.setFontSize(10);
+    doc.setFontSize(16);
+    doc.text(data.title, 10, 15);
+
+    doc.setFontSize(9);
     doc.setTextColor(100);
     const dateStr = format(new Date(), 'PPpp');
-    doc.text(`Generated on: ${dateStr}`, 14, 30);
+    doc.text(`Generated on: ${dateStr}`, 10, 22);
 
     autoTable(doc, {
-        startY: 36,
+        startY: 28,
         head: [data.headers],
         body: data.rows,
         foot: data.footers,
         theme: 'grid',
-        headStyles: { fillColor: [22, 163, 74] }, // Green/Teal
-        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: {
+            fillColor: [11, 60, 93], // Ocean color to match theme better than default green
+            textColor: [255, 255, 255],
+            fontSize: 7,
+            halign: 'center',
+            cellPadding: 1.5
+        },
+        bodyStyles: {
+            fontSize: 7,
+            halign: 'center', // Center align most columns (weeks, numbers)
+            cellPadding: 1.5
+        },
+        columnStyles: {
+            // First column (Member Name or Team Name) usually needs more space and left alignment
+            0: { halign: 'left', cellWidth: 'wrap' }
+        },
+        styles: {
+            overflow: 'linebreak'
+        },
+        margin: { top: 20, right: 10, bottom: 10, left: 10 }
     });
 
     doc.save(`${filename}.pdf`);

@@ -1,16 +1,17 @@
 import { getActiveBlock, getMembersWithLogs } from "@/actions/data";
-import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button, PageHeader } from "@/components/ui/Components";
-import { Activity, TrendingUp, Award, CheckCircle } from "lucide-react";
-import { format } from "date-fns";
+import { PageHeader } from "@/components/ui/Components";
+import { Activity, TrendingUp, Award, CheckCircle, AlertCircle } from "lucide-react";
+
 import { WeekSelector } from "@/components/shared/WeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { KmLogList } from "@/components/km/KmLogList";
 import { ExportButton } from "@/components/shared/ExportButton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { formatDecimal } from "@/lib/formatters";
 
 export default async function KmPage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center text-slate-400">No active block found.</div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
 
     const selectedWeekId = (await searchParams)?.weekId || block.weeks[0].id;
     const selectedWeek = block.weeks.find(w => w.id === selectedWeekId) || block.weeks[0];
@@ -47,7 +48,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                         iconColor="text-lagoon-100"
                         iconBg="bg-lagoon/10"
                         label="Total KM"
-                        value={totalKm.toFixed(1)}
+                        value={formatDecimal(totalKm)}
                         subtitle="Combined distance"
                     />
                     <SummaryCard
@@ -55,7 +56,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                         iconColor="text-blue-400"
                         iconBg="bg-blue-500/10"
                         label="Average KM"
-                        value={avgKm.toFixed(1)}
+                        value={formatDecimal(avgKm)}
                         subtitle="Per member"
                     />
                     <SummaryCard
@@ -64,7 +65,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                         iconBg="bg-tongan/10"
                         label="Top Performer"
                         value={topPerformer ? `${topPerformer.firstName} ${topPerformer.lastName.charAt(0)}.` : 'N/A'}
-                        subtitle={topPerformer?.kmLogs[0] ? `${topPerformer.kmLogs[0].totalKm.toFixed(1)} km` : ''}
+                        subtitle={topPerformer?.kmLogs[0] ? `${formatDecimal(topPerformer.kmLogs[0].totalKm)} km` : ''}
                     />
                     <SummaryCard
                         icon={CheckCircle}

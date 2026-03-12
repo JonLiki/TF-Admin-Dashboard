@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Components";
-import { CalendarCheck, Check, X, Filter, UserCheck, UserX } from "lucide-react";
+import { CalendarCheck, Check, X, Filter } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { toggleAttendance } from "@/actions/data";

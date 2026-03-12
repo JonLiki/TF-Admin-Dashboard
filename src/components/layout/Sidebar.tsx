@@ -14,14 +14,16 @@ import {
     CalendarCheck,
     Trophy,
     FileText,
+    Calendar,
     Menu,
     X,
     LogOut
 } from 'lucide-react';
 import { logout } from '@/actions/auth-actions';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { motion } from 'framer-motion';
 
 import { TonganNgatu } from '../ui/Patterns';
+import { usePreventBrowserSave } from '@/hooks/useKeyboardShortcut';
 
 const navItems = [
     { name: 'Dashboard', subtitle: 'Overview', href: '/', icon: LayoutDashboard },
@@ -33,11 +35,15 @@ const navItems = [
     { name: 'Attendance', subtitle: 'Sessions', href: '/attendance', icon: CalendarCheck },
     { name: 'Summary', subtitle: 'Reports', href: '/summary', icon: FileText },
     { name: 'Scoreboard', subtitle: 'Leaderboard', href: '/scoreboard', icon: Trophy },
+    { name: 'Blocks', subtitle: 'Training Periods', href: '/blocks', icon: Calendar },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Prevent Ctrl+S from opening browser Save dialog
+    usePreventBrowserSave();
 
     return (
         <>
@@ -123,32 +129,58 @@ export function Sidebar() {
                                 href={item.href}
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={cn(
-                                    "group relative flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-out",
+                                    "group relative flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-out overflow-hidden my-0.5",
                                     isActive
-                                        ? "bg-gradient-to-r from-tongan/10 to-transparent border-r-2 border-tongan text-white"
+                                        ? "text-white"
                                         : "text-tapa-cream/70 hover:bg-ocean-light/10 hover:text-white"
                                 )}
                             >
+                                {/* Active State Background Animation */}
                                 {isActive && (
-                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tongan rounded-r-sm shadow-[0_0_8px_#C8102E]" />
+                                    <motion.div
+                                        layoutId="sidebarActive"
+                                        className="absolute inset-0 bg-gradient-to-r from-tongan/20 to-transparent border-r-2 border-tongan"
+                                        initial={false}
+                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    />
                                 )}
 
-                                <item.icon
-                                    className={cn(
-                                        "mr-3 h-5 w-5 transition-colors duration-200",
-                                        isActive ? "text-tongan" : "text-slate-400 group-hover:text-lagoon-100"
-                                    )}
-                                />
-                                <div className="flex flex-col">
-                                    <span className={cn("text-sm font-medium tracking-wide", isActive ? "text-white" : "text-offwhite/80 group-hover:text-lagoon-100")}>
-                                        {item.name}
-                                    </span>
-                                    <span className={cn(
-                                        "text-[10px] tracking-wider uppercase transition-colors font-normal",
-                                        isActive ? "text-slate-400" : "text-slate-500 group-hover:text-slate-400"
-                                    )}>
-                                        {item.subtitle}
-                                    </span>
+                                {/* Hover Glow Effect (Only applied when not active) */}
+                                {!isActive && (
+                                    <div className="absolute inset-0 bg-lagoon/0 group-hover:bg-lagoon/5 transition-colors duration-300" />
+                                )}
+
+                                {isActive && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scaleY: 0 }}
+                                        animate={{ opacity: 1, scaleY: 1 }}
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tongan rounded-r-sm shadow-[0_0_8px_#C8102E]"
+                                    />
+                                )}
+
+                                <div className="relative z-10 flex items-center w-full">
+                                    <motion.div
+                                        whileHover={{ scale: isActive ? 1 : 1.1, rotate: isActive ? 0 : 5 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                    >
+                                        <item.icon
+                                            className={cn(
+                                                "mr-3 h-5 w-5 transition-colors duration-200 block",
+                                                isActive ? "text-tongan drop-shadow-[0_0_5px_rgba(200,16,46,0.5)]" : "text-slate-400 group-hover:text-lagoon-100"
+                                            )}
+                                        />
+                                    </motion.div>
+                                    <div className="flex flex-col">
+                                        <span className={cn("text-sm font-bold tracking-wide", isActive ? "text-white" : "text-offwhite/80 group-hover:text-lagoon-100")}>
+                                            {item.name}
+                                        </span>
+                                        <span className={cn(
+                                            "text-[10px] tracking-wider uppercase transition-colors font-medium",
+                                            isActive ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"
+                                        )}>
+                                            {item.subtitle}
+                                        </span>
+                                    </div>
                                 </div>
                             </Link>
                         );
@@ -168,7 +200,6 @@ export function Sidebar() {
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
-                        <ThemeToggle />
                         <form action={logout}>
                             <button
                                 type="submit"

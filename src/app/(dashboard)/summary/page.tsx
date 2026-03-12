@@ -1,9 +1,7 @@
 import { getFullBlockSummary } from "@/actions/data";
 import { PageHeader } from "@/components/ui/Components";
-import { PremiumCard } from "@/components/ui/PremiumCard";
+
 import { OceanWaves } from "@/components/ui/Patterns";
-import { cn } from "@/lib/utils";
-import { format, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
 
 // If Tabs component doesn't exist, I'll create a local simple one or use standard state if client component.
 // But this is a server page. I might need a client wrapper for tabs or just stack them.

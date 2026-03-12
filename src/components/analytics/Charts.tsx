@@ -39,8 +39,6 @@ export interface MetricDataPoint {
 }
 
 export function TeamComparisonChart({ data, title, subtitle, colors }: ChartProps) {
-    // Extract team keys dynamically (exclude 'name' or 'week')
-    const keys = data.length > 0 ? Object.keys(data[0]).filter(k => k !== 'name' && k !== 'week') : [];
     const chartColors = colors || CHART_COLORS.series;
 
     return (

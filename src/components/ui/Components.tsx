@@ -1,52 +1,11 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
 
 import { NgatuDivider } from './Patterns';
 
-// --- BUTTON ---
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-    size?: 'sm' | 'md' | 'lg';
-    isLoading?: boolean;
-}
+// --- BUTTON (re-exported from canonical source) ---
+export { Button } from './Button';
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
-
-        const variants = {
-            primary: "bg-tongan text-white hover:bg-tongan-dark shadow-sm shadow-tongan/10 hover:shadow-md hover:shadow-tongan/20 active:translate-y-px transition-all",
-            secondary: "bg-ocean-deep text-white hover:bg-ocean shadow-sm active:translate-y-px transition-all",
-            outline: "border border-white/10 bg-transparent hover:bg-white/5 text-white",
-            ghost: "hover:bg-white/5 text-slate-400 hover:text-white",
-            danger: "bg-red-600 text-white hover:bg-red-700 shadow-sm active:translate-y-px",
-        };
-
-        const sizes = {
-            sm: "h-9 px-3 text-xs rounded-md uppercase tracking-wide font-bold",
-            md: "h-11 px-6 py-2 rounded-lg text-sm tracking-wide font-semibold",
-            lg: "h-14 px-8 text-base rounded-xl tracking-wide font-semibold",
-        };
-
-        return (
-            <button
-                ref={ref}
-                className={cn(
-                    "inline-flex items-center justify-center transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tongan/30 disabled:pointer-events-none disabled:opacity-50",
-                    variants[variant],
-                    sizes[size],
-                    className
-                )}
-                disabled={disabled || isLoading}
-                {...props}
-            >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {children}
-            </button>
-        );
-    }
-);
-Button.displayName = "Button";
 
 // --- INPUT ---
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -87,18 +46,19 @@ Input.displayName = "Input";
 interface PageHeaderProps {
     title: string;
     subtitle?: string;
+    showDivider?: boolean;
     children?: React.ReactNode;
 }
 
-export function PageHeader({ title, subtitle, children }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, showDivider = true, children }: PageHeaderProps) {
     return (
         <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4 py-10 px-6 md:px-10 bg-surface-deep border-b border-white/5">
             <div className="relative z-10">
                 <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
                 {subtitle && <p className="text-offwhite/60 font-normal mt-1 text-sm">{subtitle}</p>}
 
-                {/* Visual Anchor */}
-                <NgatuDivider className="mt-6 text-white opacity-10 w-[120%]" />
+                {/* Visual Anchor conditionally rendered */}
+                {showDivider && <NgatuDivider className="mt-6 text-white opacity-10 w-[120%]" />}
             </div>
             {children && <div className="flex items-center gap-3 relative z-10">{children}</div>}
         </div>

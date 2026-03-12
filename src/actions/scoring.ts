@@ -2,11 +2,11 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { addDays } from 'date-fns';
 import {
     calculateTeamMetrics,
     determineWinners,
-    ScorableTeam,
-    TeamResult
+    ScorableTeam
 } from '@/lib/scoring-logic';
 
 export async function calculateWeekResults(blockWeekId: string) {
@@ -27,9 +27,8 @@ export async function calculateWeekResults(blockWeekId: string) {
                     weighIns: {
                         where: {
                             date: {
-                                // Fetch all weigh-ins up to the end of this week
-                                // This allows us to find a "previous" weigh-in for baseline calculation
-                                lte: blockWeek.endDate
+                                // Fetch all weigh-ins up to the end of this week + 14 days to safely catch the entire next week
+                                lte: addDays(blockWeek.endDate, 14)
                             }
                         },
                         orderBy: { date: 'asc' }

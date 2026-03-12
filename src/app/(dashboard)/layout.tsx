@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/Sidebar";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 export default function DashboardLayout({
     children,
@@ -14,15 +15,14 @@ export default function DashboardLayout({
 
             {/* Main Content Wrapper */}
             <div className="flex-1 flex flex-col lg:pl-64 h-full overflow-hidden w-full">
-                {/* 
-            We remove the fixed top header from previous layout if it exists in layout.tsx 
-            and move header logic to page components or a shared TopBar component if preferred.
-            For now, let's keep the main scrolling area simple.
-         */}
+                <Breadcrumb />
                 <main className="flex-1 overflow-y-auto bg-transparent scroll-smooth">
-                    {children}
+                    <div className="animate-page-enter">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>
     );
 }
+

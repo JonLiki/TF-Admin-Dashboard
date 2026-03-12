@@ -1,16 +1,17 @@
 import { getActiveBlock, getMembersWithLogs } from "@/actions/data";
-import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button, PageHeader } from "@/components/ui/Components";
-import { Heart, TrendingUp, Award, CheckCircle } from "lucide-react";
-import { format } from "date-fns";
+import { PageHeader } from "@/components/ui/Components";
+import { Heart, TrendingUp, Award, CheckCircle, AlertCircle } from "lucide-react";
+
 import { WeekSelector } from "@/components/shared/WeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { LifestyleLogList } from "@/components/lifestyle/LifestyleLogList";
 import { ExportButton } from "@/components/shared/ExportButton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { formatDecimal, formatInteger } from "@/lib/formatters";
 
 export default async function LifestylePage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center text-slate-400">No active block found.</div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
 
     const selectedWeekId = (await searchParams)?.weekId || block.weeks[0].id;
     const selectedWeek = block.weeks.find(w => w.id === selectedWeekId) || block.weeks[0];
@@ -47,7 +48,7 @@ export default async function LifestylePage({ searchParams }: { searchParams: { 
                         iconColor="text-tongan"
                         iconBg="bg-tongan/10"
                         label="Total Posts"
-                        value={totalPosts}
+                        value={formatInteger(totalPosts)}
                         subtitle="Combined posts"
                     />
                     <SummaryCard
@@ -55,7 +56,7 @@ export default async function LifestylePage({ searchParams }: { searchParams: { 
                         iconColor="text-pink-400"
                         iconBg="bg-pink-500/10"
                         label="Average Posts"
-                        value={avgPosts.toFixed(1)}
+                        value={formatDecimal(avgPosts)}
                         subtitle="Per member"
                     />
                     <SummaryCard

@@ -4,9 +4,22 @@
 import { ScoreboardMetric } from "@/types/scoreboard";
 import { Trophy } from "lucide-react";
 import { OceanWaves, TonganNgatu, NgatuDivider, WinnerBadge } from "@/components/ui/Patterns";
+import { motion } from "framer-motion";
 
 interface PodiumProps {
     standings: ScoreboardMetric[];
+}
+
+function AnimatedNumber({ value }: { value: number }) {
+    return (
+        <motion.span
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.8, type: "spring", stiffness: 200 }}
+        >
+            {value}
+        </motion.span>
+    );
 }
 
 export function Podium({ standings }: PodiumProps) {
@@ -14,39 +27,85 @@ export function Podium({ standings }: PodiumProps) {
     const second = standings.find(s => s.rank === 2);
     const third = standings.find(s => s.rank === 3);
 
+    const podiumVariants = {
+        hidden: { opacity: 0, y: 60 },
+        visible: (delay: number) => ({
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.7,
+                delay,
+                ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+            },
+        }),
+    };
+
     return (
         <div className="flex flex-col md:flex-row items-end justify-center gap-4 min-h-[380px] mb-12 mt-8">
             {/* 2nd Place */}
             {second && (
-                <div className="order-2 md:order-1 flex-1 max-w-[200px] flex flex-col items-center">
+                <motion.div
+                    className="order-2 md:order-1 flex-1 max-w-[200px] flex flex-col items-center"
+                    variants={podiumVariants}
+                    initial="hidden"
+                    animate="visible"
+                    custom={0.2}
+                >
                     <div className="mb-3 text-center">
                         <span className="text-lg font-bold text-white block truncate w-full px-2">{second.name}</span>
-                        <span className="text-xl font-mono font-bold text-lagoon-100">{second.points} pts</span>
+                        <span className="text-xl font-mono font-bold text-lagoon-100">
+                            <AnimatedNumber value={second.points} /> pts
+                        </span>
                     </div>
-                    <div className="w-full h-40 bg-gradient-to-t from-ocean-deep via-ocean to-lagoon/20 border-t-2 border-x border-lagoon/30 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(28,114,147,0.15)]">
+                    <motion.div
+                        className="w-full h-40 bg-gradient-to-t from-ocean-deep via-ocean to-lagoon/20 border-t-2 border-x border-lagoon/30 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(28,114,147,0.15)]"
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ transformOrigin: "bottom" }}
+                    >
                         <OceanWaves className="absolute inset-0 opacity-10" />
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-lagoon to-transparent" />
                         <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-6xl font-black text-lagoon/20 group-hover:text-lagoon/40 transition-colors drop-shadow-lg">2</span>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
             )}
 
             {/* 1st Place (Winner) */}
             {first && (
-                <div className="order-1 md:order-2 flex-1 max-w-[240px] flex flex-col items-center z-10 -mx-2 md:mx-4">
+                <motion.div
+                    className="order-1 md:order-2 flex-1 max-w-[240px] flex flex-col items-center z-10 -mx-2 md:mx-4"
+                    variants={podiumVariants}
+                    initial="hidden"
+                    animate="visible"
+                    custom={0.5}
+                >
                     <div className="mb-6 text-center relative w-full">
                         {/* God Ray / Spotlight Effect */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-tongan/20 blur-[80px] -z-10 rounded-full" />
+                        <motion.div
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-tongan/20 blur-[80px] -z-10 rounded-full"
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 1.2, delay: 0.8 }}
+                        />
 
                         <WinnerBadge className="absolute -top-14 left-1/2 -translate-x-1/2 w-28 h-28 animate-pulse-slow drop-shadow-[0_0_15px_rgba(200,16,46,0.5)]" />
                         <div className="mt-12">
                             <span className="text-2xl font-black text-white uppercase tracking-wider block drop-shadow-md">{first.name}</span>
-                            <span className="text-4xl font-mono font-black text-tongan drop-shadow-[0_0_10px_rgba(200,16,46,0.4)]">{first.points} pts</span>
+                            <span className="text-4xl font-mono font-black text-tongan drop-shadow-[0_0_10px_rgba(200,16,46,0.4)]">
+                                <AnimatedNumber value={first.points} /> pts
+                            </span>
                         </div>
                     </div>
-                    <div className="w-full h-56 bg-gradient-to-t from-tongan-dark via-tongan to-tongan/20 border-t-4 border-x border-tongan rounded-t-xl relative group overflow-hidden shadow-[0_0_50px_rgba(200,16,46,0.3)]">
+                    <motion.div
+                        className="w-full h-56 bg-gradient-to-t from-tongan-dark via-tongan to-tongan/20 border-t-4 border-x border-tongan rounded-t-xl relative group overflow-hidden shadow-[0_0_50px_rgba(200,16,46,0.3)]"
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ duration: 0.8, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ transformOrigin: "bottom" }}
+                    >
                         <TonganNgatu className="absolute inset-0 opacity-10" />
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-tongan-light via-white to-tongan-light opacity-50" />
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -57,25 +116,39 @@ export function Podium({ standings }: PodiumProps) {
                                 Leader
                             </span>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
             )}
 
             {/* 3rd Place */}
             {third && (
-                <div className="order-3 md:order-3 flex-1 max-w-[200px] flex flex-col items-center">
+                <motion.div
+                    className="order-3 md:order-3 flex-1 max-w-[200px] flex flex-col items-center"
+                    variants={podiumVariants}
+                    initial="hidden"
+                    animate="visible"
+                    custom={0.1}
+                >
                     <div className="mb-3 text-center">
                         <span className="text-lg font-bold text-white block truncate w-full px-2">{third.name}</span>
-                        <span className="text-xl font-mono font-bold text-slate-400">{third.points} pts</span>
+                        <span className="text-xl font-mono font-bold text-slate-400">
+                            <AnimatedNumber value={third.points} /> pts
+                        </span>
                     </div>
-                    <div className="w-full h-32 bg-gradient-to-t from-slate-900 via-slate-800 to-slate-700/30 border-t-2 border-x border-slate-600/30 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(148,163,184,0.1)]">
+                    <motion.div
+                        className="w-full h-32 bg-gradient-to-t from-slate-900 via-slate-800 to-slate-700/30 border-t-2 border-x border-slate-600/30 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(148,163,184,0.1)]"
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ transformOrigin: "bottom" }}
+                    >
                         <NgatuDivider className="absolute bottom-0 w-full opacity-5" />
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-slate-500 to-transparent" />
                         <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-6xl font-black text-slate-500/20 group-hover:text-slate-500/40 transition-colors">3</span>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
             )}
         </div>
     );

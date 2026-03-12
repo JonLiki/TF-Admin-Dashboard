@@ -23,12 +23,13 @@ model Block {
 }
 
 model BlockWeek {
-  id        String   @id @default(uuid())
-  blockId   String
-  block     Block    @relation(fields: [blockId], references: [id])
-  weekNumber Int
-  startDate DateTime
-  endDate   DateTime
+  id          String   @id @default(uuid())
+  blockId     String
+  block       Block    @relation(fields: [blockId], references: [id])
+  weekNumber  Int
+  startDate   DateTime
+  endDate     DateTime
+  isFinalized Boolean  @default(false)
   
   // Relations for logs/metrics linked to a specific week
   kmLogs        KmLog[]

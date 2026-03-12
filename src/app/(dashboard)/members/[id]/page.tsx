@@ -1,7 +1,7 @@
 
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader, Button } from "@/components/ui/Components";
-import { ArrowLeft, Activity, Scale, User, CalendarDays, Trophy } from "lucide-react";
+import { ArrowLeft, Activity, Scale, CalendarDays, Trophy } from "lucide-react";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import MemberWeightChart from "@/components/analytics/MemberWeightChart";
@@ -10,7 +10,7 @@ import { MemberWeeklyTable } from "@/components/analytics/MemberWeeklyTable";
 import { getActiveBlock } from "@/actions/data";
 import { cn } from "@/lib/utils";
 
-export default async function MemberProfilePage({ params }: { params: { id: string } }) {
+export default async function MemberProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
     // Fetch active block to get week definitions

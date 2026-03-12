@@ -1,16 +1,17 @@
 import { getActiveBlock, getMembersWithWeighIn } from "@/actions/data";
-import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button, PageHeader } from "@/components/ui/Components";
-import { Scale, Award, CheckCircle, Users } from "lucide-react";
+
+import { PageHeader } from "@/components/ui/Components";
+import { Scale, Award, CheckCircle, Users, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { DateSelector } from "@/components/shared/DateSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { WeighInLogList } from "@/components/weigh-in/WeighInLogList";
 import { ExportButton } from "@/components/shared/ExportButton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function WeighInPage({ searchParams }: { searchParams: { date?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center text-slate-400">No active block found.</div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
 
     const selectedDateStr = (await searchParams)?.date || block.weeks[0].startDate.toISOString();
     const selectedDate = new Date(selectedDateStr);

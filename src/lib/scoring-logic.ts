@@ -49,7 +49,12 @@ export function calculateTeamMetrics(teams: ScorableTeam[], config: BlockWeekCon
             return dateObj.toISOString().split('T')[0];
         };
         const startDateKey = toDateKey(config.startDate);
-        const endDateKey = toDateKey(config.endDate); // This might need adjustment if logic uses inclusive strings
+
+        // Extend end date by 7 days to safely include the entire next week for "End Weight" (Week N+1)
+        const endDateObj = typeof config.endDate === 'string' ? new Date(config.endDate) : new Date(config.endDate);
+        const lookaheadEndDate = new Date(endDateObj);
+        lookaheadEndDate.setDate(lookaheadEndDate.getDate() + 7);
+        const endDateKey = toDateKey(lookaheadEndDate);
 
         for (const member of team.members) {
             // KM
@@ -65,34 +70,43 @@ export function calculateTeamMetrics(teams: ScorableTeam[], config: BlockWeekCon
 
             // Weight Loss
             // New Logic: 
-            // 1. Find the "End Weight" (Last weigh-in strictly WITHIN the week)
-            // 2. Find the "Start Weight" (Last weigh-in strictly BEFORE the week, OR first weigh-in WITHIN the week if no prior exists)
+            // Week N Weight Loss = (Weight logged during Week N) - (Weight logged during Week N+1)
 
-            // Filter weigh-ins strictly strictly within the configured week for the "End Weight"
-            const weekWeighIns = member.weighIns.filter(w => {
-                const d = toDateKey(w.date);
-                return d >= startDateKey && d <= endDateKey;
-            }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            // 1. Find weigh-in for THIS week (matches UI getWeighInForWeek bound logic)
+            const thisWeekStart = new Date(config.startDate);
+            const thisWeekEndObj = new Date(config.endDate);
+            thisWeekEndObj.setDate(thisWeekEndObj.getDate() + 1);
+            // End of day
+            const thisWeekEnd = new Date(thisWeekEndObj);
+            thisWeekEnd.setHours(23, 59, 59, 999);
 
-            // If no weigh-in IN this week, they can't contribute to "This Week's Loss"
-            if (weekWeighIns.length > 0) {
-                const lastInWeek = weekWeighIns[weekWeighIns.length - 1];
-                const firstInWeek = weekWeighIns[0];
+            const thisWeekWeighIn = member.weighIns.find(w => {
+                const d = new Date(w.date);
+                return d >= thisWeekStart && d <= thisWeekEnd;
+            });
 
-                // Find baseline: Last weigh-in BEFORE this week
-                const priorWeighIns = member.weighIns.filter(w => new Date(w.date) < new Date(config.startDate))
-                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            // 2. Find weigh-in for NEXT week
+            // Next week starts where this week technically "ends" conceptually, but we match the UI bounds
+            // Next week start = config.endDate + 1 day? No, `block.weeks` has consecutive dates.
+            // If week 1 is Jan 19 - Jan 25. Then Week 2 is Jan 26 - Feb 1.
+            // config.endDate is exactly the start of the next week conceptually if it's Jan 26 00:00:00.
+            // But let's construct standard bounds: next week is 7 days after the first one.
+            const nextWeekStart = new Date(thisWeekStart);
+            nextWeekStart.setDate(nextWeekStart.getDate() + 7);
 
-                let baselineWeight = firstInWeek.weight; // Default to first in week
-                if (priorWeighIns.length > 0) {
-                    baselineWeight = priorWeighIns[priorWeighIns.length - 1].weight;
-                }
+            const nextWeekEndObj = new Date(nextWeekStart);
+            nextWeekEndObj.setDate(nextWeekEndObj.getDate() + 6); // Add 6 days to get to end of next week
+            nextWeekEndObj.setDate(nextWeekEndObj.getDate() + 1); // Extract +1 for UI overlap behavior
+            const nextWeekEnd = new Date(nextWeekEndObj);
+            nextWeekEnd.setHours(23, 59, 59, 999);
 
-                // If using firstInWeek as baseline, and it's the SAME record as lastInWeek, loss is 0.
-                // This handles the "Week 1 Single Record" case correctly (0 loss).
-                // If there is a prior record, we get valid loss.
+            const nextWeekWeighIn = member.weighIns.find(w => {
+                const d = new Date(w.date);
+                return d >= nextWeekStart && d <= nextWeekEnd;
+            });
 
-                const diff = baselineWeight - lastInWeek.weight;
+            if (thisWeekWeighIn && thisWeekWeighIn.weight > 0 && nextWeekWeighIn && nextWeekWeighIn.weight > 0) {
+                const diff = thisWeekWeighIn.weight - nextWeekWeighIn.weight;
                 const loss = Math.max(0, diff);
                 teamWeightLoss += loss;
             }

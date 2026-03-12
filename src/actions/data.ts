@@ -37,7 +37,7 @@ export async function getWeighIns(date: Date) {
     });
 }
 
-export async function submitWeighIn(formData: FormData) {
+export async function submitWeighIn(prevState: any, formData: FormData) {
     const session = await auth();
     if (!session?.user) throw new Error("Unauthorized");
 
@@ -92,7 +92,7 @@ export async function submitWeighIn(formData: FormData) {
 }
 
 // --- KM LOGS ---
-export async function submitKmLog(formData: FormData) {
+export async function submitKmLog(prevState: any, formData: FormData) {
     const session = await auth();
     if (!session?.user) throw new Error("Unauthorized");
 
@@ -116,6 +116,12 @@ export async function submitKmLog(formData: FormData) {
     }
 
     try {
+        // Guard: check if week is finalized
+        const blockWeek = await prisma.blockWeek.findUnique({ where: { id: validated.data.blockWeekId } });
+        if (blockWeek?.isFinalized) {
+            return { success: false, message: "This week has been finalized. Unfinalize to edit." };
+        }
+
         await prisma.kmLog.upsert({
             where: {
                 memberId_blockWeekId: {
@@ -139,7 +145,7 @@ export async function submitKmLog(formData: FormData) {
 }
 
 // --- LIFESTYLE LOGS ---
-export async function submitLifestyleLog(formData: FormData) {
+export async function submitLifestyleLog(prevState: any, formData: FormData) {
     const session = await auth();
     if (!session?.user) throw new Error("Unauthorized");
 
@@ -163,6 +169,12 @@ export async function submitLifestyleLog(formData: FormData) {
     }
 
     try {
+        // Guard: check if week is finalized
+        const blockWeek = await prisma.blockWeek.findUnique({ where: { id: validated.data.blockWeekId } });
+        if (blockWeek?.isFinalized) {
+            return { success: false, message: "This week has been finalized. Unfinalize to edit." };
+        }
+
         await prisma.lifestyleLog.upsert({
             where: {
                 memberId_blockWeekId: {
@@ -193,9 +205,44 @@ export async function getSession(sessionId: string) {
     });
 }
 
+export async function getSessionsForWeek(weekId: string) {
+    const week = await prisma.blockWeek.findUnique({
+        where: { id: weekId }
+    });
+
+    if (!week) return [];
+
+    return await prisma.session.findMany({
+        where: {
+            blockId: week.blockId,
+            date: {
+                gte: week.startDate,
+                lt: week.endDate
+            }
+        },
+        include: { attendance: true },
+        orderBy: { date: 'asc' }
+    });
+}
+
 export async function toggleAttendance(sessionId: string, memberId: string, isPresent: boolean) {
     const session = await auth();
     if (!session?.user) throw new Error("Unauthorized");
+
+    // Guard: check if the session's week is finalized
+    const sessionRecord = await prisma.session.findUnique({
+        where: { id: sessionId },
+        include: { block: { include: { weeks: true } } }
+    });
+    if (sessionRecord) {
+        const sessionDate = new Date(sessionRecord.date);
+        const parentWeek = sessionRecord.block.weeks.find(
+            w => sessionDate >= w.startDate && sessionDate <= w.endDate
+        );
+        if (parentWeek?.isFinalized) {
+            throw new Error("This week has been finalized. Unfinalize to edit.");
+        }
+    }
 
     await prisma.attendance.upsert({
         where: {
@@ -252,7 +299,7 @@ export async function getMembersWithWeighIn(date: Date) {
 }
 
 // --- SUMMARY REPORT ---
-export async function getFullBlockSummary(blockWeekId?: string) {
+export async function getFullBlockSummary() {
     const block = await prisma.block.findFirst({
         where: { isActive: true },
         include: {

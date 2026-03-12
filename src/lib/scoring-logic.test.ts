@@ -16,8 +16,8 @@ describe('Scoring Logic', () => {
         lifestyleLogs: lifestyle > 0 ? [{ postCount: lifestyle }] : [],
         attendance: Array(attendance).fill({ isPresent: true }),
         weighIns: [
-            { date: '2024-01-01', weight: startW },
-            { date: '2024-01-07', weight: endW }
+            { date: '2024-01-01', weight: startW }, 
+            { date: '2024-01-08', weight: endW } // Week N+1 weigh in 
         ]
     });
 

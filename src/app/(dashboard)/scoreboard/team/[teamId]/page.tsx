@@ -2,13 +2,13 @@
 import { getActiveBlock } from "@/actions/data";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader, Button } from "@/components/ui/Components";
-import { ArrowLeft, User, Trophy, Scale, Footprints, Heart, Crown } from "lucide-react";
+import { ArrowLeft, User, Trophy, Scale, Footprints, Heart } from "lucide-react";
 import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export default async function TeamDetailPage({ params, searchParams }: { params: { teamId: string }, searchParams: { weekId?: string } }) {
+export default async function TeamDetailPage({ params, searchParams }: { params: Promise<{ teamId: string }>, searchParams: Promise<{ weekId?: string }> }) {
     const { teamId } = await params;
     const resolvedSearchParams = await searchParams; // Await searchParams as per Next.js 15+ patterns if applicable, or safe access
 
@@ -88,6 +88,12 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
     // Check for Team Award this week
     const awards = await prisma.teamWeekAward.findMany({
         where: { teamId, blockWeekId: selectedWeekId }
+    });
+
+    // Fetch Full Point History
+    const pointHistory = await prisma.pointLedger.findMany({
+        where: { teamId },
+        orderBy: { date: 'desc' }
     });
 
     return (
@@ -252,6 +258,60 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             </div>
                         ))}
                     </div>
+                </PremiumCard>
+
+                {/* POINTS HISTORY */}
+                <PremiumCard className="overflow-hidden border border-white/5 mt-8">
+                    <div className="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-tongan/10 rounded-lg border border-tongan/20">
+                                <Trophy className="w-5 h-5 text-tongan" />
+                            </div>
+                            <h3 className="font-bold text-white text-lg tracking-wide">Points History</h3>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xs font-bold uppercase text-offwhite/60 tracking-widest">Total Points</p>
+                            <p className="text-2xl font-mono font-bold text-tongan">
+                                {pointHistory.reduce((sum, p) => sum + p.amount, 0)}
+                            </p>
+                        </div>
+                    </div>
+
+                    {pointHistory.length === 0 ? (
+                        <div className="p-8 text-center bg-white/5">
+                            <p className="text-offwhite/60 font-medium">No points awarded to this team yet.</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-white/5">
+                            {pointHistory.map((point) => (
+                                <div key={point.id} className="p-4 md:p-6 flex items-center justify-between hover:bg-white/5 transition-colors group">
+                                    <div className="flex items-start gap-4">
+                                        <div className="mt-1">
+                                            <div className="w-8 h-8 rounded-full bg-ocean/20 border border-white/10 flex items-center justify-center group-hover:bg-tongan/20 group-hover:border-tongan/30 transition-colors">
+                                                <Trophy className="w-4 h-4 text-lagoon-100 group-hover:text-tongan transition-colors" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-white text-sm md:text-base">{point.reason}</p>
+                                            <p className="text-xs text-slate-400 mt-1">
+                                                {new Date(point.date).toLocaleDateString('en-NZ', {
+                                                    weekday: 'short',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                })}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="text-right">
+                                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-tongan/10 border border-tongan/20 text-tongan font-bold font-mono">
+                                            +{point.amount} pt{point.amount !== 1 ? 's' : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </PremiumCard>
 
             </div>

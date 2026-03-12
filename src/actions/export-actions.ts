@@ -47,6 +47,19 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
 
     let csvContent = '';
 
+    // Group members by team
+    const teamsMap = new Map<string, typeof members>();
+    members.forEach(member => {
+        const teamName = member.team?.name || 'Unassigned';
+        if (!teamsMap.has(teamName)) {
+            teamsMap.set(teamName, []);
+        }
+        teamsMap.get(teamName)?.push(member);
+    });
+
+    // Sort teams alphabetically
+    const sortedTeams = Array.from(teamsMap.entries()).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }));
+
     if (type === 'attendance') {
         // Header: First Name, Last Name, Team, Total Present, Rate, [Session 1], [Session 2]...
         const headers = ['First Name', 'Last Name', 'Team', 'Total Present', 'Rate (%)'];
@@ -55,24 +68,48 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
 
         csvContent += headers.join(',') + '\n';
 
-        members.forEach(member => {
-            const totalPresent = member.attendance.filter(a => a.isPresent).length;
-            const rate = sessions.length > 0 ? (totalPresent / sessions.length) * 100 : 0;
+        sortedTeams.forEach(([teamName, teamMembers]) => {
+            let teamTotalPresent = 0;
+            const teamTotalPossible = teamMembers.length * sessions.length;
+            const teamSessionTotals = new Array(sessions.length).fill(0);
 
-            const row = [
-                member.firstName,
-                member.lastName,
-                member.team?.name || 'Unassigned',
-                totalPresent.toString(),
-                rate.toFixed(1)
-            ];
+            teamMembers.forEach(member => {
+                const totalPresent = member.attendance.filter(a => a.isPresent).length;
+                teamTotalPresent += totalPresent;
+                const rate = sessions.length > 0 ? (totalPresent / sessions.length) * 100 : 0;
 
-            sessions.forEach(session => {
-                const record = member.attendance.find(a => a.sessionId === session.id);
-                row.push(record ? (record.isPresent ? 'Present' : 'Absent') : '-');
+                const row = [
+                    member.firstName,
+                    member.lastName,
+                    teamName,
+                    totalPresent.toString(),
+                    rate.toFixed(1)
+                ];
+
+                sessions.forEach((session, idx) => {
+                    const record = member.attendance.find(a => a.sessionId === session.id);
+                    if (record?.isPresent) teamSessionTotals[idx]++;
+                    row.push(record ? (record.isPresent ? 'Present' : 'Absent') : '-');
+                });
+
+                csvContent += row.join(',') + '\n';
             });
 
-            csvContent += row.join(',') + '\n';
+            // Team Total Row
+            const teamRate = teamTotalPossible > 0 ? (teamTotalPresent / teamTotalPossible) * 100 : 0;
+            const totalRow = [
+                'TEAM TOTAL',
+                '',
+                teamName,
+                teamTotalPresent.toString(),
+                teamRate.toFixed(1)
+            ];
+
+            teamSessionTotals.forEach(total => {
+                totalRow.push(total.toString());
+            });
+
+            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
         });
 
     } else if (type === 'km') {
@@ -83,22 +120,44 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
 
         csvContent += headers.join(',') + '\n';
 
-        members.forEach(member => {
-            const totalKm = member.kmLogs.reduce((sum, log) => sum + log.totalKm, 0);
+        sortedTeams.forEach(([teamName, teamMembers]) => {
+            let teamTotalKm = 0;
+            const teamWeekTotals = new Array(weeks.length).fill(0);
 
-            const row = [
-                member.firstName,
-                member.lastName,
-                member.team?.name || 'Unassigned',
-                totalKm.toFixed(2)
-            ];
+            teamMembers.forEach(member => {
+                const totalKm = member.kmLogs.reduce((sum, log) => sum + log.totalKm, 0);
+                teamTotalKm += totalKm;
 
-            weeks.forEach(week => {
-                const log = member.kmLogs.find(l => l.blockWeekId === week.id);
-                row.push(log ? log.totalKm.toString() : '0');
+                const row = [
+                    member.firstName,
+                    member.lastName,
+                    teamName,
+                    totalKm.toFixed(2)
+                ];
+
+                weeks.forEach((week, idx) => {
+                    const log = member.kmLogs.find(l => l.blockWeekId === week.id);
+                    const weekKm = log ? log.totalKm : 0;
+                    teamWeekTotals[idx] += weekKm;
+                    row.push(weekKm.toString());
+                });
+
+                csvContent += row.join(',') + '\n';
             });
 
-            csvContent += row.join(',') + '\n';
+            // Team Total Row
+            const totalRow = [
+                'TEAM TOTAL',
+                '',
+                teamName,
+                teamTotalKm.toFixed(2)
+            ];
+
+            teamWeekTotals.forEach(total => {
+                totalRow.push(total.toFixed(2));
+            });
+
+            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
         });
 
     } else if (type === 'lifestyle') {
@@ -109,66 +168,142 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
 
         csvContent += headers.join(',') + '\n';
 
-        members.forEach(member => {
-            const totalPosts = member.lifestyleLogs.reduce((sum, log) => sum + log.postCount, 0);
+        sortedTeams.forEach(([teamName, teamMembers]) => {
+            let teamTotalPosts = 0;
+            const teamWeekTotals = new Array(weeks.length).fill(0);
 
-            const row = [
-                member.firstName,
-                member.lastName,
-                member.team?.name || 'Unassigned',
-                totalPosts.toString()
-            ];
+            teamMembers.forEach(member => {
+                const totalPosts = member.lifestyleLogs.reduce((sum, log) => sum + log.postCount, 0);
+                teamTotalPosts += totalPosts;
 
-            weeks.forEach(week => {
-                const log = member.lifestyleLogs.find(l => l.blockWeekId === week.id);
-                row.push(log ? log.postCount.toString() : '0');
+                const row = [
+                    member.firstName,
+                    member.lastName,
+                    teamName,
+                    totalPosts.toString()
+                ];
+
+                weeks.forEach((week, idx) => {
+                    const log = member.lifestyleLogs.find(l => l.blockWeekId === week.id);
+                    const weekPosts = log ? log.postCount : 0;
+                    teamWeekTotals[idx] += weekPosts;
+                    row.push(weekPosts.toString());
+                });
+
+                csvContent += row.join(',') + '\n';
             });
 
-            csvContent += row.join(',') + '\n';
+            // Team Total Row
+            const totalRow = [
+                'TEAM TOTAL',
+                '',
+                teamName,
+                teamTotalPosts.toString()
+            ];
+
+            teamWeekTotals.forEach(total => {
+                totalRow.push(total.toString());
+            });
+
+            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
         });
 
     } else if (type === 'weigh-in') {
         // Header: First Name, Last Name, Team, Start Weight, Current Weight, Change, [Week 1], [Week 2]...
         // For weigh-ins, we align with weeks. We try to find a weigh-in that falls within each week.
-        const headers = ['First Name', 'Last Name', 'Team', 'Start Weight', 'Current Weight', 'Change'];
+        const headers = ['First Name', 'Last Name', 'Team', 'Start Weight', 'Current Weight', 'Overall Change'];
         const weeks = block.weeks;
         weeks.forEach(w => headers.push(`Week ${w.weekNumber} (${format(w.startDate, 'MMM d')})`));
 
         csvContent += headers.join(',') + '\n';
 
-        members.forEach(member => {
-            // Sort weigh-ins by date
-            const sortedWeighIns = member.weighIns.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        sortedTeams.forEach(([teamName, teamMembers]) => {
+            let teamTotalStartWeight = 0;
+            let teamTotalCurrentWeight = 0;
+            let teamTotalWeightLoss = 0; // Only positive weight loss
 
-            const startWeight = sortedWeighIns.length > 0 ? sortedWeighIns[0].weight : 0;
-            const currentWeight = sortedWeighIns.length > 0 ? sortedWeighIns[sortedWeighIns.length - 1].weight : 0;
-            const change = startWeight > 0 ? (currentWeight - startWeight) : 0;
+            const teamWeekTotals = new Array(weeks.length).fill(0);
 
-            const row = [
-                member.firstName,
-                member.lastName,
-                member.team?.name || 'Unassigned',
-                startWeight > 0 ? startWeight.toFixed(1) : '-',
-                currentWeight > 0 ? currentWeight.toFixed(1) : '-',
-                startWeight > 0 ? change.toFixed(1) : '-'
-            ];
+            teamMembers.forEach(member => {
+                // Sort weigh-ins by date
+                const sortedWeighIns = member.weighIns.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-            weeks.forEach(week => {
-                // Find a weigh-in that occurred during this week (start date to end date)
-                // Assuming end date is start date + 6 days
-                const weekEnd = new Date(week.startDate);
-                weekEnd.setDate(weekEnd.getDate() + 6);
+                const startWeight = sortedWeighIns.length > 0 ? sortedWeighIns[0].weight : 0;
+                const currentWeight = sortedWeighIns.length > 0 ? sortedWeighIns[sortedWeighIns.length - 1].weight : 0;
+                const change = startWeight > 0 ? (currentWeight - startWeight) : 0;
 
-                // Find the latest weigh-in for this week
-                const log = member.weighIns.find(w => {
-                    const wDate = new Date(w.date);
-                    return wDate >= week.startDate && wDate <= weekEnd;
+                if (startWeight > 0) teamTotalStartWeight += startWeight;
+                if (currentWeight > 0) teamTotalCurrentWeight += currentWeight;
+
+                // For overall grand total we only sum up folks who lost weight:
+                if (startWeight > 0 && currentWeight > 0 && change < 0) {
+                    teamTotalWeightLoss += Math.abs(change);
+                }
+
+                const row = [
+                    member.firstName,
+                    member.lastName,
+                    teamName,
+                    startWeight > 0 ? startWeight.toFixed(1) : '-',
+                    currentWeight > 0 ? currentWeight.toFixed(1) : '-',
+                    startWeight > 0 ? change.toFixed(1) : '-'
+                ];
+
+                weeks.forEach((week, idx) => {
+                    const weekEnd = new Date(week.startDate);
+                    weekEnd.setDate(weekEnd.getDate() + 7); // extend to next Monday
+
+                    const log = member.weighIns.find(w => {
+                        const wDate = new Date(w.date);
+                        return wDate >= week.startDate && wDate <= weekEnd;
+                    });
+
+                    row.push(log ? log.weight.toString() : '-');
+
+                    // Weekly team weight loss calculation:
+                    // Week N loss = Weight[Week N] - Weight[Week N+1]
+                    const nextWeek = weeks[idx + 1];
+                    let nextLog = undefined;
+
+                    if (nextWeek) {
+                        const nextWeekEnd = new Date(nextWeek.startDate);
+                        nextWeekEnd.setDate(nextWeekEnd.getDate() + 7);
+                        nextLog = member.weighIns.find(w => {
+                            const wDate = new Date(w.date);
+                            return wDate >= nextWeek.startDate && wDate <= nextWeekEnd;
+                        });
+                    }
+
+                    if (log && log.weight > 0 && nextLog && nextLog.weight > 0) {
+                        const delta = log.weight - nextLog.weight;
+                        if (delta > 0) {
+                            teamWeekTotals[idx] += delta;
+                        }
+                    }
                 });
 
-                row.push(log ? log.weight.toString() : '-');
+                csvContent += row.join(',') + '\n';
             });
 
-            csvContent += row.join(',') + '\n';
+            // Team Total Row
+            const totalRow = [
+                'TEAM TOTAL',
+                '',
+                teamName,
+                teamTotalStartWeight > 0 ? teamTotalStartWeight.toFixed(1) : '-',
+                teamTotalCurrentWeight > 0 ? teamTotalCurrentWeight.toFixed(1) : '-',
+                teamTotalWeightLoss > 0 ? `-${teamTotalWeightLoss.toFixed(1)}` : '0.0'
+            ];
+
+            teamWeekTotals.forEach((total, idx) => {
+                if (idx === 0) {
+                    totalRow.push(total > 0 ? total.toFixed(1) : '-');
+                } else {
+                    totalRow.push(total < 0 ? total.toFixed(1) : (total === 0 ? '0.0' : `+${total.toFixed(1)}`));
+                }
+            });
+
+            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
         });
     }
 

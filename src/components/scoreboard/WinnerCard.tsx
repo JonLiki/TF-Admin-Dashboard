@@ -3,9 +3,11 @@ import { cn } from '@/lib/utils';
 import { Trophy, Flame, Footprints, Activity } from 'lucide-react';
 import { NgatuDivider } from '@/components/ui/Patterns';
 
+export type AwardCategoryType = 'WEIGHT_LOSS' | 'KM_AVG' | 'LIFESTYLE_AVG' | 'ATTENDANCE_AVG';
+
 interface WinnerCardProps {
     teamName: string;
-    category: 'WEIGHT_LOSS' | 'KM_AVG' | 'LIFESTYLE_AVG' | 'ATTENDANCE_AVG';
+    category: AwardCategoryType;
     weekNumber: number;
     className?: string;
 }

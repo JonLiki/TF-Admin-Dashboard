@@ -79,7 +79,9 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
     // Helper to get weigh-in for a specific week
     const getWeighInForWeek = (member: Member, week: BlockWeek) => {
         const start = startOfDay(new Date(week.startDate));
-        const end = endOfDay(new Date(week.endDate));
+        const endObj = new Date(week.endDate);
+        endObj.setDate(endObj.getDate() + 1); // extend to next Monday
+        const end = endOfDay(endObj);
         return member.weighIns.find((w) => {
             const d = new Date(w.date);
             return d >= start && d <= end;
@@ -99,7 +101,6 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
     // Helper to get Attendance for a week
     const getAttendanceForWeek = (member: Member, week: BlockWeek) => {
         const weekStart = startOfDay(new Date(week.startDate));
-        const weekEnd = endOfDay(new Date(week.endDate));
 
         // Find sessions in this week
         const weekSessions = sessions.filter(s => {
@@ -161,17 +162,23 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
                     if (activeTab === 'weight') {
                         const w = getWeighInForWeek(member, week);
-                        if (weekIndex === 0) {
-                            cellValue = (w && w.weight > 0) ? w.weight.toFixed(1) : '-';
+
+                        // We now calculate the week's delta as: weight(this week) - weight(next week)
+                        // This means the delta depends on logging in the following week.
+
+                        let nextW: WeighIn | undefined = undefined;
+                        // For the last week of the block, we only look for weigh-in in the final week + 1 day window.
+                        // For all other weeks, we find the next week's weigh in.
+                        if (weekIndex + 1 < block.weeks.length) {
+                            nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]) as any;
+                        }
+
+                        if (w && w.weight > 0 && nextW && nextW.weight > 0) {
+                            const delta = w.weight - nextW.weight;
+                            // Loss is a positive delta, gain is negative here
+                            cellValue = (delta > 0 ? '-' : '+') + Math.abs(delta).toFixed(1);
                         } else {
-                            const prevWeek = block.weeks[weekIndex - 1];
-                            const prevW = getWeighInForWeek(member, prevWeek);
-                            if (w && w.weight > 0 && prevW && prevW.weight > 0) {
-                                const delta = w.weight - prevW.weight;
-                                cellValue = (delta > 0 ? '+' : '') + delta.toFixed(1);
-                            } else if (w && w.weight > 0) {
-                                cellValue = '0.0';
-                            }
+                            cellValue = '-';
                         }
                     } else if (activeTab === 'km') {
                         const k = getKmLogForWeek(member, week.id);
@@ -206,14 +213,19 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                 teamMembers.forEach((m) => {
                     if (activeTab === 'weight') {
                         const w = getWeighInForWeek(m, week);
-                        if (weekIndex === 0) {
-                            if (w && w.weight > 0) sum += w.weight;
-                        } else {
-                            const prevWeek = block.weeks[weekIndex - 1];
-                            const prevW = getWeighInForWeek(m, prevWeek);
-                            if (w && prevW && prevW.weight > 0 && w.weight > 0) {
-                                const delta = w.weight - prevW.weight;
-                                if (delta < 0) sum += delta; // Only negative deltas
+                        let nextW: WeighIn | undefined = undefined;
+                        if (weekIndex + 1 < block.weeks.length) {
+                            nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]) as any;
+                        }
+
+                        if (w && w.weight > 0 && nextW && nextW.weight > 0) {
+                            const delta = w.weight - nextW.weight;
+                            // Notice the UI UI expects loss to be passed as a negative total for the 'teamWeekTotals' array,
+                            // to match the 'isLoss = total < 0' logic down below and in exports.
+                            // delta is positive if weight goes down (loss).
+                            // We want to accumulate the *visual* delta logic which uses negative for loss in totals.
+                            if (delta > 0) { // If loss
+                                sum -= delta; // accumulating as a negative
                             }
                         }
                     } else if (activeTab === 'km') {
@@ -234,11 +246,8 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
             teamWeekTotals.forEach((total: number, idx: number) => {
                 let displayTotal = total.toFixed(1).replace('.0', '');
                 if (activeTab === 'weight') {
-                    if (idx === 0) {
-                        displayTotal = total.toFixed(1);
-                    } else {
-                        displayTotal = (total > 0 ? '+' : '') + total.toFixed(1);
-                    }
+                    // All weeks are now Sum of Deltas
+                    displayTotal = (total > 0 ? '+' : '') + total.toFixed(1);
                 }
                 teamFooterRow.push(displayTotal);
             });
@@ -338,197 +347,183 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
             {/* Content Area */}
             <PremiumCard className="p-0 overflow-hidden bg-ocean-deep/80 backdrop-blur-md border border-white/10">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-white/10 bg-black/20">
-                                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider sticky left-0 z-20 bg-[#0c1a25]">
-                                    Member
-                                </th>
-                                {block.weeks.map((week: BlockWeek, i: number) => (
-                                    <th key={week.id} className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center min-w-[100px]">
-                                        W{i + 1}<br />
-                                        <span className="text-[9px] opacity-50 lowercase font-normal">
-                                            {format(new Date(week.startDate), 'MMM d')}
-                                        </span>
+                {/* Scroll container with fade indicators */}
+                <div className="relative">
+                    {/* Left fade */}
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-ocean-deep/90 to-transparent z-10 pointer-events-none opacity-0 md:opacity-100" />
+                    {/* Right fade - scroll hint */}
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-ocean-deep/90 to-transparent z-10 pointer-events-none" />
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-white/10 bg-black/20">
+                                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider sticky left-0 z-20 bg-[#0c1a25]">
+                                        Member
                                     </th>
-                                ))}
-                                <th className="p-4 text-xs font-bold text-lagoon-100 uppercase tracking-wider text-center sticky right-0 z-20 bg-[#0c1a25] shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
-                                    Total
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {Array.from(teamsMap.entries())
-                                .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
-                                .map(([teamName, teamMembers]) => {
-                                    // Calculate Team Totals for Footer
-                                    const teamWeekTotals = block.weeks.map((week, weekIndex) => {
-                                        let sum = 0;
-                                        teamMembers.forEach((m) => {
-                                            if (activeTab === 'weight') {
-                                                const w = getWeighInForWeek(m, week);
+                                    {block.weeks.map((week: BlockWeek, i: number) => (
+                                        <th key={week.id} className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center min-w-[100px]">
+                                            W{i + 1}<br />
+                                            <span className="text-[9px] opacity-50 lowercase font-normal">
+                                                {format(new Date(week.startDate), 'MMM d')}
+                                            </span>
+                                        </th>
+                                    ))}
+                                    <th className="p-4 text-xs font-bold text-lagoon-100 uppercase tracking-wider text-center sticky right-0 z-20 bg-[#0c1a25] shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
+                                        Total
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {Array.from(teamsMap.entries())
+                                    .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
+                                    .map(([teamName, teamMembers]) => {
+                                        // Calculate Team Totals for Footer
+                                        const teamWeekTotals = block.weeks.map((week, weekIndex) => {
+                                            let sum = 0;
+                                            teamMembers.forEach((m) => {
+                                                if (activeTab === 'weight') {
+                                                    const w = getWeighInForWeek(m, week);
+                                                    let nextW: WeighIn | undefined = undefined;
+                                                    if (weekIndex + 1 < block.weeks.length) {
+                                                        nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]) as any;
+                                                    }
 
-                                                // Week 1 (Index 0): Sum of Absolute Weights
-                                                if (weekIndex === 0) {
-                                                    if (w && w.weight > 0) sum += w.weight;
-                                                } else {
-                                                    // Week 2+: Sum of Deltas
-                                                    const prevWeek = block.weeks[weekIndex - 1];
-                                                    const prevW = getWeighInForWeek(m, prevWeek);
-                                                    // Only calculate delta if previous weight is valid (> 0)
-                                                    if (w && prevW && prevW.weight > 0 && w.weight > 0) {
-                                                        const delta = w.weight - prevW.weight;
-                                                        // Request: "For the + red or gain numbers do not include that in the total calculation but just total up the green minus numbers."
-                                                        // Only include if delta is negative (weight loss)
-                                                        if (delta < 0) {
-                                                            sum += delta;
+                                                    if (w && w.weight > 0 && nextW && nextW.weight > 0) {
+                                                        const delta = w.weight - nextW.weight;
+                                                        if (delta > 0) { // If loss
+                                                            sum -= delta; // accumulating as a negative for UI display downstream
                                                         }
                                                     }
+                                                } else if (activeTab === 'km') {
+                                                    const k = getKmLogForWeek(m, week.id);
+                                                    if (k) sum += k.totalKm;
+                                                } else if (activeTab === 'lifestyle') {
+                                                    const l = getLifestyleLogForWeek(m, week.id);
+                                                    if (l) sum += l.postCount;
+                                                } else if (activeTab === 'attendance') {
+                                                    const a = getAttendanceForWeek(m, week);
+                                                    sum += a.present;
                                                 }
-                                            } else if (activeTab === 'km') {
-                                                const k = getKmLogForWeek(m, week.id);
-                                                if (k) sum += k.totalKm;
-                                            } else if (activeTab === 'lifestyle') {
-                                                const l = getLifestyleLogForWeek(m, week.id);
-                                                if (l) sum += l.postCount;
-                                            } else if (activeTab === 'attendance') {
-                                                const a = getAttendanceForWeek(m, week);
-                                                sum += a.present;
-                                            }
+                                            });
+                                            return sum;
                                         });
-                                        return sum;
-                                    });
 
-                                    const teamGrandTotal = teamMembers.reduce((acc: number, m: Member) => {
-                                        if (activeTab === 'weight') {
-                                            // Net change: First valid weigh-in - Last valid weigh-in
-                                            // Request: "Total the members that had a weight loss and discard weight gain"
-                                            const sorted = m.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
-                                            if (sorted.length >= 2) {
-                                                const loss = sorted[0].weight - sorted[sorted.length - 1].weight;
-                                                // Only include if it's a loss (positive value in Start - End)
-                                                if (loss > 0) {
-                                                    return acc + loss;
+                                        const teamGrandTotal = teamMembers.reduce((acc: number, m: Member) => {
+                                            if (activeTab === 'weight') {
+                                                // Net change: First valid weigh-in - Last valid weigh-in
+                                                // Request: "Total the members that had a weight loss and discard weight gain"
+                                                const sorted = m.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
+                                                if (sorted.length >= 2) {
+                                                    const loss = sorted[0].weight - sorted[sorted.length - 1].weight;
+                                                    // Only include if it's a loss (positive value in Start - End)
+                                                    if (loss > 0) {
+                                                        return acc + loss;
+                                                    }
                                                 }
+                                                return acc;
+                                            } else if (activeTab === 'km') {
+                                                return acc + m.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
+                                            } else if (activeTab === 'lifestyle') {
+                                                return acc + m.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
+                                            } else if (activeTab === 'attendance') {
+                                                // Total present
+                                                return acc + m.attendance.filter((a: Attendance) => a.isPresent).length;
                                             }
                                             return acc;
-                                        } else if (activeTab === 'km') {
-                                            return acc + m.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
-                                        } else if (activeTab === 'lifestyle') {
-                                            return acc + m.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
-                                        } else if (activeTab === 'attendance') {
-                                            // Total present
-                                            return acc + m.attendance.filter((a: Attendance) => a.isPresent).length;
-                                        }
-                                        return acc;
-                                    }, 0);
+                                        }, 0);
 
-                                    return (
-                                        <Fragment key={teamName}>
-                                            {/* Team Header Row */}
-                                            <tr className="bg-ocean/10">
-                                                <td colSpan={block.weeks.length + 2} className="p-3 pl-4 text-xs font-bold text-tongan uppercase tracking-widest border-l-4 border-tongan">
-                                                    {teamName}
-                                                </td>
-                                            </tr>
+                                        return (
+                                            <Fragment key={teamName}>
+                                                {/* Team Header Row */}
+                                                <tr className="bg-ocean/10">
+                                                    <td colSpan={block.weeks.length + 2} className="p-3 pl-4 text-xs font-bold text-tongan uppercase tracking-widest border-l-4 border-tongan">
+                                                        {teamName}
+                                                    </td>
+                                                </tr>
 
-                                            {/* Member Rows */}
-                                            {teamMembers.map((member: Member) => {
-                                                // Calculate Row Total/Net
-                                                let rowTotal = 0;
-                                                if (activeTab === 'weight') {
-                                                    const sorted = member.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
-                                                    if (sorted.length >= 2) rowTotal = sorted[0].weight - sorted[sorted.length - 1].weight;
-                                                    else rowTotal = 0;
-                                                } else if (activeTab === 'km') {
-                                                    rowTotal = member.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
-                                                } else if (activeTab === 'lifestyle') {
-                                                    rowTotal = member.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
-                                                } else if (activeTab === 'attendance') {
-                                                    rowTotal = member.attendance.filter((a: Attendance) => a.isPresent).length;
-                                                }
+                                                {/* Member Rows */}
+                                                {teamMembers.map((member: Member) => {
+                                                    // Calculate Row Total/Net
+                                                    let rowTotal = 0;
+                                                    if (activeTab === 'weight') {
+                                                        const sorted = member.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
+                                                        if (sorted.length >= 2) rowTotal = sorted[0].weight - sorted[sorted.length - 1].weight;
+                                                        else rowTotal = 0;
+                                                    } else if (activeTab === 'km') {
+                                                        rowTotal = member.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
+                                                    } else if (activeTab === 'lifestyle') {
+                                                        rowTotal = member.lifestyleLogs.reduce((s: number, l: LifestyleLog) => s + l.postCount, 0);
+                                                    } else if (activeTab === 'attendance') {
+                                                        rowTotal = member.attendance.filter((a: Attendance) => a.isPresent).length;
+                                                    }
 
-                                                return (
-                                                    <tr key={member.id} className="hover:bg-white/5 transition-colors group">
-                                                        <td className="p-3 pl-6 text-sm font-medium text-white sticky left-0 bg-[#0b1620] group-hover:bg-[#112231] transition-colors border-r border-white/5">
-                                                            {member.firstName} {member.lastName}
-                                                        </td>
-                                                        {block.weeks.map((week, weekIndex) => {
-                                                            let content: React.ReactNode = '-';
-                                                            if (activeTab === 'weight') {
-                                                                const w = getWeighInForWeek(member, week);
-                                                                if (weekIndex === 0) {
-                                                                    // Week 1: Show Absolute Weight
-                                                                    // Only show if > 0 to avoid "0.0" clutter if data missing/invalid
-                                                                    content = (w && w.weight > 0) ? w.weight.toFixed(1) : '-';
-                                                                } else {
-                                                                    // Week 2+: Show Delta from Previous Available Week
-                                                                    const prevWeek = block.weeks[weekIndex - 1];
-                                                                    const prevW = getWeighInForWeek(member, prevWeek);
+                                                    return (
+                                                        <tr key={member.id} className="hover:bg-white/5 transition-colors group">
+                                                            <td className="p-3 pl-6 text-sm font-medium text-white sticky left-0 bg-[#0b1620] group-hover:bg-[#112231] transition-colors border-r border-white/5">
+                                                                {member.firstName} {member.lastName}
+                                                            </td>
+                                                            {block.weeks.map((week, weekIndex) => {
+                                                                let content: React.ReactNode = '-';
+                                                                if (activeTab === 'weight') {
+                                                                    const w = getWeighInForWeek(member, week);
 
-                                                                    // Ensure previous weight is valid (> 0) to avoid artificial large gains (e.g. 0 -> 140)
-                                                                    if (w && w.weight > 0 && prevW && prevW.weight > 0) {
-                                                                        const delta = w.weight - prevW.weight;
-                                                                        const isLoss = delta < 0;
+                                                                    let nextW: WeighIn | undefined = undefined;
+                                                                    // For all weeks, we find the next week's weigh in.
+                                                                    if (weekIndex + 1 < block.weeks.length) {
+                                                                        nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]) as any;
+                                                                    }
+
+                                                                    if (w && w.weight > 0 && nextW && nextW.weight > 0) {
+                                                                        const delta = w.weight - nextW.weight;
+                                                                        const isLoss = delta > 0;
                                                                         content = (
                                                                             <span className={cn(
                                                                                 "font-medium",
-                                                                                isLoss ? "text-green-400" : (delta > 0 ? "text-red-400" : "text-slate-400")
+                                                                                isLoss ? "text-green-400" : (delta < 0 ? "text-red-400" : "text-slate-400")
                                                                             )}>
-                                                                                {delta > 0 ? '+' : ''}{delta.toFixed(1)}
+                                                                                {delta > 0 ? '-' : '+'}{Math.abs(delta).toFixed(1)}
                                                                             </span>
                                                                         );
-                                                                    } else if (w && w.weight > 0) {
-                                                                        // Current week exists and is valid, but previous week is missing or 0
-                                                                        // Treat as baseline / no change to report
-                                                                        content = <span className="text-slate-500 font-medium">0.0</span>;
                                                                     } else {
                                                                         content = '-';
                                                                     }
+                                                                } else if (activeTab === 'km') {
+                                                                    const k = getKmLogForWeek(member, week.id);
+                                                                    content = k ? k.totalKm.toFixed(1) : '-';
+                                                                } else if (activeTab === 'lifestyle') {
+                                                                    const l = getLifestyleLogForWeek(member, week.id);
+                                                                    content = l ? l.postCount : '-';
+                                                                } else if (activeTab === 'attendance') {
+                                                                    const a = getAttendanceForWeek(member, week);
+                                                                    content = <span className={cn(a.present === a.total ? "text-green-400" : "text-white")}>{a.present}/{a.total}</span>;
                                                                 }
-                                                            } else if (activeTab === 'km') {
-                                                                const k = getKmLogForWeek(member, week.id);
-                                                                content = k ? k.totalKm.toFixed(1) : '-';
-                                                            } else if (activeTab === 'lifestyle') {
-                                                                const l = getLifestyleLogForWeek(member, week.id);
-                                                                content = l ? l.postCount : '-';
-                                                            } else if (activeTab === 'attendance') {
-                                                                const a = getAttendanceForWeek(member, week);
-                                                                content = <span className={cn(a.present === a.total ? "text-green-400" : "text-white")}>{a.present}/{a.total}</span>;
-                                                            }
 
-                                                            return (
-                                                                <td key={week.id} className="p-3 text-sm text-slate-300 text-center border-r border-dashed border-white/5">
-                                                                    {content}
-                                                                </td>
-                                                            );
-                                                        })}
-                                                        <td className="p-3 text-sm font-bold text-lagoon-100 text-center sticky right-0 bg-[#0b1620] group-hover:bg-[#112231] shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
-                                                            {activeTab === 'weight'
-                                                                ? (rowTotal > 0 ? `-${rowTotal.toFixed(1)}` : `+${Math.abs(rowTotal).toFixed(1)}`)
-                                                                : rowTotal.toFixed(1).replace('.0', '')}
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
+                                                                return (
+                                                                    <td key={week.id} className="p-3 text-sm text-slate-300 text-center border-r border-dashed border-white/5">
+                                                                        {content}
+                                                                    </td>
+                                                                );
+                                                            })}
+                                                            <td className="p-3 text-sm font-bold text-lagoon-100 text-center sticky right-0 bg-[#0b1620] group-hover:bg-[#112231] shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
+                                                                {activeTab === 'weight'
+                                                                    ? (rowTotal > 0 ? `-${rowTotal.toFixed(1)}` : `+${Math.abs(rowTotal).toFixed(1)}`)
+                                                                    : rowTotal.toFixed(1).replace('.0', '')}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
 
-                                            {/* Team Footer/Total Row */}
-                                            <tr className="bg-white/5 font-bold border-t border-white/10">
-                                                <td className="p-3 pl-6 text-xs text-right text-tongan uppercase tracking-wider sticky left-0 bg-[#162a3b]">
-                                                    {teamName} Totals
-                                                </td>
-                                                {teamWeekTotals.map((total: number, idx: number) => {
-                                                    // Formatting for Totals
-                                                    let displayTotal: React.ReactNode = total.toFixed(1).replace('.0', '');
+                                                {/* Team Footer/Total Row */}
+                                                <tr className="bg-white/5 font-bold border-t border-white/10">
+                                                    <td className="p-3 pl-6 text-xs text-right text-tongan uppercase tracking-wider sticky left-0 bg-[#162a3b]">
+                                                        {teamName} Totals
+                                                    </td>
+                                                    {teamWeekTotals.map((total: number, idx: number) => {
+                                                        // Formatting for Totals
+                                                        let displayTotal: React.ReactNode = total.toFixed(1).replace('.0', '');
 
-                                                    if (activeTab === 'weight') {
-                                                        // Week 1 is absolute sum, so just show number
-                                                        if (idx === 0) {
-                                                            displayTotal = total.toFixed(1);
-                                                        } else {
-                                                            // Subsequent weeks are Sum of Deltas
-                                                            // Display with sign and color?
+                                                        if (activeTab === 'weight') {
+                                                            // All weeks are now Sum of Deltas
                                                             const isLoss = total < 0;
                                                             displayTotal = (
                                                                 <span className={cn(
@@ -538,25 +533,25 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                                 </span>
                                                             )
                                                         }
-                                                    }
 
-                                                    return (
-                                                        <td key={idx} className="p-3 text-sm text-tongan-100 text-center">
-                                                            {displayTotal}
-                                                        </td>
-                                                    )
-                                                })}
-                                                <td className="p-3 text-sm text-tongan text-center sticky right-0 bg-[#162a3b]">
-                                                    {activeTab === 'weight' && teamGrandTotal > 0
-                                                        ? `-${teamGrandTotal.toFixed(1)}`
-                                                        : teamGrandTotal.toFixed(1).replace('.0', '')}
-                                                </td>
-                                            </tr>
-                                        </Fragment>
-                                    );
-                                })}
-                        </tbody>
-                    </table>
+                                                        return (
+                                                            <td key={idx} className="p-3 text-sm text-tongan-100 text-center">
+                                                                {displayTotal}
+                                                            </td>
+                                                        )
+                                                    })}
+                                                    <td className="p-3 text-sm text-tongan text-center sticky right-0 bg-[#162a3b]">
+                                                        {activeTab === 'weight' && teamGrandTotal > 0
+                                                            ? `-${teamGrandTotal.toFixed(1)}`
+                                                            : teamGrandTotal.toFixed(1).replace('.0', '')}
+                                                    </td>
+                                                </tr>
+                                            </Fragment>
+                                        );
+                                    })}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </PremiumCard>
         </div>
