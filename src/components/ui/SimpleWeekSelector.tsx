@@ -3,13 +3,13 @@
 import { Select, SelectOption } from "@/components/ui/Select";
 import { useRouter } from "next/navigation";
 
-interface WeekSelectorProps {
+interface SimpleWeekSelectorProps {
     weeks: SelectOption[];
     selectedWeekId: string;
     basePath: string; // e.g., "/km" or "/lifestyle"
 }
 
-export function WeekSelector({ weeks, selectedWeekId, basePath }: WeekSelectorProps) {
+export function SimpleWeekSelector({ weeks, selectedWeekId, basePath }: SimpleWeekSelectorProps) {
     const router = useRouter();
 
     const handleWeekChange = (weekId: string) => {

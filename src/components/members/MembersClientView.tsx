@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button, Input, PageHeader } from "@/components/ui/Components";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { createMember } from "@/actions";
 import { UserPlus, Plus } from "lucide-react";
 import { Select } from "@/components/ui/Select";

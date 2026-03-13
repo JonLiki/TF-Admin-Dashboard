@@ -13,8 +13,8 @@ export default function DashboardLayout({
                 <Sidebar />
             </aside>
 
-            {/* Main Content Wrapper */}
-            <div className="flex-1 flex flex-col lg:pl-64 h-full overflow-hidden w-full">
+            {/* Main Content Wrapper — padded for floating sidebar (w-64 + m-3 margins) */}
+            <div className="flex-1 flex flex-col lg:pl-[17.5rem] h-full overflow-hidden w-full">
                 <Breadcrumb />
                 <main className="flex-1 overflow-y-auto bg-transparent scroll-smooth">
                     <div className="animate-page-enter">

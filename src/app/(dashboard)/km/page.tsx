@@ -1,11 +1,11 @@
 import { getActiveBlock, getMembersWithLogs } from "@/actions/data";
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Activity, TrendingUp, Award, CheckCircle, AlertCircle } from "lucide-react";
 
-import { WeekSelector } from "@/components/shared/WeekSelector";
+import { SimpleWeekSelector } from "@/components/ui/SimpleWeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { KmLogList } from "@/components/km/KmLogList";
-import { ExportButton } from "@/components/shared/ExportButton";
+import { BlockExportButton } from "@/components/ui/BlockExportButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDecimal } from "@/lib/formatters";
 
@@ -29,7 +29,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
     return (
         <div className="min-h-full pb-10">
             <PageHeader title="Weekly KM" subtitle="Activity Logs">
-                <WeekSelector
+                <SimpleWeekSelector
                     weeks={block.weeks.map((w) => ({
                         value: w.id,
                         label: `Week ${w.weekNumber}`
@@ -37,7 +37,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                     selectedWeekId={selectedWeekId}
                     basePath="/km"
                 />
-                <ExportButton blockId={block.id} type="km" />
+                <BlockExportButton blockId={block.id} type="km" />
             </PageHeader>
 
             {/* Summary Cards */}

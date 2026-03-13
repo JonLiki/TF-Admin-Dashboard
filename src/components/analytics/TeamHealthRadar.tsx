@@ -162,10 +162,10 @@ export function TeamHealthRadar({ teams, metrics, className }: TeamHealthRadarPr
                         content={({ active, payload, label }) => {
                             if (active && payload && payload.length) {
                                 return (
-                                    <div className="bg-[#0B0C10]/80 backdrop-blur-md border border-[#66FCF1]/30 p-4 rounded-xl shadow-[0_0_15px_rgba(102,252,241,0.15)]">
-                                        <p className="text-[#66FCF1] font-bold mb-3 border-b border-[#66FCF1]/10 pb-2 uppercase tracking-wider text-glow">{label}</p>
+                                    <div className="bg-obsidian/80 backdrop-blur-md border border-bio-cyan/30 p-4 rounded-xl shadow-[0_0_15px_rgba(102,252,241,0.15)]">
+                                        <p className="text-bio-cyan font-bold mb-3 border-b border-bio-cyan/10 pb-2 uppercase tracking-wider text-glow">{label}</p>
                                         {(payload as unknown as TooltipPayload[]).map((p) => (
-                                            <div key={p.name} className="flex items-center gap-3 text-sm text-[#C5C6C7] mb-1 last:mb-0">
+                                            <div key={p.name} className="flex items-center gap-3 text-sm text-steel mb-1 last:mb-0">
                                                 <span className="w-3 h-3 rounded-full border border-white/10 shadow-[0_0_8px_currentColor]" style={{ backgroundColor: p.color, color: p.color }} />
                                                 <span className="flex-1 font-semibold">{p.name}:</span>
                                                 <span className="font-mono text-white font-bold">

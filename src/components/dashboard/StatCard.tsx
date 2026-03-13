@@ -21,7 +21,7 @@ interface StatCardProps {
 
 export function StatCard({ label, value, subtext, icon: Icon, colorClass, borderClass, className, pattern, isNumber }: StatCardProps) {
     return (
-        <PremiumCard className={cn("p-6 flex flex-col justify-between h-32 md:h-40 group relative overflow-hidden", borderClass, className)}>
+        <PremiumCard glowBorder className={cn("p-6 flex flex-col justify-between h-32 md:h-40 group relative overflow-hidden", borderClass, className)}>
             {/* Texture Overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-blend-overlay mix-blend-overlay">
                 {pattern === 'ngatu' && <TonganNgatu />}

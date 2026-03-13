@@ -79,8 +79,11 @@ export function Sidebar() {
 
             {/* Sidebar */}
             <div className={cn(
-                "flex flex-col h-full bg-[#0B0C10] border-r border-[#66FCF1]/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden",
-                // Mobile: fixed, slide in from left
+                "flex flex-col bg-obsidian shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden",
+                // Desktop: floating island with margins and rounded corners
+                "lg:m-3 lg:rounded-2xl lg:border lg:border-bio-cyan/10 lg:h-[calc(100vh-1.5rem)]",
+                // Mobile: full-height fixed panel
+                "h-full border-r border-bio-cyan/10 lg:border-r-0",
                 "fixed inset-y-0 left-0 z-50 w-64",
                 "transform transition-transform duration-300 ease-in-out",
                 "lg:translate-x-0 lg:static lg:z-auto",
@@ -89,7 +92,7 @@ export function Sidebar() {
                 {/* --- TONGAN WARRIOR VISUALS (CSS FALLBACK) --- */}
 
                 {/* 1. Deep Obsidian Base */}
-                <div className="absolute inset-0 bg-[#0B0C10] z-0" />
+                <div className="absolute inset-0 bg-obsidian z-0" />
 
                 {/* 2. Atmospheric Glows (Bioluminescence & Volcanic) */}
                 <div className="absolute top-[-10%] left-[-20%] w-[150%] h-[50%] bg-[radial-gradient(circle,rgba(102,252,241,0.15)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
@@ -114,7 +117,7 @@ export function Sidebar() {
                             TF
                         </div>
                         <div>
-                            <h1 className="text-lg font-bold text-offwhite leading-none tracking-tight font-sans">TO&apos;A FATALONA</h1>
+                            <h1 className="text-lg font-bold text-offwhite leading-none tracking-tight font-display">TO&apos;A FATALONA</h1>
                             <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Admin Command</p>
                         </div>
                     </div>

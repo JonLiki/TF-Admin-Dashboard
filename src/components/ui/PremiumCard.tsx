@@ -3,13 +3,20 @@ import { cn } from '@/lib/utils';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
+    /** Enable animated gradient border on hover */
+    glowBorder?: boolean;
 }
 
-export function PremiumCard({ children, className, ...props }: CardProps) {
+export function PremiumCard({ children, className, glowBorder = false, ...props }: CardProps) {
     return (
         <div className={cn("relative group h-full", className)}>
             {/* Animated Glow Backdrop */}
             <div className="absolute inset-0 bg-gradient-to-r from-tongan/20 via-lagoon/10 to-ocean-light/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" />
+
+            {/* Gradient Border Layer (optional) */}
+            {glowBorder && (
+                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-bio-cyan/30 via-transparent to-tongan/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" />
+            )}
 
             {/* Card Content Shell */}
             <div

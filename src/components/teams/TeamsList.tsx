@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button } from "@/components/ui/Components";
+import { Button } from "@/components/ui/Button";
 import { Users, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SearchInput } from "@/components/ui/SearchInput";

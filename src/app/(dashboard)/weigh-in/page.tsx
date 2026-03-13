@@ -1,12 +1,12 @@
 import { getActiveBlock, getMembersWithWeighIn } from "@/actions/data";
 
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Scale, Award, CheckCircle, Users, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
-import { DateSelector } from "@/components/shared/DateSelector";
+import { DateSelector } from "@/components/ui/DateSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { WeighInLogList } from "@/components/weigh-in/WeighInLogList";
-import { ExportButton } from "@/components/shared/ExportButton";
+import { BlockExportButton } from "@/components/ui/BlockExportButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function WeighInPage({ searchParams }: { searchParams: { date?: string } }) {
@@ -40,7 +40,7 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
                     ]}
                     selectedDate={selectedDateStr}
                 />
-                <ExportButton blockId={block.id} type="weigh-in" />
+                <BlockExportButton blockId={block.id} type="weigh-in" />
             </PageHeader>
 
             {/* Summary Cards */}

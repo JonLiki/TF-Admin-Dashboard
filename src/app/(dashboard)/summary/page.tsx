@@ -1,5 +1,5 @@
 import { getFullBlockSummary } from "@/actions/data";
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 import { OceanWaves } from "@/components/ui/Patterns";
 

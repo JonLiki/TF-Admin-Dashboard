@@ -1,7 +1,8 @@
 import { getActiveBlock } from "@/actions/data";
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Trophy, AlertCircle } from "lucide-react";
+import { PremiumTrophy } from "@/components/ui/PremiumTrophy";
 import prisma from "@/lib/prisma";
 import { BlockWeek, Team, TeamWeekAward } from "@prisma/client";
 import { FinalizeWeekWizard } from "@/components/scoreboard/FinalizeWeekWizard";
@@ -116,13 +117,16 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                 {/* OVERALL LEADERBOARD */}
                 <PremiumCard className="relative overflow-hidden p-0">
                     <div className="p-8 relative z-10">
-                        <div className="flex items-center space-x-4 mb-4">
-                            <div className="p-3 bg-ocean/5 rounded-xl border border-ocean/10">
-                                <Trophy className="w-8 h-8 text-tongan drop-shadow-sm" />
+                        <div className="flex items-center space-x-4 mb-6 p-4 rounded-2xl bg-ocean-deep/40 backdrop-blur-md border border-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] relative group cursor-default">
+                            {/* Inner Glow Map */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-tongan/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rounded-2xl pointer-events-none" />
+                            
+                            <div className="relative p-3 bg-gradient-to-br from-tongan/20 to-transparent rounded-xl border border-tongan/30 shadow-[0_0_15px_rgba(200,16,46,0.15)] flex items-center justify-center">
+                                <PremiumTrophy className="w-10 h-10 group-hover:scale-110 transition-transform duration-500" variant="tongan" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold uppercase tracking-wide text-white">Overall Standings</h2>
-                                <p className="text-offwhite/60 text-xs font-bold tracking-widest uppercase mt-1">Block Leaderboard</p>
+                                <h2 className="text-2xl font-black uppercase tracking-widest text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Overall Standings</h2>
+                                <p className="text-tongan-light text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-80">Block Leaderboard</p>
                             </div>
                         </div>
 

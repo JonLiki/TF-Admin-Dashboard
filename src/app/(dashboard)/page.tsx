@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { Suspense } from "react";
 import { getActiveBlock } from "@/actions/data";

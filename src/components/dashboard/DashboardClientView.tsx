@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/Components';
+import { Button } from '@/components/ui/Button';
 import { Users, Scale, Activity, ArrowRight, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';

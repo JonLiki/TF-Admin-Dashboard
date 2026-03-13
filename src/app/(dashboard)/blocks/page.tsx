@@ -1,5 +1,5 @@
 import { getBlocks } from "@/actions/block-actions";
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { OceanWaves } from "@/components/ui/Patterns";
 import { BlocksClientView } from "@/components/blocks/BlocksClientView";
 

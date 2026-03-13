@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PremiumCard } from '@/components/ui/PremiumCard';
-import { Button } from '@/components/ui/Components';
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import {
     CheckCircle2,

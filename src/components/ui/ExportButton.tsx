@@ -39,7 +39,7 @@ export function ExportButton({ data, className }: ExportButtonProps) {
                 disabled={isExporting}
                 className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200",
-                    "bg-[#0B3C5D] text-white hover:bg-[#0E4D75]",
+                    "bg-ocean text-white hover:bg-ocean-light",
                     "border border-white/10 shadow-sm",
                     "disabled:opacity-50 disabled:cursor-not-allowed",
                     "focus:outline-none focus:ring-2 focus:ring-lagoon/50"
@@ -66,7 +66,7 @@ export function ExportButton({ data, className }: ExportButtonProps) {
                     {/* Menu */}
                     <div className={cn(
                         "absolute right-0 mt-2 w-48 z-50",
-                        "bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl",
+                        "bg-obsidian border border-white/10 rounded-xl shadow-2xl",
                         "py-1",
                         "animate-in fade-in-0 zoom-in-95 duration-200"
                     )}>
@@ -74,7 +74,7 @@ export function ExportButton({ data, className }: ExportButtonProps) {
                             onClick={() => handleExport('pdf')}
                             className={cn(
                                 "w-full px-4 py-2.5 text-left flex items-center gap-3",
-                                "text-white hover:bg-[#12394D] transition-colors duration-150"
+                                "text-white hover:bg-ocean transition-colors duration-150"
                             )}
                         >
                             <FileText className="w-4 h-4 text-lagoon-100" />
@@ -88,7 +88,7 @@ export function ExportButton({ data, className }: ExportButtonProps) {
                             onClick={() => handleExport('csv')}
                             className={cn(
                                 "w-full px-4 py-2.5 text-left flex items-center gap-3",
-                                "text-white hover:bg-[#12394D] transition-colors duration-150"
+                                "text-white hover:bg-ocean transition-colors duration-150"
                             )}
                         >
                             <Table className="w-4 h-4 text-lagoon-100" />

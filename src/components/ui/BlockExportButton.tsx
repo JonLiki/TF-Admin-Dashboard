@@ -1,18 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Components';
+import { Button } from '@/components/ui/Button';
 import { Download } from 'lucide-react';
 import { exportBlockData } from '@/actions/export-actions';
 import { toast } from 'sonner';
 
-interface ExportButtonProps {
+interface BlockExportButtonProps {
     blockId: string;
     type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in';
     className?: string;
 }
 
-export function ExportButton({ blockId, type, className }: ExportButtonProps) {
+export function BlockExportButton({ blockId, type, className }: BlockExportButtonProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleExport = async () => {

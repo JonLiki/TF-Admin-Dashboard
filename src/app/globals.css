@@ -57,6 +57,12 @@
   --color-steel: #C5C6C7;
   /* Text / Subtle Elements */
 
+  /* --- Table Surface Colors --- */
+  --color-table-header: var(--color-table-header);
+  --color-table-row: var(--color-table-row);
+  --color-table-row-hover: var(--color-table-row-hover);
+  --color-table-totals: var(--color-table-totals);
+
   /* --- Glowing Accents --- */
   --color-bio-cyan: #66FCF1;
   /* Primary Glow (Tongan Motifs) */
@@ -199,33 +205,12 @@
   /* Subtle Cyan Tint */
   --input: rgba(255, 255, 255, 0.1);
   --ring: #66FCF1;
-}
 
-.dark {
-  /* Dark Mode Variables (Same as Root) */
-  --background: #0B0C10;
-  --foreground: #FFFFFF;
-
-  /* Semantic Colors */
-  --color-primary: #66FCF1;
-  --color-secondary: #C50000;
-  --color-accent: #45A29E;
-  --color-neutral: #1F2833;
-
-  /* Card/Surface Colors */
-  --card-background: #1F2833;
-  --card-foreground: #FFFFFF;
-  --popover-background: #0B0C10;
-  --popover-foreground: #FFFFFF;
-
-  /* Surface colors */
-  --surface-ocean: #1F2833;
-  --surface-deep: #0B0C10;
-
-  /* Border Colors */
-  --border: rgba(102, 252, 241, 0.1);
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: #66FCF1;
+  /* Table Surface Colors (for sticky columns) */
+  --color-table-header: #0c1a25;
+  --color-table-row: #0b1620;
+  --color-table-row-hover: #112231;
+  --color-table-totals: #162a3b;
 }
 
 /* Glassmorphism Utilities */
@@ -246,10 +231,10 @@ body {
   transition: colors 0.3s ease;
 }
 
-/* Custom scrollbar for modern feel */
+/* Custom scrollbar with neon hover */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -257,13 +242,41 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E2933;
-  /* Charcoal */
-  border-radius: 4px;
+  background: rgba(102, 252, 241, 0.15);
+  border-radius: 3px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: rgba(102, 252, 241, 0.35);
+  box-shadow: 0 0 8px rgba(102, 252, 241, 0.3);
 }
+
+/* Staggered list animation utility */
+@keyframes stagger-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  animation: stagger-fade-in 0.3s ease-out both;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0ms; }
+.stagger-item:nth-child(2) { animation-delay: 50ms; }
+.stagger-item:nth-child(3) { animation-delay: 100ms; }
+.stagger-item:nth-child(4) { animation-delay: 150ms; }
+.stagger-item:nth-child(5) { animation-delay: 200ms; }
+.stagger-item:nth-child(6) { animation-delay: 250ms; }
+.stagger-item:nth-child(7) { animation-delay: 300ms; }
+.stagger-item:nth-child(8) { animation-delay: 350ms; }
+.stagger-item:nth-child(9) { animation-delay: 400ms; }
+.stagger-item:nth-child(10) { animation-delay: 450ms; }
 
 /* --- Pacific Cultural Patterns (Managed via Component/SVG) --- */

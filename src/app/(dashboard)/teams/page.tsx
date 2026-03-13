@@ -1,5 +1,7 @@
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button, Input, PageHeader } from "@/components/ui/Components";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { getTeams, createTeam } from "@/actions";
 import { Plus, Shield } from "lucide-react";
 import { TeamsList } from "@/components/teams/TeamsList";

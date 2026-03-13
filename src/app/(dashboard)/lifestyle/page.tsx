@@ -1,11 +1,11 @@
 import { getActiveBlock, getMembersWithLogs } from "@/actions/data";
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Heart, TrendingUp, Award, CheckCircle, AlertCircle } from "lucide-react";
 
-import { WeekSelector } from "@/components/shared/WeekSelector";
+import { SimpleWeekSelector } from "@/components/ui/SimpleWeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { LifestyleLogList } from "@/components/lifestyle/LifestyleLogList";
-import { ExportButton } from "@/components/shared/ExportButton";
+import { BlockExportButton } from "@/components/ui/BlockExportButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDecimal, formatInteger } from "@/lib/formatters";
 
@@ -29,7 +29,7 @@ export default async function LifestylePage({ searchParams }: { searchParams: { 
     return (
         <div className="min-h-full pb-10">
             <PageHeader title="Lifestyle" subtitle="Healthy Habits">
-                <WeekSelector
+                <SimpleWeekSelector
                     weeks={block.weeks.map((w) => ({
                         value: w.id,
                         label: `Week ${w.weekNumber}`
@@ -37,7 +37,7 @@ export default async function LifestylePage({ searchParams }: { searchParams: { 
                     selectedWeekId={selectedWeekId}
                     basePath="/lifestyle"
                 />
-                <ExportButton blockId={block.id} type="lifestyle" />
+                <BlockExportButton blockId={block.id} type="lifestyle" />
             </PageHeader>
 
             {/* Summary Cards */}

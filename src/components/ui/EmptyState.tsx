@@ -23,13 +23,13 @@ export function EmptyState({
     return (
         <div className={cn(
             "flex flex-col items-center justify-center p-12 text-center",
-            "bg-gradient-to-b from-[#111827] to-[#0B1220] rounded-2xl border border-white/5 shadow-lg",
+            "bg-gradient-to-b from-ocean-deep to-obsidian rounded-2xl border border-white/5 shadow-lg",
             className
         )}>
             {/* Icon with Pacific-themed styling */}
             <div className="mb-6 relative">
                 <div className="absolute inset-0 bg-lagoon/20 blur-2xl rounded-full" />
-                <div className="relative bg-[#0B3C5D] p-6 rounded-2xl border border-white/10 shadow-xl">
+                <div className="relative bg-ocean p-6 rounded-2xl border border-white/10 shadow-xl">
                     <Icon className="h-12 w-12 text-lagoon-100" strokeWidth={1.5} />
                 </div>
             </div>

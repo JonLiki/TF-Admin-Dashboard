@@ -357,7 +357,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-white/10 bg-black/20">
-                                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider sticky left-0 z-20 bg-[#0c1a25]">
+                                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider sticky left-0 z-20 bg-table-header">
                                         Member
                                     </th>
                                     {block.weeks.map((week: BlockWeek, i: number) => (
@@ -368,7 +368,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                             </span>
                                         </th>
                                     ))}
-                                    <th className="p-4 text-xs font-bold text-lagoon-100 uppercase tracking-wider text-center sticky right-0 z-20 bg-[#0c1a25] shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
+                                    <th className="p-4 text-xs font-bold text-lagoon-100 uppercase tracking-wider text-center sticky right-0 z-20 bg-table-header shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
                                         Total
                                     </th>
                                 </tr>
@@ -459,7 +459,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
                                                     return (
                                                         <tr key={member.id} className="hover:bg-white/5 transition-colors group">
-                                                            <td className="p-3 pl-6 text-sm font-medium text-white sticky left-0 bg-[#0b1620] group-hover:bg-[#112231] transition-colors border-r border-white/5">
+                                                            <td className="p-3 pl-6 text-sm font-medium text-white sticky left-0 bg-table-row group-hover:bg-table-row-hover transition-colors border-r border-white/5">
                                                                 {member.firstName} {member.lastName}
                                                             </td>
                                                             {block.weeks.map((week, weekIndex) => {
@@ -504,7 +504,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                                     </td>
                                                                 );
                                                             })}
-                                                            <td className="p-3 text-sm font-bold text-lagoon-100 text-center sticky right-0 bg-[#0b1620] group-hover:bg-[#112231] shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
+                                                            <td className="p-3 text-sm font-bold text-lagoon-100 text-center sticky right-0 bg-table-row group-hover:bg-table-row-hover shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.5)]">
                                                                 {activeTab === 'weight'
                                                                     ? (rowTotal > 0 ? `-${rowTotal.toFixed(1)}` : `+${Math.abs(rowTotal).toFixed(1)}`)
                                                                     : rowTotal.toFixed(1).replace('.0', '')}
@@ -515,7 +515,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
                                                 {/* Team Footer/Total Row */}
                                                 <tr className="bg-white/5 font-bold border-t border-white/10">
-                                                    <td className="p-3 pl-6 text-xs text-right text-tongan uppercase tracking-wider sticky left-0 bg-[#162a3b]">
+                                                    <td className="p-3 pl-6 text-xs text-right text-tongan uppercase tracking-wider sticky left-0 bg-table-totals">
                                                         {teamName} Totals
                                                     </td>
                                                     {teamWeekTotals.map((total: number, idx: number) => {
@@ -540,7 +540,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                             </td>
                                                         )
                                                     })}
-                                                    <td className="p-3 text-sm text-tongan text-center sticky right-0 bg-[#162a3b]">
+                                                    <td className="p-3 text-sm text-tongan text-center sticky right-0 bg-table-totals">
                                                         {activeTab === 'weight' && teamGrandTotal > 0
                                                             ? `-${teamGrandTotal.toFixed(1)}`
                                                             : teamGrandTotal.toFixed(1).replace('.0', '')}

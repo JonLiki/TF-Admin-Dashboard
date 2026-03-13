@@ -1,6 +1,7 @@
 
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { PageHeader, Button } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { ArrowLeft, Activity, Scale, CalendarDays, Trophy } from "lucide-react";
 import prisma from "@/lib/prisma";
 import Link from "next/link";

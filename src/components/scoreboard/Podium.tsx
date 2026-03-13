@@ -3,6 +3,7 @@
 
 import { ScoreboardMetric } from "@/types/scoreboard";
 import { Trophy } from "lucide-react";
+import { PremiumTrophy } from "@/components/ui/PremiumTrophy";
 import { OceanWaves, TonganNgatu, NgatuDivider, WinnerBadge } from "@/components/ui/Patterns";
 import { motion } from "framer-motion";
 
@@ -58,16 +59,17 @@ export function Podium({ standings }: PodiumProps) {
                         </span>
                     </div>
                     <motion.div
-                        className="w-full h-40 bg-gradient-to-t from-ocean-deep via-ocean to-lagoon/20 border-t-2 border-x border-lagoon/30 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(28,114,147,0.15)]"
+                        className="w-full h-40 bg-gradient-to-t from-ocean-deep via-ocean to-lagoon/30 border-t-2 border-x border-lagoon/50 rounded-t-lg relative group overflow-hidden shadow-[0_0_25px_rgba(28,114,147,0.25)]"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}
                         transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                         style={{ transformOrigin: "bottom" }}
                     >
-                        <OceanWaves className="absolute inset-0 opacity-10" />
-                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-lagoon to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-lagoon/10 to-ocean-deep opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
+                        <OceanWaves className="absolute inset-0 opacity-15 mix-blend-overlay" />
+                        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-lagoon-100 to-transparent opacity-80" />
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-6xl font-black text-lagoon/20 group-hover:text-lagoon/40 transition-colors drop-shadow-lg">2</span>
+                            <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-lagoon/40 to-ocean-deep group-hover:from-lagoon/60 transition-all duration-500 drop-shadow-sm">2</span>
                         </div>
                     </motion.div>
                 </motion.div>
@@ -100,19 +102,23 @@ export function Podium({ standings }: PodiumProps) {
                         </div>
                     </div>
                     <motion.div
-                        className="w-full h-56 bg-gradient-to-t from-tongan-dark via-tongan to-tongan/20 border-t-4 border-x border-tongan rounded-t-xl relative group overflow-hidden shadow-[0_0_50px_rgba(200,16,46,0.3)]"
+                        className="w-full h-56 bg-gradient-to-t from-tongan-dark via-tongan to-tongan/30 border-t-[3px] border-x border-tongan-light/50 rounded-t-xl relative group overflow-hidden shadow-[0_0_40px_rgba(200,16,46,0.4)]"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}
                         transition={{ duration: 0.8, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
                         style={{ transformOrigin: "bottom" }}
                     >
-                        <TonganNgatu className="absolute inset-0 opacity-10" />
-                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-tongan-light via-white to-tongan-light opacity-50" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <Trophy className="w-24 h-24 text-tongan-offwhite/20 group-hover:text-tongan-offwhite/40 group-hover:scale-110 transition-all duration-700" />
+                        {/* Animated background gradient to give it a rich look */}
+                        <div className="absolute inset-0 bg-[length:200%_200%] bg-gradient-to-b from-transparent via-tongan/20 to-tongan-dark opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
+                        <TonganNgatu className="absolute inset-0 opacity-10 mix-blend-overlay" />
+                        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-tongan-dark via-tongan-light to-tongan-dark opacity-80" />
+                        <div className="absolute inset-0 flex items-center justify-center pb-8">
+                            <div className="relative w-28 h-28 group-hover:scale-110 transition-all duration-700 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                                <PremiumTrophy variant="gold" className="w-full h-full" />
+                            </div>
                         </div>
-                        <div className="absolute bottom-6 left-0 right-0 text-center">
-                            <span className="px-4 py-1 bg-tongan-dark/80 backdrop-blur-sm border border-tongan-light/30 rounded-full text-xs font-bold text-white uppercase tracking-[0.2em] shadow-lg">
+                        <div className="absolute bottom-6 left-0 right-0 text-center z-10">
+                            <span className="px-4 py-1.5 bg-black/40 backdrop-blur-md border border-tongan-light/40 rounded-full text-xs font-black text-white uppercase tracking-[0.2em] shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-shadow">
                                 Leader
                             </span>
                         </div>
@@ -136,16 +142,17 @@ export function Podium({ standings }: PodiumProps) {
                         </span>
                     </div>
                     <motion.div
-                        className="w-full h-32 bg-gradient-to-t from-slate-900 via-slate-800 to-slate-700/30 border-t-2 border-x border-slate-600/30 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(148,163,184,0.1)]"
+                        className="w-full h-32 bg-gradient-to-t from-slate-900 via-slate-800 to-slate-700/40 border-t-2 border-x border-slate-500/40 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(148,163,184,0.15)]"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}
                         transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                         style={{ transformOrigin: "bottom" }}
                     >
-                        <NgatuDivider className="absolute bottom-0 w-full opacity-5" />
-                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-slate-500 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-600/10 to-slate-900 opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
+                        <NgatuDivider className="absolute bottom-0 w-full opacity-10 mix-blend-overlay" />
+                        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-slate-400 to-transparent opacity-60" />
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-6xl font-black text-slate-500/20 group-hover:text-slate-500/40 transition-colors">3</span>
+                            <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-600/50 to-slate-900 group-hover:from-slate-500/70 transition-all duration-500 drop-shadow-sm">3</span>
                         </div>
                     </motion.div>
                 </motion.div>

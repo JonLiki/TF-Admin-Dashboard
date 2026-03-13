@@ -1,12 +1,12 @@
 import { getActiveBlock, getSessionsForWeek } from "@/actions/data";
 import { getMembers } from "@/actions";
-import { PageHeader } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { CalendarCheck, TrendingUp, CheckCircle, XCircle, Users, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { WeekSelector } from "@/components/attendance/WeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { WeeklyAttendanceTable } from "@/components/attendance/WeeklyAttendanceTable";
-import { ExportButton } from "@/components/shared/ExportButton";
+import { BlockExportButton } from "@/components/ui/BlockExportButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function AttendancePage({ searchParams }: { searchParams: { weekId?: string } }) {
@@ -42,7 +42,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: {
                     }))}
                     selectedWeekId={selectedWeek.id}
                 />
-                <ExportButton blockId={block.id} type="attendance" />
+                <BlockExportButton blockId={block.id} type="attendance" />
             </PageHeader>
 
             {/* Summary Cards */}

@@ -1,7 +1,8 @@
 
 import { getActiveBlock } from "@/actions/data";
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { PageHeader, Button } from "@/components/ui/Components";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { ArrowLeft, User, Trophy, Scale, Footprints, Heart } from "lucide-react";
 import prisma from "@/lib/prisma";
 
@@ -184,7 +185,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                     {/* DESKTOP TABLE */}
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm text-left">
-                            <thead className="bg-[#0B3C5D] text-white font-semibold uppercase text-xs">
+                            <thead className="bg-ocean text-white font-semibold uppercase text-xs">
                                 <tr>
                                     <th className="px-6 py-4">Member</th>
                                     <th className="px-6 py-4 text-center">Sessions</th>
@@ -195,7 +196,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             </thead>
                             <tbody className="divide-y divide-white/5">
                                 {memberStats.map(m => (
-                                    <tr key={m.id} className="hover:bg-[#12394D] transition-colors border-l-4 border-transparent hover:border-lagoon">
+                                    <tr key={m.id} className="hover:bg-ocean transition-colors border-l-4 border-transparent hover:border-lagoon">
                                         <td className="px-6 py-4 font-bold text-white">
                                             {m.firstName} {m.lastName}
                                         </td>

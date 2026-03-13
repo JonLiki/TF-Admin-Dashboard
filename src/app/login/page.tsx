@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { authenticate } from '@/actions/auth-actions';
-import { Button } from '@/components/ui/Components';
+import { Button } from '@/components/ui/Button';
 import { TonganNgatu } from '@/components/ui/Patterns';
 import { Loader2, LockKeyhole, ArrowRight, Waves } from 'lucide-react';
 
