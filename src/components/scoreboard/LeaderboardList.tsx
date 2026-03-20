@@ -10,9 +10,10 @@ interface LeaderboardListProps {
         points: number;
     }>;
     startIndex: number; // e.g. 3 (for 4th place)
+    isPublic?: boolean;
 }
 
-export function LeaderboardList({ items, startIndex }: LeaderboardListProps) {
+export function LeaderboardList({ items, startIndex, isPublic = false }: LeaderboardListProps) {
     if (items.length === 0) return null;
 
     return (
@@ -24,11 +25,8 @@ export function LeaderboardList({ items, startIndex }: LeaderboardListProps) {
             {items.map((team, idx) => {
                 const rank = startIndex + idx + 1;
                 const isCloseToPodium = rank === 4 || rank === 5;
-                return (
-                    <Link href={`/scoreboard/team/${team.id}`} key={team.id} className={cn(
-                        "relative flex items-center justify-between p-4 rounded-xl border transition-all duration-500 ease-out overflow-hidden group",
-                        "bg-ocean-deep/30 border-lagoon/10 hover:border-lagoon/40 hover:shadow-[0_0_20px_-5px_rgba(28,114,147,0.3)] hover:-translate-y-1"
-                    )}>
+                const innerContent = (
+                    <>
                         {/* Hover Gradient Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-r from-ocean/40 via-ocean/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
                         
@@ -51,6 +49,26 @@ export function LeaderboardList({ items, startIndex }: LeaderboardListProps) {
                         <span className="relative z-10 font-mono font-black text-white text-lg bg-ocean-deep/80 border border-white/10 px-3 py-1 rounded-md min-w-[60px] text-center group-hover:bg-lagoon/20 group-hover:border-lagoon/40 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] group-hover:shadow-[0_0_10px_rgba(28,114,147,0.2)]">
                             {team.points}
                         </span>
+                    </>
+                );
+
+                const containerClasses = cn(
+                    "relative flex items-center justify-between p-4 rounded-xl border transition-all duration-500 ease-out overflow-hidden group",
+                    "bg-ocean-deep/30 border-lagoon/10 hover:border-lagoon/40 hover:shadow-[0_0_20px_-5px_rgba(28,114,147,0.3)]",
+                    !isPublic && "hover:-translate-y-1"
+                );
+
+                if (isPublic) {
+                    return (
+                        <div key={team.id} className={containerClasses}>
+                            {innerContent}
+                        </div>
+                    );
+                }
+
+                return (
+                    <Link href={`/scoreboard/team/${team.id}`} key={team.id} className={containerClasses}>
+                        {innerContent}
                     </Link>
                 );
             })}

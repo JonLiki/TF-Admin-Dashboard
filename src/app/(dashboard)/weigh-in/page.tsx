@@ -29,13 +29,21 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
             <PageHeader title="Weigh-in" subtitle="Weekly Weigh-ins">
                 <DateSelector
                     dates={[
-                        ...block.weeks.map((w) => ({
+                        // First week's startDate is the baseline "Start" weigh-in (Jan 19)
+                        {
+                            value: block.weeks[0].startDate.toISOString(),
+                            label: `Start – ${format(block.weeks[0].startDate, 'MMM d')}`
+                        },
+                        // Weeks 2–N: each week's startDate is the "end-of-prior-week" weigh-in date
+                        // e.g. Jan 26 = end of Week 1 / used to calculate Week 1 loss
+                        ...block.weeks.slice(1).map((w) => ({
                             value: w.startDate.toISOString(),
-                            label: `Week ${w.weekNumber} - ${format(w.startDate, 'MMM d')}`
+                            label: `Week ${w.weekNumber - 1} End – ${format(w.startDate, 'MMM d')}`
                         })),
+                        // Final weigh-in: block endDate (e.g. Mar 16) = end of last week
                         {
                             value: block.endDate.toISOString(),
-                            label: `Final - ${format(block.endDate, 'MMM d')}`
+                            label: `Week ${block.weeks.length} End – ${format(block.endDate, 'MMM d')}`
                         }
                     ]}
                     selectedDate={selectedDateStr}

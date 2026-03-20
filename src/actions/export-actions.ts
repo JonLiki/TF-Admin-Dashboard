@@ -36,7 +36,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                 where: {
                     date: {
                         gte: block.startDate,
-                        lte: block.endDate
+                        lte: new Date(new Date(block.endDate).setHours(23, 59, 59, 999))
                     }
                 },
                 orderBy: { date: 'asc' }
@@ -214,6 +214,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
         const headers = ['First Name', 'Last Name', 'Team', 'Start Weight', 'Current Weight', 'Overall Change'];
         const weeks = block.weeks;
         weeks.forEach(w => headers.push(`Week ${w.weekNumber} (${format(w.startDate, 'MMM d')})`));
+        headers.push(`Final (${format(block.endDate, 'MMM d')})`);
 
         csvContent += headers.join(',') + '\n';
 
@@ -272,6 +273,17 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                             const wDate = new Date(w.date);
                             return wDate >= nextWeek.startDate && wDate <= nextWeekEnd;
                         });
+                    } else {
+                        // For the last week (idx === weeks.length - 1), 
+                        // the "nextLog" is the final weigh-in on block.endDate
+                        const blockEndStart = new Date(block.endDate);
+                        blockEndStart.setHours(0, 0, 0, 0);
+                        const blockEndEnd = new Date(block.endDate);
+                        blockEndEnd.setHours(23, 59, 59, 999);
+                        nextLog = member.weighIns.find(w => {
+                            const wDate = new Date(w.date);
+                            return wDate >= blockEndStart && wDate <= blockEndEnd;
+                        });
                     }
 
                     if (log && log.weight > 0 && nextLog && nextLog.weight > 0) {
@@ -281,6 +293,17 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                         }
                     }
                 });
+
+                // Final weigh-in column
+                const finalLog = member.weighIns.find(w => {
+                    const wDate = new Date(w.date);
+                    const blockEndStart = new Date(block.endDate);
+                    blockEndStart.setHours(0, 0, 0, 0);
+                    const blockEndEnd = new Date(block.endDate);
+                    blockEndEnd.setHours(23, 59, 59, 999);
+                    return wDate >= blockEndStart && wDate <= blockEndEnd;
+                });
+                row.push(finalLog ? finalLog.weight.toString() : '-');
 
                 csvContent += row.join(',') + '\n';
             });
@@ -302,6 +325,9 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                     totalRow.push(total < 0 ? total.toFixed(1) : (total === 0 ? '0.0' : `+${total.toFixed(1)}`));
                 }
             });
+
+            // Final total (not technically a delta total, but for consistency we can leave blank or sum)
+            totalRow.push('');
 
             csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
         });

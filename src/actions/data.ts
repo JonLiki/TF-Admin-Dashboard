@@ -317,7 +317,7 @@ export async function getFullBlockSummary() {
                 where: {
                     date: {
                         gte: block.startDate,
-                        lte: block.endDate
+                        lte: new Date(new Date(block.endDate).setHours(23, 59, 59, 999))
                     }
                 },
                 orderBy: { date: 'asc' }

@@ -52,6 +52,7 @@ interface Session {
 
 interface Block {
     name: string;
+    endDate: Date | string;
     weeks: BlockWeek[];
 }
 
@@ -80,11 +81,21 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
     const getWeighInForWeek = (member: Member, week: BlockWeek) => {
         const start = startOfDay(new Date(week.startDate));
         const endObj = new Date(week.endDate);
-        endObj.setDate(endObj.getDate() + 1); // extend to next Monday
+        endObj.setDate(endObj.getDate() + 1); // extend one day to include boundary
         const end = endOfDay(endObj);
         return member.weighIns.find((w) => {
             const d = new Date(w.date);
             return d >= start && d <= end;
+        });
+    };
+
+    // Helper: get end-of-block (final) weigh-in, stored on block.endDate
+    const getFinalWeighIn = (member: Member) => {
+        const blockEnd = startOfDay(new Date(block.endDate));
+        const blockEndEnd = endOfDay(new Date(block.endDate));
+        return member.weighIns.find((w) => {
+            const d = new Date(w.date);
+            return d >= blockEnd && d <= blockEndEnd;
         });
     };
 
@@ -126,9 +137,15 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
     const handleExport = (type: 'pdf' | 'csv' | 'excel') => {
         const headers = ['Member'];
+        if (activeTab === 'weight') {
+            headers.push('Initial');
+        }
         block.weeks.forEach((week: BlockWeek, i: number) => {
             headers.push(`Week ${i + 1} (${format(new Date(week.startDate), 'MMM d')})`);
         });
+        if (activeTab === 'weight') {
+            headers.push('Final');
+        }
         headers.push('Total');
 
         const rows: (string | number)[][] = [];
@@ -142,12 +159,21 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
             teamMembers.forEach((member: Member) => {
                 const rowData: (string | number)[] = [`${member.firstName} ${member.lastName}`];
+                
+                if (activeTab === 'weight') {
+                    const firstW = getWeighInForWeek(member, block.weeks[0]);
+                    rowData.push(firstW ? firstW.weight.toFixed(1) : '-');
+                }
+
                 let rowTotal = 0;
 
                 // Calculate Row Total first
                 if (activeTab === 'weight') {
-                    const sorted = member.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
-                    if (sorted.length >= 2) rowTotal = sorted[0].weight - sorted[sorted.length - 1].weight;
+                    const firstW = getWeighInForWeek(member, block.weeks[0]);
+                    const lastW = getFinalWeighIn(member);
+                    if (firstW && firstW.weight > 0 && lastW && lastW.weight > 0) {
+                        rowTotal = firstW.weight - lastW.weight;
+                    }
                 } else if (activeTab === 'km') {
                     rowTotal = member.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
                 } else if (activeTab === 'lifestyle') {
@@ -167,10 +193,12 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                         // This means the delta depends on logging in the following week.
 
                         let nextW: WeighIn | undefined = undefined;
-                        // For the last week of the block, we only look for weigh-in in the final week + 1 day window.
-                        // For all other weeks, we find the next week's weigh in.
                         if (weekIndex + 1 < block.weeks.length) {
+                            // All weeks except the last: next week's Monday weigh-in
                             nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]) as any;
+                        } else {
+                            // Last week (W8): use the final block end-date weigh-in (Mar 16)
+                            nextW = getFinalWeighIn(member) as any;
                         }
 
                         if (w && w.weight > 0 && nextW && nextW.weight > 0) {
@@ -194,6 +222,11 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                     rowData.push(cellValue);
                 });
 
+                if (activeTab === 'weight') {
+                    const lastW = getFinalWeighIn(member);
+                    rowData.push(lastW ? lastW.weight.toFixed(1) : '-');
+                }
+
                 // Add Row Total
                 let totalStr = '-';
                 if (activeTab === 'weight') {
@@ -207,6 +240,11 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
             // Calculate Team Footer Totals
             const teamFooterRow = [`${teamName} Totals`];
+            if (activeTab === 'weight') {
+                const firstWeights = teamMembers.map(m => getWeighInForWeek(m, block.weeks[0])?.weight || 0).filter(w => w > 0);
+                const firstAvg = firstWeights.length > 0 ? (firstWeights.reduce((a, b) => a + b, 0) / firstWeights.length).toFixed(1) : '-';
+                teamFooterRow.push(firstAvg);
+            }
             // Week Totals
             const teamWeekTotals = block.weeks.map((week, weekIndex) => {
                 let sum = 0;
@@ -216,6 +254,8 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                         let nextW: WeighIn | undefined = undefined;
                         if (weekIndex + 1 < block.weeks.length) {
                             nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]) as any;
+                        } else {
+                            nextW = getFinalWeighIn(m) as any;
                         }
 
                         if (w && w.weight > 0 && nextW && nextW.weight > 0) {
@@ -251,6 +291,12 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                 }
                 teamFooterRow.push(displayTotal);
             });
+
+            if (activeTab === 'weight') {
+                const lastWeights = teamMembers.map(m => getFinalWeighIn(m)?.weight || 0).filter(w => w > 0);
+                const lastAvg = lastWeights.length > 0 ? (lastWeights.reduce((a, b) => a + b, 0) / lastWeights.length).toFixed(1) : '-';
+                teamFooterRow.push(lastAvg);
+            }
 
             // Grand Total for Team
             const teamGrandTotal = teamMembers.reduce((acc: number, m: Member) => {
@@ -386,6 +432,9 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                     let nextW: WeighIn | undefined = undefined;
                                                     if (weekIndex + 1 < block.weeks.length) {
                                                         nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]) as any;
+                                                    } else {
+                                                        // For the last week, use the block's end date for the final weigh-in
+                                                        nextW = getFinalWeighIn(m) as any;
                                                     }
 
                                                     if (w && w.weight > 0 && nextW && nextW.weight > 0) {
@@ -411,10 +460,11 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                         const teamGrandTotal = teamMembers.reduce((acc: number, m: Member) => {
                                             if (activeTab === 'weight') {
                                                 // Net change: First valid weigh-in - Last valid weigh-in
-                                                // Request: "Total the members that had a weight loss and discard weight gain"
-                                                const sorted = m.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
-                                                if (sorted.length >= 2) {
-                                                    const loss = sorted[0].weight - sorted[sorted.length - 1].weight;
+                                                const firstW = getWeighInForWeek(m, block.weeks[0]);
+                                                const lastW = getFinalWeighIn(m);
+
+                                                if (firstW && firstW.weight > 0 && lastW && lastW.weight > 0) {
+                                                    const loss = firstW.weight - lastW.weight;
                                                     // Only include if it's a loss (positive value in Start - End)
                                                     if (loss > 0) {
                                                         return acc + loss;
@@ -446,9 +496,14 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                     // Calculate Row Total/Net
                                                     let rowTotal = 0;
                                                     if (activeTab === 'weight') {
-                                                        const sorted = member.weighIns.filter((w: WeighIn) => w.weight > 0).sort((a: WeighIn, b: WeighIn) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime());
-                                                        if (sorted.length >= 2) rowTotal = sorted[0].weight - sorted[sorted.length - 1].weight;
-                                                        else rowTotal = 0;
+                                                        const firstW = getWeighInForWeek(member, block.weeks[0]);
+                                                        const lastW = getFinalWeighIn(member);
+
+                                                        if (firstW && firstW.weight > 0 && lastW && lastW.weight > 0) {
+                                                            rowTotal = firstW.weight - lastW.weight;
+                                                        } else {
+                                                            rowTotal = 0;
+                                                        }
                                                     } else if (activeTab === 'km') {
                                                         rowTotal = member.kmLogs.reduce((s: number, k: KmLog) => s + k.totalKm, 0);
                                                     } else if (activeTab === 'lifestyle') {
@@ -471,6 +526,9 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                                     // For all weeks, we find the next week's weigh in.
                                                                     if (weekIndex + 1 < block.weeks.length) {
                                                                         nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]) as any;
+                                                                    } else {
+                                                                        // For the last week, use the block's end date for the final weigh-in
+                                                                        nextW = getFinalWeighIn(member) as any;
                                                                     }
 
                                                                     if (w && w.weight > 0 && nextW && nextW.weight > 0) {
