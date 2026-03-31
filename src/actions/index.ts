@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 
 import { revalidatePath } from 'next/cache';
-import { CreateTeamSchema, CreateMemberSchema } from '@/lib/schemas';
+import { CreateTeamSchema, CreateMemberSchema, UpdateMemberSchema } from '@/lib/schemas';
 import { auth } from '@/auth';
 
 // --- TEAMS ---
@@ -95,15 +95,32 @@ export async function createMember(formData: FormData) {
     }
 }
 
-export async function updateMemberTeam(memberId: string, teamId: string) {
+export async function updateMember(memberId: string, formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized" };
 
-    await prisma.member.update({
-        where: { id: memberId },
-        data: { teamId }
-    });
-    revalidatePath('/members');
+    try {
+        const rawData = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            teamId: formData.get('teamId'),
+        };
+
+        const validated = UpdateMemberSchema.parse(rawData);
+
+        await prisma.member.update({
+            where: { id: memberId },
+            data: {
+                firstName: validated.firstName,
+                lastName: validated.lastName,
+                teamId: validated.teamId || null,
+            }
+        });
+        revalidatePath('/members');
+        return { success: true, message: 'Member updated successfully' };
+    } catch {
+        return { success: false, message: 'Failed to update member' };
+    }
 }
 
 export async function toggleMemberActive(memberId: string, currentState: boolean) {

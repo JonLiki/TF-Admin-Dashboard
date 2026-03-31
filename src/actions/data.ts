@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 
 import { revalidatePath } from 'next/cache';
-import { WeighInSchema, KmLogSchema, LifestyleLogSchema } from '@/lib/schemas';
+import { WeighInSchema, KmLogSchema, LifestyleLogSchema, BenchmarkLogSchema } from '@/lib/schemas';
 import { auth } from '@/auth';
 
 // --- HELPERS ---
@@ -197,6 +197,67 @@ export async function submitLifestyleLog(prevState: any, formData: FormData) {
     }
 }
 
+// --- BENCHMARK LOGS ---
+export async function submitBenchmarkLog(prevState: any, formData: FormData) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
+    const squats = formData.get('squats') ? parseInt(formData.get('squats') as string) : undefined;
+    const pushups = formData.get('pushups') ? parseInt(formData.get('pushups') as string) : undefined;
+    const burpees = formData.get('burpees') ? parseInt(formData.get('burpees') as string) : undefined;
+
+    const rawData = {
+        memberId: formData.get('memberId'),
+        blockWeekId: formData.get('blockWeekId'),
+        date: formData.get('date'),
+        squats: squats || 0,
+        pushups: pushups || 0,
+        burpees: burpees || 0,
+    };
+
+    const validated = BenchmarkLogSchema.safeParse(rawData);
+
+    if (!validated.success) {
+        return { success: false, message: validated.error.issues[0].message };
+    }
+
+    const dateObj = new Date(validated.data.date);
+
+    try {
+        const blockWeek = await prisma.blockWeek.findUnique({ where: { id: validated.data.blockWeekId } });
+        if (blockWeek?.isFinalized) {
+            return { success: false, message: "This week has been finalized. Unfinalize to edit." };
+        }
+
+        await prisma.benchmarkLog.upsert({
+            where: {
+                memberId_blockWeekId: {
+                    memberId: validated.data.memberId,
+                    blockWeekId: validated.data.blockWeekId
+                }
+            },
+            update: { 
+                squats: validated.data.squats,
+                pushups: validated.data.pushups,
+                burpees: validated.data.burpees,
+            },
+            create: {
+                memberId: validated.data.memberId,
+                blockWeekId: validated.data.blockWeekId,
+                date: dateObj,
+                squats: validated.data.squats,
+                pushups: validated.data.pushups,
+                burpees: validated.data.burpees,
+            }
+        });
+        revalidatePath('/benchmarks');
+        return { success: true };
+    } catch (error) {
+        console.error("Error saving Benchmark Log:", error);
+        return { success: false, message: "Failed to save" };
+    }
+}
+
 // --- ATTENDANCE ---
 export async function getSession(sessionId: string) {
     return await prisma.session.findUnique({
@@ -269,7 +330,8 @@ export async function getMembersWithLogs(blockWeekId: string) {
         include: {
             team: true,
             kmLogs: { where: { blockWeekId } },
-            lifestyleLogs: { where: { blockWeekId } }
+            lifestyleLogs: { where: { blockWeekId } },
+            benchmarkLogs: { where: { blockWeekId } }
         },
         orderBy: { lastName: 'asc' }
     });
@@ -324,6 +386,7 @@ export async function getFullBlockSummary() {
             },
             kmLogs: true,
             lifestyleLogs: true,
+            benchmarkLogs: true,
             attendance: {
                 where: {
                     session: {

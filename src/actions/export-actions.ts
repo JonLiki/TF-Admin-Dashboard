@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { format } from 'date-fns';
 
-export async function exportBlockData(blockId: string, type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in') {
+export async function exportBlockData(blockId: string, type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in' | 'benchmarks') {
     const block = await prisma.block.findUnique({
         where: { id: blockId },
         include: {
@@ -40,6 +40,10 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                     }
                 },
                 orderBy: { date: 'asc' }
+            },
+            benchmarkLogs: {
+                where: { blockWeek: { blockId } },
+                include: { blockWeek: true }
             }
         },
         orderBy: { lastName: 'asc' }
@@ -330,6 +334,42 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
             totalRow.push('');
 
             csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
+        });
+    } else if (type === 'benchmarks') {
+        const headers = ['First Name', 'Last Name', 'Team'];
+        const weeks = block.weeks;
+        weeks.forEach(w => {
+            headers.push(`W${w.weekNumber}-SQ`);
+            headers.push(`W${w.weekNumber}-PU`);
+            headers.push(`W${w.weekNumber}-BP`);
+        });
+
+        csvContent += headers.join(',') + '\n';
+
+        sortedTeams.forEach(([teamName, teamMembers]) => {
+            teamMembers.forEach(member => {
+                const row = [
+                    member.firstName,
+                    member.lastName,
+                    teamName
+                ];
+
+                weeks.forEach(week => {
+                    const log = member.benchmarkLogs.find(l => l.blockWeekId === week.id);
+                    if (log && (log.squats > 0 || log.pushups > 0 || log.burpees > 0)) {
+                        row.push(log.squats.toString());
+                        row.push(log.pushups.toString());
+                        row.push(log.burpees.toString());
+                    } else {
+                        row.push('-');
+                        row.push('-');
+                        row.push('-');
+                    }
+                });
+
+                csvContent += row.join(',') + '\n';
+            });
+            csvContent += '\n'; 
         });
     }
 

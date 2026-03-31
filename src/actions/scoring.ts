@@ -208,6 +208,7 @@ export async function calculateWeekResults(blockWeekId: string) {
             await tx.pointLedger.create({
                 data: {
                     teamId: award.teamId,
+                    blockId: blockWeek.blockId,
                     amount: 1,
                     reason: `Winner: ${award.category} (Week ${blockWeek.weekNumber})`
                 }

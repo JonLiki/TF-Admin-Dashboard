@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
-import { UserX, UserCheck, Trash2, Filter } from "lucide-react";
+import { UserX, UserCheck, Trash2, Filter, Pencil, Save } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Select } from "@/components/ui/Select";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { toggleMemberActive, deleteMember } from "@/actions";
+import { toggleMemberActive, deleteMember, updateMember } from "@/actions";
 import { toast } from 'sonner';
+import { Sheet } from "@/components/ui/Sheet";
+import { Input } from "@/components/ui/Input";
 
 interface Member {
     id: string;
@@ -36,6 +39,13 @@ export function MembersList({ members, teams }: MembersListProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTeam, setSelectedTeam] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+    const [editingMember, setEditingMember] = useState<Member | null>(null);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Filter members based on search and filters
     const filteredMembers = useMemo(() => {
@@ -209,6 +219,20 @@ export function MembersList({ members, teams }: MembersListProps) {
 
                             {/* Actions */}
                             <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setEditingMember(member);
+                                        setIsEditSheetOpen(true);
+                                    }}
+                                    className="text-lagoon-100/60 hover:text-lagoon hover:bg-white/5 transition-colors duration-300"
+                                    title="Edit"
+                                >
+                                    <Pencil className="w-4 h-4 pointer-events-none" />
+                                </Button>
                                 <form action={async () => {
                                     const res = await toggleMemberActive(member.id, member.isActive);
                                     if (res.success) toast.success(res.message);
@@ -275,6 +299,86 @@ export function MembersList({ members, teams }: MembersListProps) {
                     )
                 }
             </PremiumCard >
+
+            {/* Native Edit Member Modal Overlay (Portaled safely out of CSS layout bounds) */}
+            {mounted && isEditSheetOpen && editingMember && createPortal(
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+                        onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
+                    />
+                    
+                    {/* Modal Content */}
+                    <div className="relative z-10 w-full min-w-[320px] sm:min-w-[400px] max-w-lg bg-ocean-deep border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+                        <div className="flex items-center justify-between p-5 border-b border-white/5 bg-ocean-deep/50 rounded-t-2xl">
+                            <h3 className="text-xl font-bold text-white tracking-wide">Edit Member</h3>
+                            <button 
+                                onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
+                                className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                            </button>
+                        </div>
+                        
+                        <div className="p-6">
+                            <form key={editingMember.id} action={async (formData) => {
+                                const res = await updateMember(editingMember.id, formData);
+                                if (res?.success) {
+                                    toast.success(res.message);
+                                    setIsEditSheetOpen(false);
+                                    setEditingMember(null);
+                                } else {
+                                    toast.error(res?.message || "Failed to update member");
+                                }
+                            }} className="space-y-4 relative z-10">
+                                <Input 
+                                    name="firstName" 
+                                    label="First Name" 
+                                    defaultValue={editingMember.firstName} 
+                                    required 
+                                    className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 focus:border-lagoon/60 focus:ring-lagoon/20" 
+                                />
+                                <Input 
+                                    name="lastName" 
+                                    label="Last Name" 
+                                    defaultValue={editingMember.lastName} 
+                                    required 
+                                    className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 focus:border-lagoon/60 focus:ring-lagoon/20" 
+                                />
+                                <div className="space-y-1.5 mt-4">
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Assign Group</label>
+                                    <Select
+                                        options={[
+                                            { value: '', label: 'No Group' },
+                                            ...teams.map(t => ({ value: t.id, label: t.name }))
+                                        ]}
+                                        defaultValue={editingMember.team?.id || ''}
+                                        name="teamId"
+                                        placeholder="Select a group"
+                                        className="w-full bg-ocean-deep text-lagoon-100 border-lagoon/30"
+                                    />
+                                </div>
+                                <div className="flex gap-3 justify-end mt-8">
+                                    <Button 
+                                        type="button" 
+                                        variant="ghost" 
+                                        onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
+                                        className="text-slate-400 hover:text-white"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button type="submit" className="bg-lagoon hover:bg-lagoon-light text-white shadow-lagoon/20 px-6">
+                                        <Save className="w-4 h-4 mr-2" />
+                                        Save Changes
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div >
     );
 }

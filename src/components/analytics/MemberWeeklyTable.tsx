@@ -14,6 +14,11 @@ interface WeeklyStat {
         present: number;
         total: number;
     };
+    benchmarks?: {
+        squats: number;
+        pushups: number;
+        burpees: number;
+    };
     isCurrent: boolean;
 }
 
@@ -22,6 +27,9 @@ interface MemberWeeklyTableProps {
 }
 
 export function MemberWeeklyTable({ stats }: MemberWeeklyTableProps) {
+    // Determine if any week has benchmark data
+    const hasBenchmarks = stats.some(s => s.benchmarks);
+
     return (
         <PremiumCard className="overflow-hidden p-0">
             <div className="p-4 border-b border-border bg-muted/30">
@@ -38,6 +46,9 @@ export function MemberWeeklyTable({ stats }: MemberWeeklyTableProps) {
                             <th className="px-6 py-3 text-right">KM</th>
                             <th className="px-6 py-3 text-center">Lifestyle</th>
                             <th className="px-6 py-3 text-center">Attendance</th>
+                            {hasBenchmarks && (
+                                <th className="px-6 py-3 text-center">Benchmarks</th>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -84,11 +95,30 @@ export function MemberWeeklyTable({ stats }: MemberWeeklyTableProps) {
                                         </div>
                                     ) : <span className="text-muted-foreground/50">-</span>}
                                 </td>
+                                {hasBenchmarks && (
+                                    <td className="px-6 py-3 text-center">
+                                        {week.benchmarks ? (
+                                            <div className="inline-flex items-center gap-1">
+                                                <span className="inline-flex items-center justify-center bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 px-1.5 py-0.5 rounded text-[10px] font-bold min-w-[22px]" title="Squats">
+                                                    {week.benchmarks.squats}
+                                                </span>
+                                                <span className="text-muted-foreground/30 text-[10px]">/</span>
+                                                <span className="inline-flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-1.5 py-0.5 rounded text-[10px] font-bold min-w-[22px]" title="Push-ups">
+                                                    {week.benchmarks.pushups}
+                                                </span>
+                                                <span className="text-muted-foreground/30 text-[10px]">/</span>
+                                                <span className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-bold min-w-[22px]" title="Burpees">
+                                                    {week.benchmarks.burpees}
+                                                </span>
+                                            </div>
+                                        ) : <span className="text-muted-foreground/50">-</span>}
+                                    </td>
+                                )}
                             </tr>
                         ))}
                         {stats.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground italic">
+                                <td colSpan={hasBenchmarks ? 7 : 6} className="px-6 py-8 text-center text-muted-foreground italic">
                                     No weekly data available yet.
                                 </td>
                             </tr>

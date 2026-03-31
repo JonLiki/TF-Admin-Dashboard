@@ -2,10 +2,11 @@
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeft, Activity, Scale, CalendarDays, Trophy } from "lucide-react";
+import { ArrowLeft, Activity, Scale, CalendarDays, Trophy, Dumbbell } from "lucide-react";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import MemberWeightChart from "@/components/analytics/MemberWeightChart";
+import { BenchmarkProgressChart } from "@/components/user/BenchmarkProgressChart";
 import { MemberActions } from "@/components/members/MemberActions";
 import { MemberWeeklyTable } from "@/components/analytics/MemberWeeklyTable";
 import { getActiveBlock } from "@/actions/data";
@@ -24,7 +25,11 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
             weighIns: { orderBy: { date: 'asc' } },
             attendance: { orderBy: { session: { date: 'desc' } }, include: { session: true } },
             kmLogs: { include: { blockWeek: true } },
-            lifestyleLogs: { include: { blockWeek: true } }
+            lifestyleLogs: { include: { blockWeek: true } },
+            benchmarkLogs: {
+                include: { blockWeek: true },
+                orderBy: { blockWeek: { weekNumber: 'asc' } }
+            }
         }
     });
 
@@ -39,10 +44,28 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
     const currentWeight = member.weighIns[member.weighIns.length - 1]?.weight;
     const totalLoss = startWeight && currentWeight ? (startWeight - currentWeight) : 0;
 
+    // Benchmark totals (cumulative across active block)
+    const blockWeekIds = block ? new Set(block.weeks.map(w => w.id)) : new Set<string>();
+    const blockBenchmarks = member.benchmarkLogs.filter(l => blockWeekIds.has(l.blockWeekId));
+    const totalBenchmarkReps = blockBenchmarks.reduce((acc, log) => acc + log.squats + log.pushups + log.burpees, 0);
+    const totalSquats = blockBenchmarks.reduce((acc, log) => acc + log.squats, 0);
+    const totalPushups = blockBenchmarks.reduce((acc, log) => acc + log.pushups, 0);
+    const totalBurpees = blockBenchmarks.reduce((acc, log) => acc + log.burpees, 0);
+
     // Chart Data
     const weightData = member.weighIns.map(w => ({
         date: w.date.toLocaleDateString('en-NZ', { month: 'short', day: 'numeric' }),
         weight: w.weight
+    }));
+
+    // Benchmark chart data (active block only)
+    const benchmarkChartData = blockBenchmarks.map(log => ({
+        blockWeek: {
+            weekNumber: log.blockWeek.weekNumber,
+        },
+        squats: log.squats,
+        pushups: log.pushups,
+        burpees: log.burpees,
     }));
 
     // Weekly Table Data Logic
@@ -50,44 +73,35 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
         // Find logs for this week
         const kmLog = member.kmLogs.find(l => l.blockWeekId === week.id);
         const lifestyleLog = member.lifestyleLogs.find(l => l.blockWeekId === week.id);
+        const benchmarkLog = member.benchmarkLogs.find(l => l.blockWeekId === week.id);
 
-        // Find weigh-in for this week (simplistic: match week range)
-        // Note: WeighIn filtering logic here mimics the issue we discussed but is "correct" for display purposes if we want to show ANY weigh-in this week
-        // However, user said "Monday only" so we'll stick to finding a weigh-in that matches the start date accurately if possible, or just leniently.
-        // For the table, let's just show the LATEST weigh-in that falls within this week.
         const weighIn = member.weighIns.find(w =>
             w.date >= week.startDate && w.date <= week.endDate
         );
 
         // Attendance for this week
-        // Use < endDate instead of <= to avoid double counting the next Monday
         const sessionsThisWeek = block.sessions.filter(s => s.date >= week.startDate && s.date < week.endDate);
         const attendedCount = member.attendance.filter(a =>
             a.isPresent && sessionsThisWeek.some(s => s.id === a.sessionId)
         ).length;
 
-        // Weight Loss for this week (vs previous week's weigh-in, or just show absolute weight?)
-        // The table asks for "Loss". Let's calculate: (Prev Weight - This Weight)
-        // To do this well, we need the *previous* week's weight. 
-        // Iterate and store a "lastKnownWeight" ? 
-        // For simplicity in map, let's just show "Weight" column and "Total Loss So Far" vs Start?
-        // Or "Weekly Loss". Let's calculate Weekly Loss on the fly if we want.
-        // Actually, let's find the previous week's weigh-in to calc explicit weekly loss.
-        // But map is stateless.
-        // Let's just output the weight and calculate loss in a second pass or leave it simple.
-
         return {
             weekNumber: week.weekNumber,
             weekLabel: `Week ${week.weekNumber}`,
-            isCurrent: false, // Could calculate if today is in range
+            isCurrent: false,
             weight: weighIn?.weight,
-            weightLoss: undefined, // Requires more complex calc, leave empty or solve below
+            weightLoss: undefined as number | undefined,
             km: kmLog?.totalKm,
             lifestylePosts: lifestyleLog?.postCount,
             attendance: {
                 present: attendedCount,
                 total: sessionsThisWeek.length
-            }
+            },
+            benchmarks: benchmarkLog ? {
+                squats: benchmarkLog.squats,
+                pushups: benchmarkLog.pushups,
+                burpees: benchmarkLog.burpees,
+            } : undefined,
         };
     }) || [];
 
@@ -99,7 +113,6 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
         // Find previous valid weight
         let prevWeight: number | undefined = startWeight;
         if (index > 0) {
-            // Look backwards for the last valid weight
             for (let i = index - 1; i >= 0; i--) {
                 if (weeklyStats[i].weight) {
                     prevWeight = weeklyStats[i].weight;
@@ -141,7 +154,10 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
 
             <div className="px-6 md:px-10 mt-6 space-y-8">
                 {/* HEADLINE STATS */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className={cn(
+                    "grid grid-cols-1 gap-4",
+                    totalBenchmarkReps > 0 ? "md:grid-cols-5" : "md:grid-cols-4"
+                )}>
                     <PremiumCard className="p-4 bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/50">
                         <div className="flex items-center gap-3">
                             <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -178,6 +194,22 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                             </div>
                         </div>
                     </PremiumCard>
+
+                    {/* Benchmark Stat Card - only when data exists */}
+                    {totalBenchmarkReps > 0 && (
+                        <PremiumCard className="p-4 bg-cyan-50/50 dark:bg-cyan-950/20 border-cyan-100 dark:border-cyan-900/50">
+                            <div className="flex items-center gap-3">
+                                <Dumbbell className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                                <div>
+                                    <p className="text-xs font-bold uppercase opacity-70 text-cyan-900 dark:text-cyan-100">Benchmark</p>
+                                    <p className="text-xl font-mono font-bold text-cyan-950 dark:text-cyan-50">{totalBenchmarkReps.toLocaleString()} <span className="text-sm">reps</span></p>
+                                    <p className="text-[10px] text-cyan-700 dark:text-cyan-300/60 font-medium mt-0.5">
+                                        {totalSquats}sq · {totalPushups}pu · {totalBurpees}bp
+                                    </p>
+                                </div>
+                            </div>
+                        </PremiumCard>
+                    )}
                 </div>
 
                 {/* WEEKLY BREAKDOWN TABLE */}
@@ -212,6 +244,11 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                         </div>
                     </PremiumCard>
                 </div>
+
+                {/* BENCHMARK PROGRESS CHART - Full width below other visuals */}
+                {benchmarkChartData.length > 0 && (
+                    <BenchmarkProgressChart logs={benchmarkChartData} />
+                )}
             </div>
         </div>
     );

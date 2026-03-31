@@ -39,13 +39,14 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
 
     const pointTotals = await prisma.pointLedger.groupBy({
         by: ['teamId'],
+        where: { blockId: block.id },
         _sum: { amount: true }
     });
 
     // Transform Data
     const teamPoints: TeamPoints[] = pointTotals.map(pt => ({
         teamId: pt.teamId,
-        points: pt._sum.amount || 0
+        points: pt._sum?.amount || 0
     }));
 
     const allTeams = await prisma.team.findMany();

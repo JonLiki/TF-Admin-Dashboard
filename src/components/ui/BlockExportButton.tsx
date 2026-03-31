@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 interface BlockExportButtonProps {
     blockId: string;
-    type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in';
+    type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in' | 'benchmarks';
     className?: string;
 }
 

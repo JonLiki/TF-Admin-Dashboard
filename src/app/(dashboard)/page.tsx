@@ -42,12 +42,13 @@ export const getStats = unstable_cache(async () => {
   // 3. Leaderboard Data (Top 3) - Optimized GroupBy
   const pointTotals = await prisma.pointLedger.groupBy({
     by: ['teamId'],
+    where: { blockId: activeBlock.id },
     _sum: { amount: true }
   });
 
   const teamPointsMap = new Map<string, number>();
   pointTotals.forEach(pt => {
-    teamPointsMap.set(pt.teamId, pt._sum.amount || 0);
+    teamPointsMap.set(pt.teamId, pt._sum?.amount || 0);
   });
 
   const leaderboard = teamsList.map(t => ({

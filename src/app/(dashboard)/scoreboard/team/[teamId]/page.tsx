@@ -93,7 +93,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
 
     // Fetch Full Point History
     const pointHistory = await prisma.pointLedger.findMany({
-        where: { teamId },
+        where: { teamId, blockId: block.id },
         orderBy: { date: 'desc' }
     });
 

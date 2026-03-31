@@ -15,6 +15,12 @@ export const CreateMemberSchema = z.object({
     teamId: z.string().uuid().optional().or(z.literal("")),
 });
 
+export const UpdateMemberSchema = z.object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    teamId: z.string().uuid().optional().or(z.literal("")),
+});
+
 // --- Metric Schemas ---
 export const WeighInSchema = z.object({
     memberId: z.string().uuid(),
@@ -33,6 +39,15 @@ export const LifestyleLogSchema = z.object({
     memberId: z.string().uuid(),
     blockWeekId: z.string().uuid(),
     postCount: z.number().int().min(0).max(7, "Cannot exceed 7 posts per week"),
+});
+
+export const BenchmarkLogSchema = z.object({
+    memberId: z.string().uuid(),
+    blockWeekId: z.string().uuid(),
+    date: z.string().datetime().or(z.date()).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")),
+    squats: z.number().int().min(0, "Cannot be negative"),
+    pushups: z.number().int().min(0, "Cannot be negative"),
+    burpees: z.number().int().min(0, "Cannot be negative"),
 });
 
 // --- CSV Import Schemas ---

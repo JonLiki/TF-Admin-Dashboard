@@ -13,6 +13,7 @@ import { PerformanceTrendsChart } from "@/components/scoreboard/PerformanceTrend
 import { getLeaderboardStandings, sortMetrics, getTrendData } from "@/lib/transformers/scoreboard";
 import { TeamPoints } from "@/types/scoreboard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { BenchmarkProgressChart } from "@/components/user/BenchmarkProgressChart";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -29,7 +30,15 @@ export default async function UserDashboardPage() {
     if (memberId) {
         memberData = await prisma.member.findUnique({
             where: { id: memberId },
-            include: { team: true, weighIns: true, attendance: true }
+            include: { 
+                team: true, 
+                weighIns: true, 
+                attendance: true,
+                benchmarkLogs: { 
+                    include: { blockWeek: true }, 
+                    orderBy: { blockWeek: { weekNumber: 'asc' } }
+                }
+            }
         });
         if (memberData?.team) {
             memberTeam = memberData.team;
@@ -54,12 +63,13 @@ export default async function UserDashboardPage() {
 
     const pointTotals = await prisma.pointLedger.groupBy({
         by: ['teamId'],
+        where: { blockId: block.id },
         _sum: { amount: true }
     });
 
     const teamPoints: TeamPoints[] = pointTotals.map(pt => ({
         teamId: pt.teamId,
-        points: pt._sum.amount || 0
+        points: pt._sum?.amount || 0
     }));
 
     const allTeams = await prisma.team.findMany();
@@ -119,6 +129,11 @@ export default async function UserDashboardPage() {
                             </div>
                         </PremiumCard>
                     </div>
+                )}
+
+                {/* Benchmark Chart */}
+                {memberData?.benchmarkLogs && memberData.benchmarkLogs.length > 0 && (
+                    <BenchmarkProgressChart logs={memberData.benchmarkLogs as any} />
                 )}
 
                 {/* OVERALL LEADERBOARD */}
