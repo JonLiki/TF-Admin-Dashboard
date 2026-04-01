@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +13,7 @@ import { toggleMemberActive, deleteMember, updateMember } from "@/actions";
 import { toast } from 'sonner';
 import { Sheet } from "@/components/ui/Sheet";
 import { Input } from "@/components/ui/Input";
+import { Pagination } from "@/components/ui/Pagination";
 
 interface Member {
     id: string;
@@ -35,10 +36,13 @@ interface MembersListProps {
     teams: Team[];
 }
 
+const PAGE_SIZE = 20;
+
 export function MembersList({ members, teams }: MembersListProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTeam, setSelectedTeam] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [currentPage, setCurrentPage] = useState(1);
     const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
     const [editingMember, setEditingMember] = useState<Member | null>(null);
     const [mounted, setMounted] = useState(false);
@@ -67,6 +71,21 @@ export function MembersList({ members, teams }: MembersListProps) {
             return matchesSearch && matchesTeam && matchesStatus;
         });
     }, [members, searchTerm, selectedTeam, statusFilter]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, selectedTeam, statusFilter]);
+
+    const totalPages = Math.ceil(filteredMembers.length / PAGE_SIZE);
+    const paginatedMembers = useMemo(() => {
+        const start = (currentPage - 1) * PAGE_SIZE;
+        return filteredMembers.slice(start, start + PAGE_SIZE);
+    }, [filteredMembers, currentPage]);
+
+    const handlePageChange = useCallback((page: number) => {
+        setCurrentPage(page);
+    }, []);
 
     const hasFilters = selectedTeam !== 'all' || statusFilter !== 'all' || searchTerm.trim().length > 0;
     const activeFilterCount = [
@@ -139,8 +158,8 @@ export function MembersList({ members, teams }: MembersListProps) {
                     {/* Results Count */}
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-lagoon-100/60">
-                            Showing <span className="text-white font-medium">{filteredMembers.length}</span> of{' '}
-                            <span className="text-white font-medium">{members.length}</span> members
+                            Showing <span className="text-white font-medium">{paginatedMembers.length}</span> of{' '}
+                            <span className="text-white font-medium">{filteredMembers.length}</span> members
                             {activeFilterCount > 0 && (
                                 <span className="ml-2 text-xs text-tapa">
                                     ({activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active)
@@ -160,7 +179,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                         <div className="ml-auto">Actions</div>
                     </div>
 
-                    {filteredMembers.map((member) => (
+                    {paginatedMembers.map((member) => (
                         <div
                             key={member.id}
                             className={cn(
@@ -273,6 +292,14 @@ export function MembersList({ members, teams }: MembersListProps) {
                         </div>
                     ))}
                 </div>
+
+                {/* Pagination */}
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    className="border-t border-lagoon/20"
+                />
 
                 {/* Empty State / No Results */}
                 {

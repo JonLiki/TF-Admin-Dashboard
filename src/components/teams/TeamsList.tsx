@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
 import { Users, Trash2 } from "lucide-react";
@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { deleteTeam } from "@/actions";
 import { cn } from "@/lib/utils";
+import { Pagination } from "@/components/ui/Pagination";
 
 interface Team {
     id: string;
@@ -21,8 +22,11 @@ interface TeamsListProps {
     teams: Team[];
 }
 
+const PAGE_SIZE = 20;
+
 export function TeamsList({ teams }: TeamsListProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Filter teams based on search
     const filteredTeams = useMemo(() => {
@@ -32,6 +36,21 @@ export function TeamsList({ teams }: TeamsListProps) {
             team.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [teams, searchTerm]);
+
+    // Reset to page 1 when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    const totalPages = Math.ceil(filteredTeams.length / PAGE_SIZE);
+    const paginatedTeams = useMemo(() => {
+        const start = (currentPage - 1) * PAGE_SIZE;
+        return filteredTeams.slice(start, start + PAGE_SIZE);
+    }, [filteredTeams, currentPage]);
+
+    const handlePageChange = useCallback((page: number) => {
+        setCurrentPage(page);
+    }, []);
 
     const hasResults = filteredTeams.length > 0;
     const isSearching = searchTerm.trim().length > 0;
@@ -50,7 +69,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                     {/* Results Count */}
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-lagoon-100/60">
-                            Showing <span className="text-white font-medium">{filteredTeams.length}</span> of <span className="text-white font-medium">{teams.length}</span> groups
+                            Showing <span className="text-white font-medium">{paginatedTeams.length}</span> of <span className="text-white font-medium">{filteredTeams.length}</span> groups
                         </span>
                     </div>
                 </div>
@@ -64,7 +83,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                         <div className="ml-auto">Actions</div>
                     </div>
 
-                    {filteredTeams.map((team) => (
+                    {paginatedTeams.map((team) => (
                         <div
                             key={team.id}
                             className={cn(
@@ -116,6 +135,14 @@ export function TeamsList({ teams }: TeamsListProps) {
                         </div>
                     ))}
                 </div>
+
+                {/* Pagination */}
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    className="border-t border-lagoon/20"
+                />
 
                 {/* Empty State */}
                 {!hasResults && isSearching && (
