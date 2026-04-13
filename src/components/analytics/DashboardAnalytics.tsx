@@ -40,7 +40,7 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
             if (!weeklyTotals) return [];
             return weeklyTotals.map(w => ({
                 name: `W${w.weekNumber}`,
-                Total: activeMetric === 'km' ? Number(w.totalKm.toFixed(1)) : w.totalLifestyle
+                Total: activeMetric === 'km' ? Number(w.totalKm.toFixed(2)) : w.totalLifestyle
             }));
         }
 

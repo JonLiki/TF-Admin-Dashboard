@@ -243,7 +243,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                                 <div className="grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-white/5 rounded-lg p-2 border border-white/10">
                                         <p className="text-[10px] uppercase text-offwhite/60 font-bold tracking-widest">KM</p>
-                                        <p className="font-mono font-bold text-lagoon-100">{m.stats.totalKm.toFixed(1)}</p>
+                                        <p className="font-mono font-bold text-lagoon-100">{m.stats.totalKm.toFixed(2)}</p>
                                     </div>
                                     <div className="bg-white/5 rounded-lg p-2 border border-white/10">
                                         <p className="text-[10px] uppercase text-offwhite/60 font-bold tracking-widest">Lifestyle</p>

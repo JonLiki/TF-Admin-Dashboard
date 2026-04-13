@@ -38,7 +38,7 @@ export const KmLogSchema = z.object({
 export const LifestyleLogSchema = z.object({
     memberId: z.string().uuid(),
     blockWeekId: z.string().uuid(),
-    postCount: z.number().int().min(0).max(7, "Cannot exceed 7 posts per week"),
+    postCount: z.number().int().min(0),
 });
 
 export const BenchmarkLogSchema = z.object({
@@ -65,7 +65,7 @@ export const ImportKmRowSchema = z.string().transform(val => parseFloat(val)).pi
 
 
 export const ImportLifestyleRowSchema = z.string().trim().regex(/^\d+$/, "Must be a whole number").transform(val => parseInt(val, 10)).pipe(
-    z.number().int().min(0).max(7, "Posts must be between 0 and 7")
+    z.number().int().min(0)
 );
 
 export const ImportWeighInRowSchema = z.string().transform(val => parseFloat(val)).pipe(

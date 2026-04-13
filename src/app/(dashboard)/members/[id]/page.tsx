@@ -163,7 +163,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                             <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                             <div>
                                 <p className="text-xs font-bold uppercase opacity-70 text-blue-900 dark:text-blue-100">Total KM</p>
-                                <p className="text-xl font-mono font-bold text-blue-950 dark:text-blue-50">{totalKm.toFixed(1)} <span className="text-sm">km</span></p>
+                                <p className="text-xl font-mono font-bold text-blue-950 dark:text-blue-50">{totalKm.toFixed(2)} <span className="text-sm">km</span></p>
                             </div>
                         </div>
                     </PremiumCard>

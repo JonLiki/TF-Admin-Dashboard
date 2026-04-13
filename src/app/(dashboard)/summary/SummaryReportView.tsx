@@ -210,7 +210,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                         }
                     } else if (activeTab === 'km') {
                         const k = getKmLogForWeek(member, week.id);
-                        cellValue = k ? k.totalKm.toFixed(1) : '-';
+                        cellValue = k ? k.totalKm.toFixed(2) : '-';
                     } else if (activeTab === 'lifestyle') {
                         const l = getLifestyleLogForWeek(member, week.id);
                         cellValue = l ? l.postCount : '-';
@@ -547,7 +547,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                                     }
                                                                 } else if (activeTab === 'km') {
                                                                     const k = getKmLogForWeek(member, week.id);
-                                                                    content = k ? k.totalKm.toFixed(1) : '-';
+                                                                    content = k ? k.totalKm.toFixed(2) : '-';
                                                                 } else if (activeTab === 'lifestyle') {
                                                                     const l = getLifestyleLogForWeek(member, week.id);
                                                                     content = l ? l.postCount : '-';

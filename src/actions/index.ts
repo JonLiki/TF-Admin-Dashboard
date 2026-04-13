@@ -10,6 +10,10 @@ import { auth } from '@/auth';
 export async function getTeams() {
     return await prisma.team.findMany({
         include: {
+            members: {
+                select: { id: true, firstName: true, lastName: true, isActive: true },
+                orderBy: { lastName: 'asc' }
+            },
             _count: {
                 select: { members: true }
             }
@@ -29,6 +33,23 @@ export async function createTeam(formData: FormData) {
     const validated = CreateTeamSchema.parse(rawData);
 
     await prisma.team.create({
+        data: { name: validated.name }
+    });
+    revalidatePath('/teams');
+}
+    
+export async function updateTeam(id: string, formData: FormData) {
+    const session = await auth();
+    if (!session?.user) throw new Error("Unauthorized");
+
+    const rawData = {
+        name: formData.get('name'),
+    };
+
+    const validated = CreateTeamSchema.parse(rawData);
+
+    await prisma.team.update({
+        where: { id },
         data: { name: validated.name }
     });
     revalidatePath('/teams');

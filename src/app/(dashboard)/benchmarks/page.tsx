@@ -15,7 +15,10 @@ import prisma from "@/lib/prisma";
 async function getCumulativeBenchmarks(blockId: string) {
     const allLogs = await prisma.benchmarkLog.findMany({
         where: {
-            blockWeek: { blockId }
+            blockWeek: { 
+                blockId,
+                weekNumber: { in: [1, 8] }
+            }
         },
         include: {
             member: {
@@ -118,8 +121,13 @@ export default async function BenchmarksPage({ searchParams }: { searchParams: {
     const block = await getActiveBlock();
     if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
 
-    const selectedWeekId = (await searchParams)?.weekId || block.weeks[0].id;
-    const selectedWeek = block.weeks.find(w => w.id === selectedWeekId) || block.weeks[0];
+    const benchmarkWeeks = block.weeks.filter(w => w.weekNumber === 1 || w.weekNumber === 8);
+    const selectedWeekId = (await searchParams)?.weekId || benchmarkWeeks[0]?.id;
+    const selectedWeek = benchmarkWeeks.find(w => w.id === selectedWeekId) || benchmarkWeeks[0];
+
+    if (!selectedWeek) {
+        return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Benchmark Weeks Found" description="The current block doesn't have Week 1 or Week 8 initialized." /></div>;
+    }
 
     // Fetch week-specific data for entry form + cumulative data for analytics
     const [members, cumulative] = await Promise.all([
@@ -160,7 +168,7 @@ export default async function BenchmarksPage({ searchParams }: { searchParams: {
         <div className="min-h-full pb-10">
             <PageHeader title="Benchmarks" subtitle="Weekly Workout Progress">
                 <SimpleWeekSelector
-                    weeks={block.weeks.map((w) => ({
+                    weeks={benchmarkWeeks.map((w) => ({
                         value: w.id,
                         label: `Week ${w.weekNumber}`
                     }))}

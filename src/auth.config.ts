@@ -48,4 +48,18 @@ export const authConfig = {
         }
     },
     providers: [], // Configured in auth.ts
+    secret: process.env.AUTH_SECRET || "iiF5gQhe0ganFws5OpHtKjjKm0DXhuxT9w/vUxAMWOA=",
+    trustHost: true,
+    session: { strategy: 'jwt' },
+    cookies: {
+        sessionToken: {
+            name: `tfdashboard.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === "production"
+            }
+        }
+    }
 } satisfies NextAuthConfig;

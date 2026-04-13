@@ -39,7 +39,7 @@ export async function getWeighIns(date: Date) {
 
 export async function submitWeighIn(prevState: any, formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
     const weightStr = formData.get('weight') as string;
     const weightVal = weightStr ? parseFloat(weightStr) : undefined;
@@ -94,7 +94,7 @@ export async function submitWeighIn(prevState: any, formData: FormData) {
 // --- KM LOGS ---
 export async function submitKmLog(prevState: any, formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
     const kmStr = formData.get('totalKm') as string;
     const kmVal = kmStr ? parseFloat(kmStr) : undefined;
@@ -147,7 +147,7 @@ export async function submitKmLog(prevState: any, formData: FormData) {
 // --- LIFESTYLE LOGS ---
 export async function submitLifestyleLog(prevState: any, formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
     const postCountStr = formData.get('postCount') as string;
     const postCountVal = postCountStr ? parseInt(postCountStr) : undefined;
@@ -200,7 +200,7 @@ export async function submitLifestyleLog(prevState: any, formData: FormData) {
 // --- BENCHMARK LOGS ---
 export async function submitBenchmarkLog(prevState: any, formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
     const squats = formData.get('squats') ? parseInt(formData.get('squats') as string) : undefined;
     const pushups = formData.get('pushups') ? parseInt(formData.get('pushups') as string) : undefined;
@@ -225,7 +225,16 @@ export async function submitBenchmarkLog(prevState: any, formData: FormData) {
 
     try {
         const blockWeek = await prisma.blockWeek.findUnique({ where: { id: validated.data.blockWeekId } });
-        if (blockWeek?.isFinalized) {
+        
+        if (!blockWeek) {
+            return { success: false, message: "Invalid week" };
+        }
+
+        if (blockWeek.weekNumber !== 1 && blockWeek.weekNumber !== 8) {
+            return { success: false, message: "Benchmarks can only be logged for Week 1 and Week 8." };
+        }
+
+        if (blockWeek.isFinalized) {
             return { success: false, message: "This week has been finalized. Unfinalize to edit." };
         }
 
@@ -288,7 +297,7 @@ export async function getSessionsForWeek(weekId: string) {
 
 export async function toggleAttendance(sessionId: string, memberId: string, isPresent: boolean) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) throw new Error("Unauthorized. Please log in again.");
 
     // Guard: check if the session's week is finalized
     const sessionRecord = await prisma.session.findUnique({

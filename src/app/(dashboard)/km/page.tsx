@@ -7,7 +7,7 @@ import { SummaryCard } from "@/components/ui/SummaryCard";
 import { KmLogList } from "@/components/km/KmLogList";
 import { BlockExportButton } from "@/components/ui/BlockExportButton";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatDecimal } from "@/lib/formatters";
+import { formatTwoDecimals } from "@/lib/formatters";
 
 export default async function KmPage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
@@ -48,7 +48,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                         iconColor="text-lagoon-100"
                         iconBg="bg-lagoon/10"
                         label="Total KM"
-                        value={formatDecimal(totalKm)}
+                        value={formatTwoDecimals(totalKm)}
                         subtitle="Combined distance"
                     />
                     <SummaryCard
@@ -56,7 +56,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                         iconColor="text-blue-400"
                         iconBg="bg-blue-500/10"
                         label="Average KM"
-                        value={formatDecimal(avgKm)}
+                        value={formatTwoDecimals(avgKm)}
                         subtitle="Per member"
                     />
                     <SummaryCard
@@ -65,7 +65,7 @@ export default async function KmPage({ searchParams }: { searchParams: { weekId?
                         iconBg="bg-tongan/10"
                         label="Top Performer"
                         value={topPerformer ? `${topPerformer.firstName} ${topPerformer.lastName.charAt(0)}.` : 'N/A'}
-                        subtitle={topPerformer?.kmLogs[0] ? `${formatDecimal(topPerformer.kmLogs[0].totalKm)} km` : ''}
+                        subtitle={topPerformer?.kmLogs[0] ? `${formatTwoDecimals(topPerformer.kmLogs[0].totalKm)} km` : ''}
                     />
                     <SummaryCard
                         icon={CheckCircle}

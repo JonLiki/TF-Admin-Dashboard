@@ -6,8 +6,7 @@ import { addDays } from 'date-fns';
 import {
     calculateTeamMetrics,
     determineWinners,
-    ScorableTeam,
-    AwardResult
+    ScorableTeam
 } from '@/lib/scoring-logic';
 
 export async function calculateWeekResults(blockWeekId: string) {
@@ -18,9 +17,13 @@ export async function calculateWeekResults(blockWeekId: string) {
     if (!blockWeek) throw new Error("Week not found");
 
     const weekNumber = blockWeek.weekNumber;
-    const isLastWeek = weekNumber === 9; // Assuming Week 9 is always last based on request
+    const totalWeeks = blockWeek.block.weeks.length;
+    const isLastWeek = weekNumber === totalWeeks;
 
-    // 1. Fetch Data for Current Week (KM, Lifestyle, Attendance)
+    // 1. Fetch Data for Current Week (KM, Lifestyle, Attendance, WeighIns)
+    // Weight loss is calculated directly by calculateTeamMetrics as:
+    //   (weight logged during this week) - (weight logged during next week)
+    // So we need weigh-in data that extends into the next week's date range.
     const currentTeams = await prisma.team.findMany({
         include: {
             members: {
@@ -31,7 +34,7 @@ export async function calculateWeekResults(blockWeekId: string) {
                     weighIns: {
                         where: {
                             date: {
-                                lte: addDays(blockWeek.endDate, 7) // Standard lookahead for WL if needed
+                                lte: addDays(blockWeek.endDate, 14) // Lookahead to cover next week's weigh-in
                             }
                         },
                         orderBy: { date: 'asc' }
@@ -69,86 +72,18 @@ export async function calculateWeekResults(blockWeekId: string) {
         }))
     }));
 
-    // Calculate current week metrics
+    // Calculate current week metrics (WL is already computed correctly as this_week - next_week)
     const currentResults = calculateTeamMetrics(currentScorableTeams, currentConfig);
     
-    // 2. Handle Shifted Weight Loss Data
-    let finalResults = currentResults.map(r => ({ ...r }));
-    
-    if (!isLastWeek) {
-        const nextWeek = blockWeek.block.weeks.find(w => w.weekNumber === weekNumber + 1);
-        if (nextWeek) {
-            const nextWeekId = nextWeek.id;
-            const nextTeams = await prisma.team.findMany({
-                include: {
-                    members: {
-                        where: { isActive: true },
-                        include: {
-                            kmLogs: { where: { blockWeekId: nextWeekId } },
-                            lifestyleLogs: { where: { blockWeekId: nextWeekId } },
-                            weighIns: {
-                                where: {
-                                    date: {
-                                        lte: addDays(nextWeek.endDate, 7)
-                                    }
-                                },
-                                orderBy: { date: 'asc' }
-                            },
-                            attendance: {
-                                where: {
-                                    isPresent: true,
-                                    session: {
-                                        date: {
-                                            gte: nextWeek.startDate,
-                                            lt: nextWeek.endDate
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+    // For the last week, WL is 0 since there's no next week weigh-in data
+    const finalResults = isLastWeek
+        ? currentResults.map(r => ({ ...r, weightLossTotal: 0 }))
+        : currentResults;
 
-            const nextConfig = {
-                startDate: nextWeek.startDate,
-                endDate: nextWeek.endDate
-            };
-
-            const nextScorableTeams: ScorableTeam[] = nextTeams.map(t => ({
-                id: t.id,
-                name: t.name,
-                members: t.members.map(m => ({
-                    id: m.id,
-                    kmLogs: m.kmLogs,
-                    lifestyleLogs: m.lifestyleLogs,
-                    attendance: m.attendance,
-                    weighIns: m.weighIns
-                }))
-            }));
-
-            const nextResults = calculateTeamMetrics(nextScorableTeams, nextConfig);
-            
-            // SHIFT: Replace current WL with next week's WL
-            finalResults = finalResults.map(curr => {
-                const next = nextResults.find(n => n.teamId === curr.teamId);
-                return {
-                    ...curr,
-                    weightLossTotal: next ? next.weightLossTotal : 0
-                };
-            });
-        }
-    } else {
-        // Last Week (Week 9): WL is set to 0 as it shifted to Week 8
-        finalResults = finalResults.map(r => ({ ...r, weightLossTotal: 0 }));
-    }
-
-    // Determine winners based on the SHIFTED results
-    // For KM, Life, Att, these are still current week data
-    // For WL, this is now the shifted data
+    // Determine winners
     const allAwards = determineWinners(finalResults);
     
-    // Suppress ALL awards for Week 9
+    // Suppress ALL awards for the last week
     const finalAwards = isLastWeek ? [] : allAwards;
 
     // 3. Execute Updates in Transaction

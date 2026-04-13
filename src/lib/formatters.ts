@@ -8,6 +8,11 @@ const decimalFormatter = new Intl.NumberFormat('en-NZ', {
     maximumFractionDigits: 1,
 });
 
+const twoDecimalFormatter = new Intl.NumberFormat('en-NZ', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+
 const integerFormatter = new Intl.NumberFormat('en-NZ', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -24,6 +29,13 @@ const percentFormatter = new Intl.NumberFormat('en-NZ', {
  */
 export function formatDecimal(value: number): string {
     return decimalFormatter.format(value);
+}
+
+/**
+ * Format a number with 2 decimal places (e.g., "12.50")
+ */
+export function formatTwoDecimals(value: number): string {
+    return twoDecimalFormatter.format(value);
 }
 
 /**

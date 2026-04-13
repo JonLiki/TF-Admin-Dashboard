@@ -47,7 +47,7 @@ export function AnalyticsTable({ data, activeMetric }: AnalyticsTableProps) {
                                 {row.weight.toFixed(1)} kg
                             </td>
                             <td className={cn("px-6 py-4 text-right font-mono text-slate-300 group-hover:text-white", activeMetric === 'km' && "font-black text-ocean-light bg-ocean-light/5")}>
-                                {row.avgKm.toFixed(1)} km
+                                {row.avgKm.toFixed(2)} km
                             </td>
                             <td className={cn("px-6 py-4 text-right font-mono text-slate-300 group-hover:text-white", activeMetric === 'lifestyle' && "font-black text-emerald-400 bg-emerald-500/5")}>
                                 {row.avgLife.toFixed(1)}

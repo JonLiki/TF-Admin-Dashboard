@@ -3,10 +3,10 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
-import { Users, Trash2 } from "lucide-react";
+import { Users, Trash2, ChevronDown, UserSquare2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { deleteTeam } from "@/actions";
+import { deleteTeam, updateTeam } from "@/actions";
 import { cn } from "@/lib/utils";
 import { Pagination } from "@/components/ui/Pagination";
 
@@ -16,6 +16,12 @@ interface Team {
     _count: {
         members: number;
     };
+    members: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        isActive: boolean;
+    }[];
 }
 
 interface TeamsListProps {
@@ -27,6 +33,8 @@ const PAGE_SIZE = 20;
 export function TeamsList({ teams }: TeamsListProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
+    const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
 
     // Filter teams based on search
     const filteredTeams = useMemo(() => {
@@ -37,9 +45,10 @@ export function TeamsList({ teams }: TeamsListProps) {
         );
     }, [teams, searchTerm]);
 
-    // Reset to page 1 when search changes
+    // Reset to page 1 and collapse when search changes
     useEffect(() => {
         setCurrentPage(1);
+        setExpandedTeamId(null);
     }, [searchTerm]);
 
     const totalPages = Math.ceil(filteredTeams.length / PAGE_SIZE);
@@ -84,54 +93,133 @@ export function TeamsList({ teams }: TeamsListProps) {
                     </div>
 
                     {paginatedTeams.map((team) => (
-                        <div
-                            key={team.id}
-                            className={cn(
-                                "group relative flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border transition-all duration-500 ease-out",
-                                "bg-ocean/20 border-lagoon/10 hover:border-lagoon/40 hover:bg-ocean/40 hover:shadow-[0_0_15px_-3px_rgba(28,114,147,0.2)] hover:-translate-y-0.5"
+                        <div key={team.id} className="flex flex-col space-y-2">
+                            <div
+                                onClick={(e) => {
+                                    // Don't expand if clicking on buttons or inputs
+                                    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('input')) return;
+                                    setExpandedTeamId(expandedTeamId === team.id ? null : team.id);
+                                }}
+                                className={cn(
+                                    "group relative flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border transition-all duration-300 ease-out cursor-pointer",
+                                    expandedTeamId === team.id ? "bg-ocean/40 border-lagoon/40 shadow-[0_0_15px_-3px_rgba(28,114,147,0.2)]" : "bg-ocean/20 border-lagoon/10 hover:border-lagoon/40 hover:bg-ocean/40 hover:shadow-[0_0_15px_-3px_rgba(28,114,147,0.2)] hover:-translate-y-0.5"
+                                )}
+                            >
+                                {/* Hover Glow */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-lagoon/0 via-lagoon/5 to-lagoon/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-xl pointer-events-none" />
+
+                                {/* Team Name */}
+                                <div className="flex items-center gap-4 w-full md:w-1/2 z-10 mb-3 md:mb-0">
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border bg-tongan/10 text-tongan border-tongan/20 shadow-[0_0_8px_rgba(200,16,46,0.3)] shrink-0 transition-transform duration-300">
+                                        <Users className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex-1 w-full">
+                                        {editingTeamId === team.id ? (
+                                            <form className="flex items-center gap-2 w-full" action={async (formData) => {
+                                                await updateTeam(team.id, formData);
+                                                setEditingTeamId(null);
+                                            }}>
+                                                <input 
+                                                    autoFocus
+                                                    required
+                                                    type="text" 
+                                                    name="name" 
+                                                    defaultValue={team.name} 
+                                                    className="w-full bg-ocean-deep/50 border border-lagoon/30 rounded-md py-1 px-2 text-white focus:border-tongan/50 focus:outline-none focus:ring-1 focus:ring-tongan/30"
+                                                />
+                                                <Button type="submit" size="sm" className="bg-tongan hover:bg-tongan-red shrink-0 px-3">Save</Button>
+                                                <Button type="button" variant="ghost" size="sm" onClick={() => setEditingTeamId(null)} className="shrink-0">Cancel</Button>
+                                            </form>
+                                        ) : (
+                                            <>
+                                                <h3 className="font-bold text-white text-lg group-hover:text-lagoon-100 transition-colors">
+                                                    {team.name}
+                                                </h3>
+                                                <p className="text-[10px] uppercase tracking-wider text-tapa font-semibold opacity-80">Group</p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Member Count */}
+                                <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0 flex items-center gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-ocean-deep/50 text-lagoon-100/80 border border-lagoon/20">
+                                            {team._count.members} Member{team._count.members !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
+                                    {editingTeamId !== team.id && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingTeamId(team.id);
+                                            }}
+                                            className="text-lagoon-100/60 hover:text-white hover:bg-white/10 transition-colors duration-300"
+                                            title="Edit Group"
+                                        >
+                                            Edit
+                                        </Button>
+                                    )}
+                                    <form action={async () => {
+                                        if (confirm('Are you sure you want to delete this group? All members will be unassigned.')) await deleteTeam(team.id);
+                                    }}>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => e.stopPropagation()}
+                                            type="submit"
+                                            className="text-lagoon-100/60 hover:text-tongan-red hover:bg-tongan/10 transition-colors duration-300"
+                                            title="Delete Group"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </form>
+                                    
+                                    {/* Expand Toggle Icon */}
+                                    <div className={cn(
+                                        "ml-2 text-lagoon-100/40 transition-transform duration-300",
+                                        expandedTeamId === team.id ? "rotate-180 text-lagoon-100" : ""
+                                    )}>
+                                        <ChevronDown className="w-5 h-5" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Nested Members List */}
+                            {expandedTeamId === team.id && (
+                                <div className="ml-4 md:ml-12 mr-4 mb-4 mt-2 p-4 rounded-xl bg-ocean/20 border border-lagoon/10 shadow-inner animate-in slide-in-from-top-2 fade-in duration-300">
+                                    <h4 className="text-xs font-bold text-lagoon-100/60 uppercase tracking-widest mb-3 pb-2 border-b border-lagoon/10">Team Members</h4>
+                                    
+                                    {team.members.length > 0 ? (
+                                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                            {team.members.map(member => (
+                                                <li key={member.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                                    <div className="w-8 h-8 rounded-full bg-ocean-deep/50 border border-lagoon/20 flex items-center justify-center shrink-0">
+                                                        <UserSquare2 className="w-4 h-4 text-lagoon-100/70" />
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className={cn(
+                                                            "text-sm font-medium",
+                                                            member.isActive ? "text-white" : "text-white/40 line-through"
+                                                        )}>
+                                                            {member.firstName} {member.lastName}
+                                                        </span>
+                                                        {!member.isActive && <span className="text-[10px] text-tongan uppercase tracking-wider">Inactive</span>}
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="text-sm text-lagoon-100/50 italic py-2">No members assigned to this group yet.</div>
+                                    )}
+                                </div>
                             )}
-                        >
-                            {/* Hover Glow */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-lagoon/0 via-lagoon/5 to-lagoon/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-xl pointer-events-none" />
-
-                            {/* Team Name */}
-                            <div className="flex items-center gap-4 w-full md:w-1/2 z-10 mb-3 md:mb-0">
-                                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border bg-tongan/10 text-tongan border-tongan/20 shadow-[0_0_8px_rgba(200,16,46,0.3)]">
-                                    <Users className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-white text-lg group-hover:text-lagoon-100 transition-colors">
-                                        {team.name}
-                                    </h3>
-                                    <p className="text-[10px] uppercase tracking-wider text-tapa font-semibold opacity-80">Group</p>
-                                </div>
-                            </div>
-
-                            {/* Member Count */}
-                            <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                                <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-ocean-deep/50 text-lagoon-100/80 border border-lagoon/20">
-                                        {team._count.members} Member{team._count.members !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
-                                <form action={async () => {
-                                    if (confirm('Are you sure you want to delete this group? All members will be unassigned.')) await deleteTeam(team.id);
-                                }}>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        type="submit"
-                                        className="text-lagoon-100/60 hover:text-tongan-red hover:bg-tongan/10 transition-colors duration-300"
-                                        title="Delete Group"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                </form>
-                            </div>
                         </div>
                     ))}
                 </div>

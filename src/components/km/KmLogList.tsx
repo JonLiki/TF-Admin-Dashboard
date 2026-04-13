@@ -148,15 +148,15 @@ function KmRow({ member, weekId }: { member: Member, weekId: string }) {
                             type="number"
                             inputMode="decimal"
                             pattern="[0-9]*\.?[0-9]*"
-                            step="0.1"
-                            placeholder="0.0"
+                            step="0.01"
+                            placeholder="0.00"
                             className={cn(
                                 "w-24 h-12 md:h-10 pl-3 pr-8 text-sm rounded-lg font-mono font-bold transition-all duration-200",
                                 "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
                                 "group-hover/input:border-lagoon/50 group-hover/input:bg-ocean-deep",
                                 "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
                             )}
-                            defaultValue={currentKm}
+                            defaultValue={currentKm !== undefined ? currentKm.toFixed(2) : ''}
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-lagoon-100/50 pointer-events-none uppercase">km</span>
                     </div>
