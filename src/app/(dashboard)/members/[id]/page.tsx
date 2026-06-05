@@ -9,7 +9,7 @@ import MemberWeightChart from "@/components/analytics/MemberWeightChart";
 import { BenchmarkProgressChart } from "@/components/user/BenchmarkProgressChart";
 import { MemberActions } from "@/components/members/MemberActions";
 import { MemberWeeklyTable } from "@/components/analytics/MemberWeeklyTable";
-import { getActiveBlock } from "@/actions/data";
+import { getActiveBlock } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
 export default async function MemberProfilePage({ params }: { params: Promise<{ id: string }> }) {

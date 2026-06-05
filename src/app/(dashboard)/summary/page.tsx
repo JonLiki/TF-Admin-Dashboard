@@ -1,4 +1,4 @@
-import { getFullBlockSummary } from "@/actions/data";
+import { getFullBlockSummary } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 import { OceanWaves } from "@/components/ui/Patterns";

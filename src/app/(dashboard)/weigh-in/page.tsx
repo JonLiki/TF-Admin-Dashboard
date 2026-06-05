@@ -1,4 +1,4 @@
-import { getActiveBlock, getMembersWithWeighIn } from "@/actions/data";
+import { getActiveBlock, getMembersWithWeighIn } from "@/lib/queries";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Scale, Award, CheckCircle, Users, AlertCircle } from "lucide-react";

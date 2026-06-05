@@ -1,5 +1,5 @@
 
-import { getActiveBlock } from "@/actions/data";
+import { getActiveBlock } from "@/lib/queries";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";

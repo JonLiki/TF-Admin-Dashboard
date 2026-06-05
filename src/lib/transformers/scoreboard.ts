@@ -1,23 +1,28 @@
 import { BlockWeek, Team, TeamWeekMetric } from "@prisma/client";
 import { ScoreboardMetric, TeamPoints } from "@/types/scoreboard";
 
+export interface TrendDataPoint {
+    name: string;
+    [teamName: string]: string | number;
+}
+
 export function getTrendData(allMetrics: (TeamWeekMetric & { team: Team, blockWeek: BlockWeek })[]) {
     const weeks = Array.from(new Set(allMetrics.map(m => m.blockWeek.weekNumber))).sort((a, b) => a - b);
 
     const result = {
-        kmAverage: [] as any[],
-        weightLossTotal: [] as any[],
-        lifestyleAverage: [] as any[],
-        attendanceAverage: [] as any[]
+        kmAverage: [] as TrendDataPoint[],
+        weightLossTotal: [] as TrendDataPoint[],
+        lifestyleAverage: [] as TrendDataPoint[],
+        attendanceAverage: [] as TrendDataPoint[]
     };
 
     weeks.forEach(weekNumber => {
         const weekMetrics = allMetrics.filter(m => m.blockWeek.weekNumber === weekNumber);
 
-        const kmPoint: any = { name: `W${weekNumber}` };
-        const weightPoint: any = { name: `W${weekNumber}` };
-        const lifePoint: any = { name: `W${weekNumber}` };
-        const attPoint: any = { name: `W${weekNumber}` };
+        const kmPoint: TrendDataPoint = { name: `W${weekNumber}` };
+        const weightPoint: TrendDataPoint = { name: `W${weekNumber}` };
+        const lifePoint: TrendDataPoint = { name: `W${weekNumber}` };
+        const attPoint: TrendDataPoint = { name: `W${weekNumber}` };
 
         weekMetrics.forEach(m => {
             kmPoint[m.team.name] = m.kmAverage || 0;

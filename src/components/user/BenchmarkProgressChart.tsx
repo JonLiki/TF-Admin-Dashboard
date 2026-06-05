@@ -14,7 +14,7 @@ import {
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { Dumbbell } from 'lucide-react';
 
-interface BenchmarkLog {
+export interface BenchmarkLog {
     blockWeek: {
         weekNumber: number;
     };

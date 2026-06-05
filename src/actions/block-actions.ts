@@ -1,28 +1,15 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { CreateBlockSchema } from '@/lib/schemas';
 import { auth } from '@/auth';
 import { addWeeks, addDays, startOfWeek } from 'date-fns';
 import { calculateWeekResults } from '@/actions/scoring';
+import { writeAuditLog } from '@/lib/audit';
 
 // --- BLOCKS ---
 
-export async function getBlocks() {
-    return await prisma.block.findMany({
-        include: {
-            _count: {
-                select: { weeks: true, sessions: true }
-            },
-            weeks: {
-                orderBy: { weekNumber: 'asc' },
-                select: { id: true, weekNumber: true, startDate: true, endDate: true, isFinalized: true }
-            }
-        },
-        orderBy: { createdAt: 'desc' }
-    });
-}
 
 export async function createBlock(formData: FormData) {
     const session = await auth();
@@ -90,6 +77,13 @@ export async function createBlock(formData: FormData) {
             return newBlock;
         });
 
+        await writeAuditLog({
+            action: "CREATE_BLOCK",
+            details: `Created block "${block.name}" with ${validated.numberOfWeeks} weeks.`,
+            entityType: "Block",
+            entityId: block.id
+        });
+
         revalidatePath('/blocks');
         revalidatePath('/');
         return { success: true, message: `Block "${block.name}" created with ${validated.numberOfWeeks} weeks.` };
@@ -104,6 +98,9 @@ export async function activateBlock(blockId: string) {
     if (!session?.user) return { success: false, message: "Unauthorized" };
 
     try {
+        const block = await prisma.block.findUnique({ where: { id: blockId } });
+        if (!block) return { success: false, message: 'Block not found.' };
+
         await prisma.$transaction(async (tx) => {
             // Deactivate all blocks
             await tx.block.updateMany({
@@ -115,6 +112,13 @@ export async function activateBlock(blockId: string) {
                 where: { id: blockId },
                 data: { isActive: true }
             });
+        });
+
+        await writeAuditLog({
+            action: "ACTIVATE_BLOCK",
+            details: `Activated block "${block.name}".`,
+            entityType: "Block",
+            entityId: blockId
         });
 
         revalidatePath('/blocks');
@@ -130,9 +134,19 @@ export async function deactivateBlock(blockId: string) {
     if (!session?.user) return { success: false, message: "Unauthorized" };
 
     try {
+        const block = await prisma.block.findUnique({ where: { id: blockId } });
+        if (!block) return { success: false, message: 'Block not found.' };
+
         await prisma.block.update({
             where: { id: blockId },
             data: { isActive: false }
+        });
+
+        await writeAuditLog({
+            action: "DEACTIVATE_BLOCK",
+            details: `Deactivated block "${block.name}".`,
+            entityType: "Block",
+            entityId: blockId
         });
 
         revalidatePath('/blocks');
@@ -163,14 +177,23 @@ export async function deleteBlock(blockId: string) {
             // Delete dependent data in order
             await tx.teamWeekAward.deleteMany({ where: { blockWeekId: { in: weekIds } } });
             await tx.teamWeekMetric.deleteMany({ where: { blockWeekId: { in: weekIds } } });
+            await tx.benchmarkLog.deleteMany({ where: { blockWeekId: { in: weekIds } } });
             await tx.lifestyleLog.deleteMany({ where: { blockWeekId: { in: weekIds } } });
             await tx.kmLog.deleteMany({ where: { blockWeekId: { in: weekIds } } });
             await tx.attendance.deleteMany({ where: { sessionId: { in: sessionIds } } });
+            await tx.pointLedger.deleteMany({ where: { blockId } });
 
             // Delete sessions, weeks, and block
             await tx.session.deleteMany({ where: { blockId } });
             await tx.blockWeek.deleteMany({ where: { blockId } });
             await tx.block.delete({ where: { id: blockId } });
+        });
+
+        await writeAuditLog({
+            action: "DELETE_BLOCK",
+            details: `Deleted block "${block.name}" (ID: ${blockId}).`,
+            entityType: "Block",
+            entityId: blockId
         });
 
         revalidatePath('/blocks');
@@ -202,8 +225,16 @@ export async function finalizeWeek(blockWeekId: string) {
             data: { isFinalized: true }
         });
 
+        await writeAuditLog({
+            action: "FINALIZE_WEEK",
+            details: `Finalized week ${week.weekNumber} of block ID ${week.blockId}.`,
+            entityType: "BlockWeek",
+            entityId: blockWeekId
+        });
+
         revalidatePath('/scoreboard');
         revalidatePath('/');
+        revalidateTag('dashboard-stats', 'max');
         return { success: true, message: `Week ${week.weekNumber} finalized and locked.` };
     } catch (error) {
         const msg = error instanceof Error ? error.message : 'Failed to finalize week';
@@ -225,65 +256,18 @@ export async function unfinalizeWeek(blockWeekId: string) {
             data: { isFinalized: false }
         });
 
+        await writeAuditLog({
+            action: "UNFINALIZE_WEEK",
+            details: `Unlocked week ${week.weekNumber} of block ID ${week.blockId} for editing.`,
+            entityType: "BlockWeek",
+            entityId: blockWeekId
+        });
+
         revalidatePath('/scoreboard');
         revalidatePath('/');
+        revalidateTag('dashboard-stats', 'max');
         return { success: true, message: `Week ${week.weekNumber} unlocked for editing.` };
     } catch {
         return { success: false, message: 'Failed to unfinalize week.' };
     }
-}
-
-// --- DATA COMPLETENESS (for wizard) ---
-
-export async function getWeekDataCompleteness(blockWeekId: string) {
-    const week = await prisma.blockWeek.findUnique({
-        where: { id: blockWeekId },
-        include: { block: true }
-    });
-    if (!week) return null;
-
-    const memberCount = await prisma.member.count({ where: { isActive: true } });
-
-    const [weighInCount, kmCount, lifestyleCount] = await Promise.all([
-        prisma.weighIn.count({
-            where: {
-                member: { isActive: true },
-                date: { gte: week.startDate, lte: week.endDate }
-            }
-        }),
-        prisma.kmLog.count({
-            where: {
-                member: { isActive: true },
-                blockWeekId,
-            }
-        }),
-        prisma.lifestyleLog.count({
-            where: {
-                member: { isActive: true },
-                blockWeekId,
-            }
-        }),
-    ]);
-
-    // Count sessions in this week that have attendance
-    const sessions = await prisma.session.findMany({
-        where: {
-            blockId: week.blockId,
-            date: { gte: week.startDate, lte: week.endDate }
-        },
-        include: {
-            _count: { select: { attendance: true } }
-        }
-    });
-
-    const sessionsWithData = sessions.filter(s => s._count.attendance > 0).length;
-
-    return {
-        weighIns: { entered: weighInCount, total: memberCount },
-        km: { entered: kmCount, total: memberCount },
-        lifestyle: { entered: lifestyleCount, total: memberCount },
-        attendance: { sessionsWithData, totalSessions: sessions.length },
-        isFinalized: week.isFinalized,
-        weekNumber: week.weekNumber,
-    };
 }

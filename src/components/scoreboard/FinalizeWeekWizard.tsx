@@ -19,7 +19,8 @@ import {
     ShieldCheck,
     BarChart3,
 } from 'lucide-react';
-import { finalizeWeek, unfinalizeWeek, getWeekDataCompleteness } from '@/actions/block-actions';
+import { finalizeWeek, unfinalizeWeek } from '@/actions/block-actions';
+import { getWeekDataCompleteness } from '@/lib/queries';
 
 interface FinalizeWeekWizardProps {
     weekId: string;

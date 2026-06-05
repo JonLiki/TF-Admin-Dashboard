@@ -29,7 +29,13 @@ const categories = [
     { key: 'burpees' as const, title: 'Burpees', color: '#E2E8F0', gradientTo: '#94A3B8', icon: '🔥', bg: 'from-[#E2E8F0]/10 to-transparent', border: 'border-[#E2E8F0]/20' },
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface CustomTooltipProps {
+    active?: boolean;
+    payload?: { value: number }[];
+    label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-ocean-deep/95 border border-lagoon/20 rounded-xl px-4 py-2.5 shadow-xl backdrop-blur-md">

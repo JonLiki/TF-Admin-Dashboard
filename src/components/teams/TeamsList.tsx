@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
 import { Users, Trash2, ChevronDown, UserSquare2 } from "lucide-react";
@@ -45,11 +45,7 @@ export function TeamsList({ teams }: TeamsListProps) {
         );
     }, [teams, searchTerm]);
 
-    // Reset to page 1 and collapse when search changes
-    useEffect(() => {
-        setCurrentPage(1);
-        setExpandedTeamId(null);
-    }, [searchTerm]);
+
 
     const totalPages = Math.ceil(filteredTeams.length / PAGE_SIZE);
     const paginatedTeams = useMemo(() => {
@@ -71,7 +67,11 @@ export function TeamsList({ teams }: TeamsListProps) {
                 <div className="p-6 border-b border-lagoon/20 space-y-4 bg-ocean/20 backdrop-blur-md">
                     <SearchInput
                         value={searchTerm}
-                        onChange={setSearchTerm}
+                        onChange={(val) => {
+                            setSearchTerm(val);
+                            setCurrentPage(1);
+                            setExpandedTeamId(null);
+                        }}
                         placeholder="Search groups..."
                         className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 placeholder:text-lagoon-100/50 focus:border-lagoon/60 focus:ring-lagoon/20"
                     />

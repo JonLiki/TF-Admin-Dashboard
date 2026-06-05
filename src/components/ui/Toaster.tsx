@@ -8,6 +8,7 @@ export function Toaster({ ...props }: ToasterProps) {
     return (
         <Sonner
             theme="dark"
+            position="bottom-right"
             className="toaster group"
             toastOptions={{
                 classNames: {
@@ -19,12 +20,13 @@ export function Toaster({ ...props }: ToasterProps) {
                     cancelButton:
                         "group-[.toast]:bg-white/10 group-[.toast]:text-slate-300 group-[.toast]:hover:bg-white/20 transition-all",
                     success:
-                        "group-[.toaster]:!border-lagoon/50 group-[.toaster]:shadow-[0_0_30px_rgba(102,252,241,0.15)] group-[.toaster]:!bg-gradient-to-br group-[.toaster]:from-ocean-deep group-[.toaster]:to-lagoon/10 text-lagoon-100",
+                        "group-[.toaster]:!border-emerald-500/40 group-[.toaster]:shadow-[0_0_30px_rgba(16,185,129,0.15)] group-[.toaster]:!bg-gradient-to-br group-[.toaster]:from-ocean-deep group-[.toaster]:to-emerald-900/20 text-emerald-100",
                     error:
-                        "group-[.toaster]:!border-tongan/50 group-[.toaster]:shadow-[0_0_30px_rgba(200,16,46,0.15)] group-[.toaster]:!bg-gradient-to-br group-[.toaster]:from-ocean-deep group-[.toaster]:to-tongan/10 text-red-100",
+                        "group-[.toaster]:!border-tongan/50 group-[.toaster]:shadow-[0_0_30px_rgba(200,16,46,0.2)] group-[.toaster]:!bg-gradient-to-br group-[.toaster]:from-ocean-deep group-[.toaster]:to-tongan/10 text-red-100",
                 },
             }}
             {...props}
         />
     );
 }
+

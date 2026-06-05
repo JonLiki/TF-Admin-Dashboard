@@ -1,32 +1,38 @@
 import { PageHeader } from "@/components/ui/PageHeader";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { Suspense } from "react";
-import { getActiveBlock } from "@/actions/data";
+import {
+  getActiveBlock,
+  getLeaderboard,
+  getWeeklyTotals,
+  getAttendanceData,
+  getCurrentWeekCompleteness
+} from "@/lib/queries";
 import LoginFeedback from "@/components/auth/LoginFeedback";
 import { DashboardClientView } from "@/components/dashboard/DashboardClientView";
 import prisma from "@/lib/prisma";
 
-import { unstable_cache } from "next/cache";
-
-export const getStats = unstable_cache(async () => {
+export async function getStats() {
   const activeBlock = await getActiveBlock();
   if (!activeBlock) return null;
 
-  const teamsList = await prisma.team.findMany();
+  const [teamsList, memberCount] = await Promise.all([
+    prisma.team.findMany(),
+    prisma.member.count({ where: { isActive: true } })
+  ]);
   const teamCount = teamsList.length;
-  const memberCount = await prisma.member.count({ where: { isActive: true } });
 
-  // 1. Fetch RAW metrics for the table (lightweight, no nested relations needed for logs)
-  const allMetrics = await prisma.teamWeekMetric.findMany({
-    where: { blockWeek: { blockId: activeBlock.id } },
-    include: { team: true, blockWeek: true }
-  });
-
-  // 2. Optimized Total Weight Loss (Database Aggregation)
-  const weightLossAgg = await prisma.teamWeekMetric.aggregate({
-    where: { blockWeek: { blockId: activeBlock.id } },
-    _sum: { weightLossTotal: true }
-  });
+  // Fetch metrics and weight loss in parallel
+  const [allMetrics, weightLossAgg] = await Promise.all([
+    prisma.teamWeekMetric.findMany({
+      where: { blockWeek: { blockId: activeBlock.id } },
+      include: { team: true, blockWeek: true }
+    }),
+    prisma.teamWeekMetric.aggregate({
+      where: { blockWeek: { blockId: activeBlock.id } },
+      _sum: { weightLossTotal: true }
+    })
+  ]);
   const totalLoss = weightLossAgg._sum.weightLossTotal || 0;
 
   // Determine current week
@@ -39,143 +45,13 @@ export const getStats = unstable_cache(async () => {
   }
   const currentWeekNumber = currentWeek?.weekNumber || 1;
 
-  // 3. Leaderboard Data (Top 3) - Optimized GroupBy
-  const pointTotals = await prisma.pointLedger.groupBy({
-    by: ['teamId'],
-    where: { blockId: activeBlock.id },
-    _sum: { amount: true }
-  });
-
-  const teamPointsMap = new Map<string, number>();
-  pointTotals.forEach(pt => {
-    teamPointsMap.set(pt.teamId, pt._sum?.amount || 0);
-  });
-
-  const leaderboard = teamsList.map(t => ({
-    name: t.name,
-    points: teamPointsMap.get(t.id) || 0,
-    id: t.id
-  })).sort((a, b) => b.points - a.points).slice(0, 3);
-
-  // 4. Optimized Weekly Totals (KM & Lifestyle) - Database GroupBy
-  // Instead of fetching ALL logs, we group by blockWeekId and sum directly in DB
-  const [kmGroups, lifestyleGroups] = await Promise.all([
-    prisma.kmLog.groupBy({
-      by: ['blockWeekId'],
-      where: { blockWeek: { blockId: activeBlock.id } },
-      _sum: { totalKm: true }
-    }),
-    prisma.lifestyleLog.groupBy({
-      by: ['blockWeekId'],
-      where: { blockWeek: { blockId: activeBlock.id } },
-      _sum: { postCount: true }
-    })
+  // Execute remaining composable queries in parallel
+  const [leaderboard, weeklyTotals, attendanceData, dataCompleteness] = await Promise.all([
+    getLeaderboard(activeBlock.id, teamsList),
+    getWeeklyTotals(activeBlock.id, weeks),
+    getAttendanceData(activeBlock.id, memberCount),
+    getCurrentWeekCompleteness(currentWeek, memberCount)
   ]);
-
-  const weeklyTotals = weeks.map(week => {
-    const kmEntry = kmGroups.find(g => g.blockWeekId === week.id);
-    const lifeEntry = lifestyleGroups.find(g => g.blockWeekId === week.id);
-
-    return {
-      weekNumber: week.weekNumber,
-      totalKm: kmEntry?._sum.totalKm || 0,
-      totalLifestyle: lifeEntry?._sum.postCount || 0
-    };
-  });
-
-  // 5. Optimized Attendance Data
-  // Fetch sessions with a COUNT of present attendance
-  const sessions = await prisma.session.findMany({
-    where: { blockId: activeBlock.id },
-    orderBy: { date: 'asc' },
-    select: {
-      id: true,
-      date: true,
-      type: true,
-      _count: {
-        select: {
-          attendance: {
-            where: { isPresent: true }
-          }
-        }
-      }
-    }
-  });
-
-  const attendanceData = sessions.map(session => {
-    const presentCount = session._count.attendance; // Count of 'isPresent: true' records
-    const percentage = memberCount > 0 ? (presentCount / memberCount) * 100 : 0;
-
-    return {
-      date: session.date.toISOString(),
-      percentage: parseFloat(percentage.toFixed(1)),
-      type: session.type,
-      present: presentCount,
-      total: memberCount
-    };
-  });
-
-  // 6. Data Completeness for current week
-  const currentWeekId = currentWeek?.id;
-  let dataCompleteness = {
-    weighIns: { entered: 0, total: memberCount },
-    km: { entered: 0, total: memberCount },
-    lifestyle: { entered: 0, total: memberCount },
-    attendance: { sessionsWithData: 0, totalSessions: 0 },
-  };
-
-  if (currentWeekId && currentWeek) {
-    const [weighInUsers, kmUsers, lifestyleUsers] = await Promise.all([
-      prisma.weighIn.findMany({
-        where: {
-          member: { isActive: true },
-          date: {
-            gte: currentWeek.startDate,
-            lte: currentWeek.endDate,
-          },
-          weight: { gt: 0 }
-        },
-        distinct: ['memberId'],
-        select: { memberId: true }
-      }),
-      prisma.kmLog.findMany({
-        where: {
-          member: { isActive: true },
-          blockWeekId: currentWeekId,
-          totalKm: { gt: 0 }
-        },
-        distinct: ['memberId'],
-        select: { memberId: true }
-      }),
-      prisma.lifestyleLog.findMany({
-        where: {
-          member: { isActive: true },
-          blockWeekId: currentWeekId,
-          postCount: { gt: 0 }
-        },
-        distinct: ['memberId'],
-        select: { memberId: true }
-      }),
-    ]);
-
-    const weighInCount = weighInUsers.length;
-    const kmCount = kmUsers.length;
-    const lifestyleCount = lifestyleUsers.length;
-
-    // Count sessions in this week that have at least one attendance record
-    const weekSessions = sessions.filter(s => {
-      const sDate = new Date(s.date);
-      return sDate >= currentWeek.startDate && sDate <= currentWeek.endDate;
-    });
-    const sessionsWithData = weekSessions.filter(s => s._count.attendance > 0).length;
-
-    dataCompleteness = {
-      weighIns: { entered: weighInCount, total: memberCount },
-      km: { entered: kmCount, total: memberCount },
-      lifestyle: { entered: lifestyleCount, total: memberCount },
-      attendance: { sessionsWithData, totalSessions: weekSessions.length },
-    };
-  }
 
   return {
     teams: teamCount,
@@ -191,7 +67,7 @@ export const getStats = unstable_cache(async () => {
     dataCompleteness,
     charts: {}
   };
-}, ['dashboard-stats'], { revalidate: 60, tags: ['dashboard-stats'] });
+}
 
 async function DashboardContent() {
   const stats = await getStats();

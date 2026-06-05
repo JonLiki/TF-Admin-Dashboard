@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { addDays } from 'date-fns';
 import {
     calculateTeamMetrics,
@@ -15,10 +15,6 @@ export async function calculateWeekResults(blockWeekId: string) {
         include: { block: { include: { weeks: { orderBy: { weekNumber: 'asc' } } } } }
     });
     if (!blockWeek) throw new Error("Week not found");
-
-    const weekNumber = blockWeek.weekNumber;
-    const totalWeeks = blockWeek.block.weeks.length;
-    const isLastWeek = weekNumber === totalWeeks;
 
     // 1. Fetch Data for Current Week (KM, Lifestyle, Attendance, WeighIns)
     // Weight loss is calculated directly by calculateTeamMetrics as:
@@ -45,7 +41,7 @@ export async function calculateWeekResults(blockWeekId: string) {
                             session: {
                                 date: {
                                     gte: blockWeek.startDate,
-                                    lt: blockWeek.endDate
+                                    lte: blockWeek.endDate
                                 }
                             }
                         }
@@ -73,18 +69,10 @@ export async function calculateWeekResults(blockWeekId: string) {
     }));
 
     // Calculate current week metrics (WL is already computed correctly as this_week - next_week)
-    const currentResults = calculateTeamMetrics(currentScorableTeams, currentConfig);
-    
-    // For the last week, WL is 0 since there's no next week weigh-in data
-    const finalResults = isLastWeek
-        ? currentResults.map(r => ({ ...r, weightLossTotal: 0 }))
-        : currentResults;
+    const finalResults = calculateTeamMetrics(currentScorableTeams, currentConfig);
 
     // Determine winners
-    const allAwards = determineWinners(finalResults);
-    
-    // Suppress ALL awards for the last week
-    const finalAwards = isLastWeek ? [] : allAwards;
+    const finalAwards = determineWinners(finalResults);
 
     // 3. Execute Updates in Transaction
     await prisma.$transaction(async (tx) => {
@@ -118,6 +106,7 @@ export async function calculateWeekResults(blockWeekId: string) {
 
         await tx.pointLedger.deleteMany({
             where: {
+                blockId: blockWeek.blockId,
                 reason: {
                     contains: `(Week ${blockWeek.weekNumber})`,
                     startsWith: "Winner:"
@@ -152,4 +141,5 @@ export async function calculateWeekResults(blockWeekId: string) {
     });
 
     revalidatePath('/scoreboard');
+    revalidateTag('dashboard-stats', 'max');
 }

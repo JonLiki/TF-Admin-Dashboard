@@ -39,9 +39,9 @@ function getPercentage(entered: number, total: number) {
 }
 
 function getBarColor(pct: number) {
-    if (pct >= 90) return 'bg-emerald-500';
-    if (pct >= 50) return 'bg-amber-500';
-    return 'bg-red-500';
+    if (pct >= 90) return 'bg-gradient-to-r from-emerald-600 to-emerald-400';
+    if (pct >= 50) return 'bg-gradient-to-r from-amber-600 to-amber-400';
+    return 'bg-gradient-to-r from-red-600 to-red-400';
 }
 
 function getTextColor(pct: number) {
@@ -98,7 +98,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                             </div>
                                             <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                                                 <motion.div
-                                                    className={cn("h-full rounded-full", getBarColor(pct))}
+                                                    className={cn("h-full rounded-full", getBarColor(pct), pct < 100 && "pulse-attention")}
                                                     initial={{ width: 0 }}
                                                     animate={{ width: `${pct}%` }}
                                                     transition={{ duration: 0.6, delay: i * 0.1, ease: 'easeOut' }}
@@ -133,7 +133,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                     </div>
                                     <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                                         <motion.div
-                                            className={cn("h-full rounded-full", getBarColor(getPercentage(data.attendance.sessionsWithData, data.attendance.totalSessions)))}
+                                            className={cn("h-full rounded-full", getBarColor(getPercentage(data.attendance.sessionsWithData, data.attendance.totalSessions)), getPercentage(data.attendance.sessionsWithData, data.attendance.totalSessions) < 100 && "pulse-attention")}
                                             initial={{ width: 0 }}
                                             animate={{ width: `${getPercentage(data.attendance.sessionsWithData, data.attendance.totalSessions)}%` }}
                                             transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}

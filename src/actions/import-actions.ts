@@ -1,10 +1,13 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { Prisma } from '@prisma/client';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { parseCSV } from '@/lib/csvParser';
 import { format } from 'date-fns';
 import { ImportAttendanceRowSchema, ImportKmRowSchema, ImportLifestyleRowSchema, ImportWeighInRowSchema } from '@/lib/schemas';
+import { writeAuditLog } from '@/lib/audit';
+import { z } from 'zod';
 
 // Helper to get active block and members map
 async function getImportContext() {
@@ -57,51 +60,56 @@ export async function importAttendance(formData: FormData) {
         let successCount = 0;
         const errors: string[] = [];
 
-        // 2. Process Rows
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            if (row.length < 2) continue;
+        // 2. Process Rows inside a transaction for atomicity
+        await prisma.$transaction(async (tx) => {
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.length < 2) continue;
 
-            const firstName = row[0].trim();
-            const lastName = row[1].trim();
-            const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
-            const memberId = memberMap.get(key);
+                const firstName = row[0].trim();
+                const lastName = row[1].trim();
+                const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
+                const memberId = memberMap.get(key);
 
-            if (!memberId) {
-                // errors.push(`Row ${i + 1}: Member "${firstName} ${lastName}" not found`);
-                // errorCount++;
-                continue; // Skip unknown members without erroring loudly
-            }
-
-            for (const [colIndex, sessionId] of sessionColMap.entries()) {
-                if (colIndex >= row.length) continue;
-
-                const cellValue = row[colIndex];
-
-                // validate
-                const result = ImportAttendanceRowSchema.safeParse(cellValue);
-
-                if (!result.success) {
-                    // Invalid format (e.g. "Maybe")
-                    // errors.push(`Row ${i + 1}: Invalid attendance value "${cellValue}"`);
-                    // errorCount++;
-                    continue;
+                if (!memberId) {
+                    continue; // Skip unknown members without erroring loudly
                 }
 
-                const isPresent = result.data;
+                for (const [colIndex, sessionId] of sessionColMap.entries()) {
+                    if (colIndex >= row.length) continue;
 
-                if (isPresent !== null) { // true or false
-                    await prisma.attendance.upsert({
-                        where: { sessionId_memberId: { sessionId, memberId } },
-                        update: { isPresent },
-                        create: { sessionId, memberId, isPresent }
-                    });
-                    successCount++;
+                    const cellValue = row[colIndex];
+
+                    // validate
+                    const result = ImportAttendanceRowSchema.safeParse(cellValue);
+
+                    if (!result.success) {
+                        continue;
+                    }
+
+                    const isPresent = result.data;
+
+                    if (isPresent !== null) { // true or false
+                        await tx.attendance.upsert({
+                            where: { sessionId_memberId: { sessionId, memberId } },
+                            update: { isPresent },
+                            create: { sessionId, memberId, isPresent }
+                        });
+                        successCount++;
+                    }
                 }
             }
-        }
+        }, { timeout: 30000 });
+
+        await writeAuditLog({
+            action: "IMPORT_ATTENDANCE",
+            details: `Imported ${successCount} attendance records from file "${file.name}".`,
+            entityType: "Block",
+            entityId: block.id
+        });
 
         revalidatePath('/attendance');
+        revalidateTag('dashboard-stats', 'max');
         return {
             success: true,
             message: `Imported ${successCount} records. ${errors.length > 0 ? `(${errors.length} errors)` : ''}`
@@ -113,7 +121,24 @@ export async function importAttendance(formData: FormData) {
     }
 }
 
-export async function importKm(formData: FormData) {
+type RowUpsertFunction = (
+    tx: Prisma.TransactionClient,
+    memberId: string,
+    blockWeekId: string,
+    value: number
+) => Promise<void>;
+
+async function importWeeklyData({
+    formData,
+    rowSchema,
+    upsertRow,
+    revalidatePathName
+}: {
+    formData: FormData;
+    rowSchema: z.ZodTypeAny;
+    upsertRow: RowUpsertFunction;
+    revalidatePathName: string;
+}) {
     const file = formData.get('file') as File;
     if (!file) return { success: false, message: 'No file provided' };
 
@@ -139,38 +164,44 @@ export async function importKm(formData: FormData) {
         let successCount = 0;
         let errors = 0;
 
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            if (row.length < 2) continue;
+        await prisma.$transaction(async (tx) => {
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.length < 2) continue;
 
-            const firstName = row[0].trim();
-            const lastName = row[1].trim();
-            const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
-            const memberId = memberMap.get(key);
-            if (!memberId) continue;
+                const firstName = row[0].trim();
+                const lastName = row[1].trim();
+                const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
+                const memberId = memberMap.get(key);
+                if (!memberId) continue;
 
-            for (const [colIndex, blockWeekId] of weekColMap.entries()) {
-                if (colIndex >= row.length) continue;
-                const cellValue = row[colIndex];
-                if (!cellValue || cellValue.trim() === '' || cellValue.trim() === '-') continue;
+                for (const [colIndex, blockWeekId] of weekColMap.entries()) {
+                    if (colIndex >= row.length) continue;
+                    const cellValue = row[colIndex];
+                    if (!cellValue || cellValue.trim() === '' || cellValue.trim() === '-') continue;
 
-                // Validate
-                const result = ImportKmRowSchema.safeParse(cellValue);
-                if (!result.success) {
-                    errors++;
-                    continue;
+                    // Validate
+                    const result = rowSchema.safeParse(cellValue);
+                    if (!result.success) {
+                        errors++;
+                        continue;
+                    }
+
+                    await upsertRow(tx, memberId, blockWeekId, result.data as number);
+                    successCount++;
                 }
-
-                await prisma.kmLog.upsert({
-                    where: { memberId_blockWeekId: { memberId, blockWeekId } },
-                    update: { totalKm: result.data },
-                    create: { memberId, blockWeekId, totalKm: result.data }
-                });
-                successCount++;
             }
-        }
+        }, { timeout: 30000 });
 
-        revalidatePath('/km');
+        await writeAuditLog({
+            action: `IMPORT_${revalidatePathName.substring(1).toUpperCase()}`,
+            details: `Imported ${successCount} entries from file "${file.name}".`,
+            entityType: "Block",
+            entityId: block.id
+        });
+
+        revalidatePath(revalidatePathName);
+        revalidateTag('dashboard-stats', 'max');
         return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}` };
 
     } catch (e) {
@@ -178,69 +209,34 @@ export async function importKm(formData: FormData) {
     }
 }
 
+export async function importKm(formData: FormData) {
+    return importWeeklyData({
+        formData,
+        rowSchema: ImportKmRowSchema,
+        revalidatePathName: '/km',
+        upsertRow: async (tx, memberId, blockWeekId, value) => {
+            await tx.kmLog.upsert({
+                where: { memberId_blockWeekId: { memberId, blockWeekId } },
+                update: { totalKm: value },
+                create: { memberId, blockWeekId, totalKm: value }
+            });
+        }
+    });
+}
+
 export async function importLifestyle(formData: FormData) {
-    const file = formData.get('file') as File;
-    if (!file) return { success: false, message: 'No file provided' };
-
-    try {
-        const text = await file.text();
-        const rows = parseCSV(text);
-        if (rows.length < 2) return { success: false, message: 'Invalid CSV' };
-
-        const header = rows[0];
-        const { block, memberMap } = await getImportContext();
-
-        const weekColMap = new Map<number, string>();
-        for (let i = 4; i < header.length; i++) {
-            const colHeader = header[i];
-            const match = colHeader.match(/Week (\d+)/);
-            if (match) {
-                const weekNum = parseInt(match[1]);
-                const matchedWeek = block.weeks.find(w => w.weekNumber === weekNum);
-                if (matchedWeek) weekColMap.set(i, matchedWeek.id);
-            }
+    return importWeeklyData({
+        formData,
+        rowSchema: ImportLifestyleRowSchema,
+        revalidatePathName: '/lifestyle',
+        upsertRow: async (tx, memberId, blockWeekId, value) => {
+            await tx.lifestyleLog.upsert({
+                where: { memberId_blockWeekId: { memberId, blockWeekId } },
+                update: { postCount: value },
+                create: { memberId, blockWeekId, postCount: value }
+            });
         }
-
-        let successCount = 0;
-        let errors = 0;
-
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            if (row.length < 2) continue;
-
-            const firstName = row[0].trim();
-            const lastName = row[1].trim();
-            const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
-            const memberId = memberMap.get(key);
-
-            if (!memberId) continue;
-
-            for (const [colIndex, blockWeekId] of weekColMap.entries()) {
-                if (colIndex >= row.length) continue;
-                const cellValue = row[colIndex];
-                if (!cellValue || cellValue.trim() === '' || cellValue.trim() === '-') continue;
-
-                // Validate
-                const result = ImportLifestyleRowSchema.safeParse(cellValue);
-                if (!result.success) {
-                    errors++;
-                    continue;
-                }
-
-                await prisma.lifestyleLog.upsert({
-                    where: { memberId_blockWeekId: { memberId, blockWeekId } },
-                    update: { postCount: result.data },
-                    create: { memberId, blockWeekId, postCount: result.data }
-                });
-                successCount++;
-            }
-        }
-        revalidatePath('/lifestyle');
-        return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}` };
-
-    } catch (e) {
-        return { success: false, message: 'Import failed: ' + (e as Error).message };
-    }
+    });
 }
 
 export async function importWeighIn(formData: FormData) {
@@ -270,57 +266,65 @@ export async function importWeighIn(formData: FormData) {
         let successCount = 0;
         let errors = 0;
 
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            if (row.length < 2) continue;
+        await prisma.$transaction(async (tx) => {
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.length < 2) continue;
 
-            const firstName = row[0].trim();
-            const lastName = row[1].trim();
-            const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
-            const memberId = memberMap.get(key);
+                const firstName = row[0].trim();
+                const lastName = row[1].trim();
+                const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
+                const memberId = memberMap.get(key);
 
-            if (!memberId) continue;
+                if (!memberId) continue;
 
-            for (const [colIndex, week] of weekColMap.entries()) {
-                if (colIndex >= row.length) continue;
-                const cellValue = row[colIndex];
-                if (!cellValue || cellValue.trim() === '' || cellValue.trim() === '-') continue;
+                for (const [colIndex, week] of weekColMap.entries()) {
+                    if (colIndex >= row.length) continue;
+                    const cellValue = row[colIndex];
+                    if (!cellValue || cellValue.trim() === '' || cellValue.trim() === '-') continue;
 
-                // Validate
-                const result = ImportWeighInRowSchema.safeParse(cellValue);
-                if (!result.success) {
-                    errors++;
-                    continue;
-                }
-                const weight = result.data;
-
-                // Find existing weigh-in for this week (to preserve strict Monday rule if importing?)
-                // Or just use week start date as per rule
-                const weekStart = new Date(week.startDate);
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekEnd.getDate() + 6);
-
-                const existing = await prisma.weighIn.findFirst({
-                    where: {
-                        memberId,
-                        date: { gte: weekStart, lte: weekEnd }
+                    // Validate
+                    const result = ImportWeighInRowSchema.safeParse(cellValue);
+                    if (!result.success) {
+                        errors++;
+                        continue;
                     }
-                });
+                    const weight = result.data;
 
-                if (existing) {
-                    await prisma.weighIn.update({
-                        where: { memberId_date: { memberId: existing.memberId, date: existing.date } },
-                        data: { weight }
+                    const weekStart = new Date(week.startDate);
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekEnd.getDate() + 6);
+
+                    const existing = await tx.weighIn.findFirst({
+                        where: {
+                            memberId,
+                            date: { gte: weekStart, lte: weekEnd }
+                        }
                     });
-                } else {
-                    await prisma.weighIn.create({
-                        data: { memberId, date: weekStart, weight }
-                    });
+
+                    if (existing) {
+                        await tx.weighIn.update({
+                            where: { memberId_date: { memberId: existing.memberId, date: existing.date } },
+                            data: { weight }
+                        });
+                    } else {
+                        await tx.weighIn.create({
+                            data: { memberId, date: weekStart, weight }
+                        });
+                    }
+                    successCount++;
                 }
-                successCount++;
             }
-        }
+        }, { timeout: 30000 });
+        await writeAuditLog({
+            action: "IMPORT_WEIGH_IN",
+            details: `Imported ${successCount} weigh-in entries from file "${file.name}".`,
+            entityType: "Block",
+            entityId: block.id
+        });
+
         revalidatePath('/weigh-in');
+        revalidateTag('dashboard-stats', 'max');
         return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}` };
 
     } catch (e) {

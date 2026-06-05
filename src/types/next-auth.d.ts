@@ -1,4 +1,6 @@
-import NextAuth from "next-auth";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import type NextAuth from "next-auth";
+import type { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
   interface Session {
@@ -13,6 +15,14 @@ declare module "next-auth" {
   }
 
   interface User {
+    role?: string;
+    memberId?: string | null;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
     role?: string;
     memberId?: string | null;
   }

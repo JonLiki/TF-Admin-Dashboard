@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { toggleMemberActive, deleteMember, updateMember } from "@/actions";
 import { toast } from 'sonner';
-import { Sheet } from "@/components/ui/Sheet";
 import { Input } from "@/components/ui/Input";
 import { Pagination } from "@/components/ui/Pagination";
 
@@ -48,6 +47,7 @@ export function MembersList({ members, teams }: MembersListProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
     }, []);
 
@@ -72,10 +72,7 @@ export function MembersList({ members, teams }: MembersListProps) {
         });
     }, [members, searchTerm, selectedTeam, statusFilter]);
 
-    // Reset to page 1 when filters change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, selectedTeam, statusFilter]);
+
 
     const totalPages = Math.ceil(filteredMembers.length / PAGE_SIZE);
     const paginatedMembers = useMemo(() => {
@@ -98,6 +95,7 @@ export function MembersList({ members, teams }: MembersListProps) {
         setSearchTerm('');
         setSelectedTeam('all');
         setStatusFilter('all');
+        setCurrentPage(1);
     };
 
     return (
@@ -108,7 +106,10 @@ export function MembersList({ members, teams }: MembersListProps) {
                     {/* Search Input */}
                     <SearchInput
                         value={searchTerm}
-                        onChange={setSearchTerm}
+                        onChange={(val) => {
+                            setSearchTerm(val);
+                            setCurrentPage(1);
+                        }}
                         placeholder="Search members by name..."
                         className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 placeholder:text-lagoon-100/50 focus:border-lagoon/60 focus:ring-lagoon/20"
                     />
@@ -128,7 +129,10 @@ export function MembersList({ members, teams }: MembersListProps) {
                                 ...teams.map(t => ({ value: t.id, label: t.name }))
                             ]}
                             value={selectedTeam}
-                            onChange={setSelectedTeam}
+                            onChange={(val) => {
+                                setSelectedTeam(val);
+                                setCurrentPage(1);
+                            }}
                             className="w-full sm:w-48 bg-ocean-deep text-lagoon-100 border-lagoon/30"
                         />
 
@@ -140,7 +144,10 @@ export function MembersList({ members, teams }: MembersListProps) {
                                 { value: 'inactive', label: 'Inactive Only' }
                             ]}
                             value={statusFilter}
-                            onChange={setStatusFilter}
+                            onChange={(val) => {
+                                setStatusFilter(val);
+                                setCurrentPage(1);
+                            }}
                             className="w-full sm:w-40 bg-ocean-deep text-lagoon-100 border-lagoon/30"
                         />
 

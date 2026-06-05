@@ -195,10 +195,10 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                         let nextW: WeighIn | undefined = undefined;
                         if (weekIndex + 1 < block.weeks.length) {
                             // All weeks except the last: next week's Monday weigh-in
-                            nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]) as any;
+                            nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]);
                         } else {
                             // Last week (W8): use the final block end-date weigh-in (Mar 16)
-                            nextW = getFinalWeighIn(member) as any;
+                            nextW = getFinalWeighIn(member);
                         }
 
                         if (w && w.weight > 0 && nextW && nextW.weight > 0) {
@@ -253,9 +253,9 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                         const w = getWeighInForWeek(m, week);
                         let nextW: WeighIn | undefined = undefined;
                         if (weekIndex + 1 < block.weeks.length) {
-                            nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]) as any;
+                            nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]);
                         } else {
-                            nextW = getFinalWeighIn(m) as any;
+                            nextW = getFinalWeighIn(m);
                         }
 
                         if (w && w.weight > 0 && nextW && nextW.weight > 0) {
@@ -283,7 +283,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
             });
 
             // Add Week Totals to Footer
-            teamWeekTotals.forEach((total: number, idx: number) => {
+            teamWeekTotals.forEach((total: number) => {
                 let displayTotal = total.toFixed(1).replace('.0', '');
                 if (activeTab === 'weight') {
                     // All weeks are now Sum of Deltas
@@ -431,10 +431,10 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                     const w = getWeighInForWeek(m, week);
                                                     let nextW: WeighIn | undefined = undefined;
                                                     if (weekIndex + 1 < block.weeks.length) {
-                                                        nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]) as any;
+                                                        nextW = getWeighInForWeek(m, block.weeks[weekIndex + 1]);
                                                     } else {
                                                         // For the last week, use the block's end date for the final weigh-in
-                                                        nextW = getFinalWeighIn(m) as any;
+                                                        nextW = getFinalWeighIn(m);
                                                     }
 
                                                     if (w && w.weight > 0 && nextW && nextW.weight > 0) {
@@ -525,10 +525,10 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                                     let nextW: WeighIn | undefined = undefined;
                                                                     // For all weeks, we find the next week's weigh in.
                                                                     if (weekIndex + 1 < block.weeks.length) {
-                                                                        nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]) as any;
+                                                                        nextW = getWeighInForWeek(member, block.weeks[weekIndex + 1]);
                                                                     } else {
                                                                         // For the last week, use the block's end date for the final weigh-in
-                                                                        nextW = getFinalWeighIn(member) as any;
+                                                                        nextW = getFinalWeighIn(member);
                                                                     }
 
                                                                     if (w && w.weight > 0 && nextW && nextW.weight > 0) {

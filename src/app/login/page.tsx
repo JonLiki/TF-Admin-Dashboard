@@ -27,7 +27,7 @@ export default function LoginPage() {
                     <div className="absolute -inset-1 bg-gradient-to-r from-tongan via-lagoon to-tongan rounded-3xl opacity-20 blur-md group-hover:opacity-30 transition-opacity duration-500" />
 
                     {/* Glass Card */}
-                    <div className="relative w-full bg-ocean-deep/90 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                    <div className="relative w-full bg-ocean-deep/90 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden scanline">
                         {/* Top Accent Line */}
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-lagoon to-transparent" />
 
@@ -35,14 +35,17 @@ export default function LoginPage() {
                         <div className="p-8 sm:p-10 w-full">
                             {/* Header Section */}
                             <div className="text-center mb-8">
-                                {/* Logo Badge */}
-                                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-tongan to-red-900 rounded-2xl shadow-lg shadow-tongan/40 mb-6 transform rotate-3 border border-white/10 group-hover:rotate-6 transition-transform duration-500">
-                                    <span className="text-3xl font-black text-white drop-shadow-md">TF</span>
+                                <div className="relative group/badge inline-block">
+                                    {/* Pulsing glow ring on hover */}
+                                    <div className="absolute -inset-2 rounded-2xl bg-tongan/20 blur-lg breathing-glow opacity-0 group-hover/badge:opacity-100 transition-opacity duration-500" />
+                                    <div className="relative inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-tongan to-red-900 rounded-2xl shadow-lg shadow-tongan/40 mb-6 transform rotate-3 border border-white/10 group-hover/badge:rotate-6 group-hover/badge:shadow-tongan/60 transition-all duration-500">
+                                        <span className="text-3xl font-black text-white drop-shadow-md">TF</span>
+                                    </div>
                                 </div>
                                 {/* ... rest of content remains same ... */}
 
                                 {/* Title */}
-                                <h1 className="text-4xl font-black text-white tracking-tight mb-3">
+                                <h1 className="text-4xl font-black tracking-tight mb-3 text-gradient">
                                     TO&apos;A FATALONA
                                 </h1>
 
@@ -117,7 +120,7 @@ export default function LoginPage() {
                                 <Button
                                     type="submit"
                                     disabled={isPending}
-                                    className="w-full bg-gradient-to-r from-tongan to-red-800 hover:from-red-600 hover:to-red-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-tongan/30 hover:shadow-tongan/40 active:scale-[0.98] transition-all duration-200 mt-6 border border-white/10 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-gradient-to-r from-tongan to-red-800 hover:from-red-600 hover:to-red-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-tongan/30 hover:shadow-tongan/50 hover:shadow-xl active:scale-[0.98] transition-all duration-200 mt-6 border border-white/10 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isPending ? (
                                         <Loader2 className="w-5 h-5 animate-spin" />

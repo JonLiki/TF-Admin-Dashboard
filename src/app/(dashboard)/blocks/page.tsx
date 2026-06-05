@@ -1,4 +1,4 @@
-import { getBlocks } from "@/actions/block-actions";
+import { getBlocks } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { OceanWaves } from "@/components/ui/Patterns";
 import { BlocksClientView } from "@/components/blocks/BlocksClientView";

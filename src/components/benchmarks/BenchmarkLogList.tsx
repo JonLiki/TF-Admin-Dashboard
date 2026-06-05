@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Dumbbell, Save, Filter, MapPin } from "lucide-react";
+import { Dumbbell, Save, Filter } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { submitBenchmarkLog } from "@/actions/data";

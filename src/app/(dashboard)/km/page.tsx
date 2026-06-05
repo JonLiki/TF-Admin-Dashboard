@@ -1,4 +1,4 @@
-import { getActiveBlock, getMembersWithLogs } from "@/actions/data";
+import { getActiveBlock, getMembersWithLogs } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Activity, TrendingUp, Award, CheckCircle, AlertCircle } from "lucide-react";
 

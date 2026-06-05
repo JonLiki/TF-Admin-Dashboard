@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
 import "./globals.css";
-import { TonganNgatu } from "@/components/ui/Patterns";
+import { AmbientBackground } from "@/components/ui/AmbientBackground";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/Toaster";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -61,10 +61,8 @@ export default function RootLayout({
           forcedTheme="dark"
           disableTransitionOnChange
         >
-          {/* Global Background Pattern */}
-          <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply dark:mix-blend-overlay">
-            <TonganNgatu />
-          </div>
+          {/* Cinematic Ambient Background */}
+          <AmbientBackground />
 
           {children}
           <Toaster />

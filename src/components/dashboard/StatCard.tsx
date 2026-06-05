@@ -21,20 +21,24 @@ interface StatCardProps {
 
 export function StatCard({ label, value, subtext, icon: Icon, colorClass, borderClass, className, pattern, isNumber }: StatCardProps) {
     return (
-        <PremiumCard glowBorder className={cn("p-6 flex flex-col justify-between h-32 md:h-40 group relative overflow-hidden", borderClass, className)}>
+        <PremiumCard glowBorder className={cn("p-6 flex flex-col justify-between h-32 md:h-40 group relative overflow-hidden shimmer-sweep", borderClass, className)}>
             {/* Texture Overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-blend-overlay mix-blend-overlay">
                 {pattern === 'ngatu' && <TonganNgatu />}
                 {pattern === 'waves' && <OceanWaves />}
             </div>
 
-            {/* Background Glow */}
+            {/* Background Glow on Hover */}
             <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
             <div className="flex justify-between items-start z-10">
-                <div className={cn("p-2.5 rounded-xl shadow-lg border border-white/10 backdrop-blur-sm relative overflow-hidden", colorClass, "group-hover:scale-110 transition-transform duration-300 ease-out")}>
-                    <Icon className="h-5 w-5 relative z-10" />
-                    <div className="absolute inset-0 bg-white/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                    {/* Breathing Glow behind icon */}
+                    <div className={cn("absolute inset-0 rounded-xl blur-lg breathing-glow opacity-0 group-hover:opacity-100 transition-opacity", colorClass)} />
+                    <div className={cn("relative p-2.5 rounded-xl shadow-lg border border-white/10 backdrop-blur-sm overflow-hidden", colorClass, "group-hover:scale-110 transition-transform duration-300 ease-out")}>
+                        <Icon className="h-5 w-5 relative z-10" />
+                        <div className="absolute inset-0 bg-white/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                 </div>
                 {subtext && <span className="text-[9px] font-bold text-lagoon-100 bg-ocean-deep/50 border border-lagoon/20 px-2 py-0.5 rounded uppercase tracking-wide group-hover:bg-lagoon group-hover:border-lagoon group-hover:text-white transition-colors shadow-inner">{subtext}</span>}
             </div>
@@ -48,3 +52,4 @@ export function StatCard({ label, value, subtext, icon: Icon, colorClass, border
         </PremiumCard>
     );
 }
+

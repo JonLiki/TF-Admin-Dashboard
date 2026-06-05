@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -234,6 +235,11 @@ model AuthSession {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum UserRole {
+  ADMIN
+  PARTICIPANT
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -241,13 +247,14 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          String    @default("participant") // "admin", "participant"
+  role          UserRole  @default(PARTICIPANT) // "ADMIN", "PARTICIPANT"
 
   memberId String? @unique
   member   Member? @relation(fields: [memberId], references: [id])
 
   accounts Account[]
   sessions AuthSession[]
+  auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -259,4 +266,15 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // e.g. "FINALIZE_WEEK", "UNFINALIZE_WEEK", "DELETE_TEAM", "IMPORT_KM"
+  details    String?  // Description or serialized metadata
+  entityType String?  // e.g. "BlockWeek", "Team", "Member"
+  entityId   String?
+  timestamp  DateTime @default(now())
 }

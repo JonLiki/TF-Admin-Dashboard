@@ -2,42 +2,12 @@
 
 import prisma from '@/lib/prisma';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { WeighInSchema, KmLogSchema, LifestyleLogSchema, BenchmarkLogSchema } from '@/lib/schemas';
 import { auth } from '@/auth';
 
-// --- HELPERS ---
-export async function getActiveBlock() {
-    return await prisma.block.findFirst({
-        where: { isActive: true },
-        include: {
-            weeks: { orderBy: { weekNumber: 'asc' } },
-            sessions: { orderBy: { date: 'asc' } }
-        }
-    });
-}
-
 // --- WEIGH-INS ---
-export async function getWeighIns(date: Date) {
-    // Normalize to start of day UTC or just use the date string match if careful
-    // Using a range for the specific date is safer
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    return await prisma.weighIn.findMany({
-        where: {
-            date: {
-                gte: startOfDay,
-                lte: endOfDay
-            }
-        },
-        include: { member: true }
-    });
-}
-
-export async function submitWeighIn(prevState: any, formData: FormData) {
+export async function submitWeighIn(prevState: unknown, formData: FormData) {
     const session = await auth();
     if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
@@ -64,9 +34,9 @@ export async function submitWeighIn(prevState: any, formData: FormData) {
         return { success: false, message: validated.error.issues[0].message };
     }
 
-    // Parse date correctly as it might be string from form
-    // validated.data.date is Date or string from schema, but we need Date object
+    // Parse date correctly and normalize to start of day to avoid timezone/time mismatches
     const dateObj = new Date(validated.data.date);
+    dateObj.setHours(0, 0, 0, 0);
 
     try {
         await prisma.weighIn.upsert({
@@ -84,6 +54,7 @@ export async function submitWeighIn(prevState: any, formData: FormData) {
             }
         });
         revalidatePath('/weigh-in');
+        revalidateTag('dashboard-stats', 'max');
         return { success: true, message: "Weigh-in saved" };
     } catch (error) {
         console.error("Database error saving weigh-in:", error);
@@ -92,7 +63,7 @@ export async function submitWeighIn(prevState: any, formData: FormData) {
 }
 
 // --- KM LOGS ---
-export async function submitKmLog(prevState: any, formData: FormData) {
+export async function submitKmLog(prevState: unknown, formData: FormData) {
     const session = await auth();
     if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
@@ -137,6 +108,7 @@ export async function submitKmLog(prevState: any, formData: FormData) {
             }
         });
         revalidatePath('/km');
+        revalidateTag('dashboard-stats', 'max');
         return { success: true };
     } catch (error) {
         console.error("Error saving KM Log:", error);
@@ -145,7 +117,7 @@ export async function submitKmLog(prevState: any, formData: FormData) {
 }
 
 // --- LIFESTYLE LOGS ---
-export async function submitLifestyleLog(prevState: any, formData: FormData) {
+export async function submitLifestyleLog(prevState: unknown, formData: FormData) {
     const session = await auth();
     if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
@@ -190,6 +162,7 @@ export async function submitLifestyleLog(prevState: any, formData: FormData) {
             }
         });
         revalidatePath('/lifestyle');
+        revalidateTag('dashboard-stats', 'max');
         return { success: true };
     } catch (error) {
         console.error("Error saving Lifestyle Log:", error);
@@ -198,7 +171,7 @@ export async function submitLifestyleLog(prevState: any, formData: FormData) {
 }
 
 // --- BENCHMARK LOGS ---
-export async function submitBenchmarkLog(prevState: any, formData: FormData) {
+export async function submitBenchmarkLog(prevState: unknown, formData: FormData) {
     const session = await auth();
     if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
 
@@ -268,33 +241,6 @@ export async function submitBenchmarkLog(prevState: any, formData: FormData) {
 }
 
 // --- ATTENDANCE ---
-export async function getSession(sessionId: string) {
-    return await prisma.session.findUnique({
-        where: { id: sessionId },
-        include: { attendance: true }
-    });
-}
-
-export async function getSessionsForWeek(weekId: string) {
-    const week = await prisma.blockWeek.findUnique({
-        where: { id: weekId }
-    });
-
-    if (!week) return [];
-
-    return await prisma.session.findMany({
-        where: {
-            blockId: week.blockId,
-            date: {
-                gte: week.startDate,
-                lt: week.endDate
-            }
-        },
-        include: { attendance: true },
-        orderBy: { date: 'asc' }
-    });
-}
-
 export async function toggleAttendance(sessionId: string, memberId: string, isPresent: boolean) {
     const session = await auth();
     if (!session?.user) throw new Error("Unauthorized. Please log in again.");
@@ -329,89 +275,5 @@ export async function toggleAttendance(sessionId: string, memberId: string, isPr
         }
     });
     revalidatePath('/attendance');
-}
-
-// --- FETCHERS FOR TABLES ---
-// Get all members with their data for a specific week/context
-export async function getMembersWithLogs(blockWeekId: string) {
-    return await prisma.member.findMany({
-        where: { isActive: true },
-        include: {
-            team: true,
-            kmLogs: { where: { blockWeekId } },
-            lifestyleLogs: { where: { blockWeekId } },
-            benchmarkLogs: { where: { blockWeekId } }
-        },
-        orderBy: { lastName: 'asc' }
-    });
-}
-
-export async function getMembersWithWeighIn(date: Date) {
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    return await prisma.member.findMany({
-        where: { isActive: true },
-        include: {
-            team: true,
-            weighIns: {
-                where: {
-                    date: {
-                        gte: startOfDay,
-                        lte: endOfDay
-                    }
-                }
-            }
-        },
-        orderBy: { lastName: 'asc' }
-    });
-}
-
-// --- SUMMARY REPORT ---
-export async function getFullBlockSummary() {
-    const block = await prisma.block.findFirst({
-        where: { isActive: true },
-        include: {
-            weeks: { orderBy: { weekNumber: 'asc' } },
-        }
-    });
-
-    if (!block) return null;
-
-    const members = await prisma.member.findMany({
-        where: { isActive: true },
-        include: {
-            team: true,
-            weighIns: {
-                where: {
-                    date: {
-                        gte: block.startDate,
-                        lte: new Date(new Date(block.endDate).setHours(23, 59, 59, 999))
-                    }
-                },
-                orderBy: { date: 'asc' }
-            },
-            kmLogs: true,
-            lifestyleLogs: true,
-            benchmarkLogs: true,
-            attendance: {
-                where: {
-                    session: {
-                        blockId: block.id
-                    }
-                }
-            }
-        },
-        orderBy: { lastName: 'asc' }
-    });
-
-    // Also fetch all sessions for the block to calculate attendance totals/percentages if needed
-    const sessions = await prisma.session.findMany({
-        where: { blockId: block.id },
-        orderBy: { date: 'asc' }
-    });
-
-    return { block, members, sessions };
+    revalidateTag('dashboard-stats', 'max');
 }

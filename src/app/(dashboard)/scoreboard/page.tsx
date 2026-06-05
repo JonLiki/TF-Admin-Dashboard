@@ -1,4 +1,4 @@
-import { getActiveBlock } from "@/actions/data";
+import { getActiveBlock } from "@/lib/queries";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Trophy, AlertCircle } from "lucide-react";
@@ -99,13 +99,13 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                                     team: awards.find((w) => w.category === 'WEIGHT_LOSS')?.team.name || '',
                                     award: awards.find((w) => w.category === 'WEIGHT_LOSS')?.category || ''
                                 } : undefined,
-                                lifestyle: awards.find((w) => w.category === 'LIFESTYLE') ? {
-                                    team: awards.find((w) => w.category === 'LIFESTYLE')?.team.name || '',
-                                    award: awards.find((w) => w.category === 'LIFESTYLE')?.category || ''
+                                lifestyle: awards.find((w) => w.category === 'LIFESTYLE_AVG') ? {
+                                    team: awards.find((w) => w.category === 'LIFESTYLE_AVG')?.team.name || '',
+                                    award: awards.find((w) => w.category === 'LIFESTYLE_AVG')?.category || ''
                                 } : undefined,
-                                km: awards.find((w) => w.category === 'KM') ? {
-                                    team: awards.find((w) => w.category === 'KM')?.team.name || '',
-                                    award: awards.find((w) => w.category === 'KM')?.category || ''
+                                km: awards.find((w) => w.category === 'KM_AVG') ? {
+                                    team: awards.find((w) => w.category === 'KM_AVG')?.team.name || '',
+                                    award: awards.find((w) => w.category === 'KM_AVG')?.category || ''
                                 } : undefined
                             } : undefined
                         }}

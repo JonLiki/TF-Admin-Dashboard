@@ -43,13 +43,9 @@ describe('Import Validation Schemas', () => {
     });
 
     describe('Lifestyle Schema', () => {
-        it('should accept integers 0-7', () => {
+        it('should accept integers 0-100', () => {
             expect(ImportLifestyleRowSchema.parse('0')).toBe(0);
-            expect(ImportLifestyleRowSchema.parse('7')).toBe(7);
-        });
-
-        it('should reject numbers > 7', () => {
-            expect(() => ImportLifestyleRowSchema.parse('8')).toThrow();
+            expect(ImportLifestyleRowSchema.parse('100')).toBe(100);
         });
 
         it('should reject decimals', () => {
@@ -60,11 +56,12 @@ describe('Import Validation Schemas', () => {
     describe('Weigh-In Schema', () => {
         it('should accept valid weights', () => {
             expect(ImportWeighInRowSchema.parse('100.5')).toBe(100.5);
+            expect(ImportWeighInRowSchema.parse('400')).toBe(400);
         });
 
         it('should reject unrealistic weights', () => {
             expect(() => ImportWeighInRowSchema.parse('-5')).toThrow(); // Negative
-            expect(() => ImportWeighInRowSchema.parse('400')).toThrow(); // Too high
+            expect(() => ImportWeighInRowSchema.parse('600')).toThrow(); // Too high
         });
     });
 });

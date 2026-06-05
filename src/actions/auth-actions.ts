@@ -10,7 +10,7 @@ export async function authenticate(
     try {
         await signIn('credentials', {
             ...Object.fromEntries(formData),
-            redirectTo: '/?verified=true',
+            redirect: true,
         });
     } catch (error) {
         if (error instanceof AuthError) {

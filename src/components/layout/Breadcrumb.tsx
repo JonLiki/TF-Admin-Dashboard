@@ -34,13 +34,16 @@ export function Breadcrumb({ className }: { className?: string }) {
 
     return (
         <div className={cn(
-            "lg:hidden flex items-center gap-2.5 px-4 py-3 pl-16",
+            "lg:hidden relative flex items-center gap-2.5 px-4 py-3 pl-16",
             "bg-surface-deep/80 backdrop-blur-md border-b border-white/5",
             "sticky top-0 z-30",
             className
         )}>
             <Icon className="w-4 h-4 text-lagoon-100/70" />
             <span className="text-sm font-bold text-white tracking-tight">{route.label}</span>
+            {/* Bottom gradient accent */}
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-lagoon/20 to-transparent" />
         </div>
     );
 }
+

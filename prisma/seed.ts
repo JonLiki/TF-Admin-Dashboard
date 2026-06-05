@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { addDays } from 'date-fns';
 import { hash } from 'bcryptjs';
 import * as fs from 'fs';
@@ -37,9 +37,10 @@ async function main() {
     await prisma.lifestyleLog.deleteMany();
     await prisma.kmLog.deleteMany();
     await prisma.weighIn.deleteMany();
+    await prisma.benchmarkLog.deleteMany();
 
     // Clear users that are participants (preserve admin)
-    await prisma.user.deleteMany({ where: { role: 'participant' } });
+    await prisma.user.deleteMany({ where: { role: 'PARTICIPANT' } });
 
     await prisma.member.deleteMany();
     await prisma.team.deleteMany();
@@ -121,6 +122,11 @@ async function main() {
     // ── 4. Process Teams and Members ───────────────────────────────────────
     const teamCache: Record<string, string> = {}; // team name -> team id
 
+    const weighInList: Prisma.WeighInCreateManyInput[] = [];
+    const kmLogList: Prisma.KmLogCreateManyInput[] = [];
+    const lifestyleLogList: Prisma.LifestyleLogCreateManyInput[] = [];
+    const attendanceList: Prisma.AttendanceCreateManyInput[] = [];
+
     for (const record of members) {
         const teamName = record.team.trim();
 
@@ -143,12 +149,10 @@ async function main() {
         // ── 4a. Weigh-Ins ──────────────────────────────────────────────────
         // Start weight (baseline)
         if (record.startWeight != null && record.startWeight > 0) {
-            await prisma.weighIn.create({
-                data: {
-                    memberId: member.id,
-                    date: BLOCK_START,
-                    weight: record.startWeight,
-                },
+            weighInList.push({
+                memberId: member.id,
+                date: BLOCK_START,
+                weight: record.startWeight,
             });
         }
         // Per-week weights (Week 1 = index 0 in array → blockWeeks[0])
@@ -156,12 +160,10 @@ async function main() {
             const w = record.weights[i];
             if (w != null && w > 0) {
                 const weighInDate = addDays(BLOCK_START, (i + 1) * 7);
-                await prisma.weighIn.create({
-                    data: {
-                        memberId: member.id,
-                        date: weighInDate,
-                        weight: w,
-                    },
+                weighInList.push({
+                    memberId: member.id,
+                    date: weighInDate,
+                    weight: w,
                 });
             }
         }
@@ -169,24 +171,20 @@ async function main() {
         // ── 4b. KM Logs ────────────────────────────────────────────────────
         for (let i = 0; i < 9; i++) {
             const km = record.km[i] ?? 0;
-            await prisma.kmLog.create({
-                data: {
-                    memberId: member.id,
-                    blockWeekId: blockWeeks[i].id,
-                    totalKm: km,
-                },
+            kmLogList.push({
+                memberId: member.id,
+                blockWeekId: blockWeeks[i].id,
+                totalKm: km,
             });
         }
 
         // ── 4c. Lifestyle Logs ─────────────────────────────────────────────
         for (let i = 0; i < 9; i++) {
             const posts = record.lifestyle[i] ?? 0;
-            await prisma.lifestyleLog.create({
-                data: {
-                    memberId: member.id,
-                    blockWeekId: blockWeeks[i].id,
-                    postCount: posts,
-                },
+            lifestyleLogList.push({
+                memberId: member.id,
+                blockWeekId: blockWeeks[i].id,
+                postCount: posts,
             });
         }
 
@@ -197,17 +195,27 @@ async function main() {
                 console.warn(`  No session found for date ${dateStr}, skipping.`);
                 continue;
             }
-            await prisma.attendance.create({
-                data: {
-                    sessionId,
-                    memberId: member.id,
-                    isPresent,
-                },
+            attendanceList.push({
+                sessionId,
+                memberId: member.id,
+                isPresent,
             });
         }
 
-        console.log(`  Seeded: ${record.firstName} ${record.lastName} (${teamName})`);
+        console.log(`  Processed: ${record.firstName} ${record.lastName} (${teamName})`);
     }
+
+    console.log(`Inserting ${weighInList.length} weigh-in records in bulk...`);
+    await prisma.weighIn.createMany({ data: weighInList });
+
+    console.log(`Inserting ${kmLogList.length} KM log records in bulk...`);
+    await prisma.kmLog.createMany({ data: kmLogList });
+
+    console.log(`Inserting ${lifestyleLogList.length} lifestyle log records in bulk...`);
+    await prisma.lifestyleLog.createMany({ data: lifestyleLogList });
+
+    console.log(`Inserting ${attendanceList.length} attendance records in bulk...`);
+    await prisma.attendance.createMany({ data: attendanceList });
 
     // ── 5. Create Admin User ───────────────────────────────────────────────
     const adminPassword = await hash('password123', 12);
@@ -217,7 +225,7 @@ async function main() {
         create: {
             email: 'admin@toafatalona.com',
             password: adminPassword,
-            role: 'admin',
+            role: 'ADMIN',
             name: 'System Admin',
         },
     });
@@ -233,7 +241,7 @@ async function main() {
             create: {
                 email: 'participant@test.com',
                 password: participantPassword,
-                role: 'participant',
+                role: 'PARTICIPANT',
                 name: `${firstMember.firstName} ${firstMember.lastName}`,
                 memberId: firstMember.id,
             },

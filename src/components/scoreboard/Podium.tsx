@@ -2,7 +2,6 @@
 'use client';
 
 import { ScoreboardMetric } from "@/types/scoreboard";
-import { Trophy } from "lucide-react";
 import { PremiumTrophy } from "@/components/ui/PremiumTrophy";
 import { OceanWaves, TonganNgatu, NgatuDivider, WinnerBadge } from "@/components/ui/Patterns";
 import { motion } from "framer-motion";

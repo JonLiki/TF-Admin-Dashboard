@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+import { UserRole } from '@/lib/constants';
 
 export const authConfig = {
     pages: {
@@ -7,7 +8,7 @@ export const authConfig = {
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
-            const role = (auth?.user as any)?.role || 'participant';
+            const role = auth?.user?.role || UserRole.PARTICIPANT;
             
             const isOnAdminDashboard = nextUrl.pathname === '/' || (!nextUrl.pathname.startsWith('/login') && !nextUrl.pathname.startsWith('/user') && !nextUrl.pathname.startsWith('/api') && !nextUrl.pathname.startsWith('/_next'));
             const isOnUserDashboard = nextUrl.pathname.startsWith('/user');
@@ -15,7 +16,7 @@ export const authConfig = {
 
             if (isOnAdminDashboard) {
                 if (isLoggedIn) {
-                    if (role === 'admin') return true;
+                    if (role === UserRole.ADMIN) return true;
                     // Participants accessing admin routes get redirected to their dashboard
                     return Response.redirect(new URL('/user/dashboard', nextUrl));
                 }
@@ -25,7 +26,7 @@ export const authConfig = {
                 return false; // Redirect to login
             } else if (isOnLogin) {
                 if (isLoggedIn) {
-                    if (role === 'admin') return Response.redirect(new URL('/', nextUrl));
+                    if (role === UserRole.ADMIN) return Response.redirect(new URL('/', nextUrl));
                     return Response.redirect(new URL('/user/dashboard', nextUrl));
                 }
                 return true;
@@ -34,21 +35,30 @@ export const authConfig = {
         },
         async jwt({ token, user }) {
             if (user) {
-                token.role = (user as any).role || 'participant';
-                token.memberId = (user as any).memberId;
+                token.role = user.role || UserRole.PARTICIPANT;
+                token.memberId = user.memberId;
+                token.id = user.id;
             }
             return token;
         },
         async session({ session, token }) {
             if (session.user) {
-                (session.user as any).role = token.role;
-                (session.user as any).memberId = token.memberId;
+                session.user.role = token.role;
+                session.user.memberId = token.memberId;
+                if (token.id) {
+                    session.user.id = token.id;
+                }
             }
             return session;
         }
     },
     providers: [], // Configured in auth.ts
-    secret: process.env.AUTH_SECRET || "iiF5gQhe0ganFws5OpHtKjjKm0DXhuxT9w/vUxAMWOA=",
+    secret: (() => {
+        if (!process.env.AUTH_SECRET) {
+            throw new Error('AUTH_SECRET environment variable is required. Generate one with: npx auth secret');
+        }
+        return process.env.AUTH_SECRET;
+    })(),
     trustHost: true,
     session: { strategy: 'jwt' },
     cookies: {

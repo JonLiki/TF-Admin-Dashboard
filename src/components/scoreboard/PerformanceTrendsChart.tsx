@@ -15,10 +15,12 @@ import { PremiumCard } from '@/components/ui/PremiumCard';
 import { CHART_COLORS } from '@/lib/theme';
 import { animated, useSpring } from 'react-spring';
 
+import { TrendDataPoint } from '@/lib/transformers/scoreboard';
+
 export type TrendMetric = 'kmAverage' | 'weightLossTotal' | 'lifestyleAverage' | 'attendanceAverage';
 
 interface PerformanceTrendsChartProps {
-    data: Record<TrendMetric, any[]>;
+    data: Record<TrendMetric, TrendDataPoint[]>;
     teams: string[];
     title?: string;
 }

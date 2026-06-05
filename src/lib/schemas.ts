@@ -24,7 +24,7 @@ export const UpdateMemberSchema = z.object({
 // --- Metric Schemas ---
 export const WeighInSchema = z.object({
     memberId: z.string().uuid(),
-    weight: z.number().min(0, "Weight cannot be negative").max(300, "Weight seems too high"),
+    weight: z.number().min(0, "Weight cannot be negative").max(500, "Weight seems too high (max 500 kg)"),
     date: z.string().datetime().or(z.date()).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")),
 });
 
@@ -69,7 +69,7 @@ export const ImportLifestyleRowSchema = z.string().trim().regex(/^\d+$/, "Must b
 );
 
 export const ImportWeighInRowSchema = z.string().transform(val => parseFloat(val)).pipe(
-    z.number().min(0, "Weight cannot be negative").max(300, "Weight seems too high")
+    z.number().min(0, "Weight cannot be negative").max(500, "Weight seems too high")
 );
 
 // --- Block Schemas ---

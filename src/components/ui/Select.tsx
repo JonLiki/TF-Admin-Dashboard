@@ -144,12 +144,12 @@ export function Select({
                 onKeyDown={handleKeyDown}
                 disabled={disabled}
                 className={cn(
-                    "flex items-center justify-between w-full px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200",
-                    "bg-ocean-deep border border-white/10 text-white",
-                    "hover:bg-white/5 hover:border-white/20",
-                    "focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50",
+                    "flex h-11 items-center justify-between w-full px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300",
+                    "bg-surface-ocean/30 border border-white/10 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)] backdrop-blur-md",
+                    "hover:bg-surface-ocean/55 hover:border-white/20",
+                    "focus:outline-none focus:ring-4 focus:ring-lagoon/15 focus:border-lagoon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)]",
                     disabled && "opacity-50 cursor-not-allowed",
-                    isOpen && "border-lagoon/50 ring-2 ring-lagoon/50"
+                    isOpen && "border-lagoon/50 ring-4 ring-lagoon/15 bg-surface-ocean/60 shadow-[0_0_15px_rgba(102,252,241,0.1)]"
                 )}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
@@ -175,7 +175,7 @@ export function Select({
                     ref={dropdownRef}
                     className={cn(
                         "absolute z-50 w-full mt-2 py-1 rounded-xl",
-                        "bg-ocean-deep border border-white/10 shadow-2xl",
+                        "bg-obsidian/95 border border-white/10 shadow-2xl backdrop-blur-lg",
                         "max-h-[300px] overflow-auto",
                         "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20",
                         "animate-in fade-in-0 zoom-in-95 duration-200"
@@ -191,10 +191,10 @@ export function Select({
                             disabled={option.disabled}
                             className={cn(
                                 "w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors duration-150",
-                                "text-white hover:bg-ocean",
+                                "text-white hover:bg-lagoon/20 hover:text-lagoon-100",
                                 option.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
-                                focusedIndex === index && "bg-ocean",
-                                currentValue === option.value && "bg-ocean/50"
+                                focusedIndex === index && "bg-lagoon/25 text-lagoon-100",
+                                currentValue === option.value && "bg-lagoon/35 text-white font-bold"
                             )}
                             role="option"
                             aria-selected={currentValue === option.value}

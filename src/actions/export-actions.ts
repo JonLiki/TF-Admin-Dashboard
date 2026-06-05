@@ -3,6 +3,19 @@
 import prisma from '@/lib/prisma';
 import { format } from 'date-fns';
 
+/** Escape a CSV field: wrap in double quotes if it contains commas, quotes, or newlines (RFC 4180) */
+function csvEscape(value: string): string {
+    if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
+        return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+}
+
+/** Join an array of fields into a CSV row, escaping each field */
+function csvRow(fields: string[]): string {
+    return fields.map(csvEscape).join(',');
+}
+
 export async function exportBlockData(blockId: string, type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in' | 'benchmarks') {
     const block = await prisma.block.findUnique({
         where: { id: blockId },
@@ -70,7 +83,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
         const sessions = block.sessions;
         sessions.forEach(s => headers.push(`${format(s.date, 'MMM d')} (${s.type})`));
 
-        csvContent += headers.join(',') + '\n';
+        csvContent += csvRow(headers) + '\n';
 
         sortedTeams.forEach(([teamName, teamMembers]) => {
             let teamTotalPresent = 0;
@@ -96,7 +109,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                     row.push(record ? (record.isPresent ? 'Present' : 'Absent') : '-');
                 });
 
-                csvContent += row.join(',') + '\n';
+                csvContent += csvRow(row) + '\n';
             });
 
             // Team Total Row
@@ -113,7 +126,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                 totalRow.push(total.toString());
             });
 
-            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
+            csvContent += csvRow(totalRow) + '\n\n'; // Add extra newline for spacing
         });
 
     } else if (type === 'km') {
@@ -122,7 +135,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
         const weeks = block.weeks;
         weeks.forEach(w => headers.push(`Week ${w.weekNumber}`));
 
-        csvContent += headers.join(',') + '\n';
+        csvContent += csvRow(headers) + '\n';
 
         sortedTeams.forEach(([teamName, teamMembers]) => {
             let teamTotalKm = 0;
@@ -146,7 +159,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                     row.push(weekKm.toString());
                 });
 
-                csvContent += row.join(',') + '\n';
+                csvContent += csvRow(row) + '\n';
             });
 
             // Team Total Row
@@ -161,7 +174,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                 totalRow.push(total.toFixed(2));
             });
 
-            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
+            csvContent += csvRow(totalRow) + '\n\n'; // Add extra newline for spacing
         });
 
     } else if (type === 'lifestyle') {
@@ -170,7 +183,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
         const weeks = block.weeks;
         weeks.forEach(w => headers.push(`Week ${w.weekNumber}`));
 
-        csvContent += headers.join(',') + '\n';
+        csvContent += csvRow(headers) + '\n';
 
         sortedTeams.forEach(([teamName, teamMembers]) => {
             let teamTotalPosts = 0;
@@ -194,7 +207,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                     row.push(weekPosts.toString());
                 });
 
-                csvContent += row.join(',') + '\n';
+                csvContent += csvRow(row) + '\n';
             });
 
             // Team Total Row
@@ -209,7 +222,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                 totalRow.push(total.toString());
             });
 
-            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
+            csvContent += csvRow(totalRow) + '\n\n'; // Add extra newline for spacing
         });
 
     } else if (type === 'weigh-in') {
@@ -220,7 +233,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
         weeks.forEach(w => headers.push(`Week ${w.weekNumber} (${format(w.startDate, 'MMM d')})`));
         headers.push(`Final (${format(block.endDate, 'MMM d')})`);
 
-        csvContent += headers.join(',') + '\n';
+        csvContent += csvRow(headers) + '\n';
 
         sortedTeams.forEach(([teamName, teamMembers]) => {
             let teamTotalStartWeight = 0;
@@ -309,7 +322,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                 });
                 row.push(finalLog ? finalLog.weight.toString() : '-');
 
-                csvContent += row.join(',') + '\n';
+                csvContent += csvRow(row) + '\n';
             });
 
             // Team Total Row
@@ -333,7 +346,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
             // Final total (not technically a delta total, but for consistency we can leave blank or sum)
             totalRow.push('');
 
-            csvContent += totalRow.join(',') + '\n\n'; // Add extra newline for spacing
+            csvContent += csvRow(totalRow) + '\n\n'; // Add extra newline for spacing
         });
     } else if (type === 'benchmarks') {
         const headers = ['First Name', 'Last Name', 'Team'];
@@ -344,7 +357,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
             headers.push(`W${w.weekNumber}-BP`);
         });
 
-        csvContent += headers.join(',') + '\n';
+        csvContent += csvRow(headers) + '\n';
 
         sortedTeams.forEach(([teamName, teamMembers]) => {
             teamMembers.forEach(member => {
@@ -367,7 +380,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                     }
                 });
 
-                csvContent += row.join(',') + '\n';
+                csvContent += csvRow(row) + '\n';
             });
             csvContent += '\n'; 
         });

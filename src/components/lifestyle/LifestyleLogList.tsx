@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button } from "@/components/ui/Button";
 import { Heart, Save, Filter, Camera } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";

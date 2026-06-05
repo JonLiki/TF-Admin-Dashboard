@@ -1,19 +1,18 @@
-import { getActiveBlock } from "@/actions/data";
+import { getActiveBlock } from "@/lib/queries";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Trophy, AlertCircle, User as UserIcon, Activity, Flame } from "lucide-react";
 import { PremiumTrophy } from "@/components/ui/PremiumTrophy";
 import prisma from "@/lib/prisma";
-import { BlockWeek, Team, TeamWeekAward } from "@prisma/client";
-import { MetricList } from "@/components/scoreboard/MetricList";
+import { Team, TeamWeekAward } from "@prisma/client";
 import { LeaderboardList } from "@/components/scoreboard/LeaderboardList";
 import { Podium } from "@/components/scoreboard/Podium";
 import { WinnerCard, AwardCategoryType } from "@/components/scoreboard/WinnerCard";
 import { PerformanceTrendsChart } from "@/components/scoreboard/PerformanceTrendsChart";
-import { getLeaderboardStandings, sortMetrics, getTrendData } from "@/lib/transformers/scoreboard";
+import { getLeaderboardStandings, getTrendData } from "@/lib/transformers/scoreboard";
 import { TeamPoints } from "@/types/scoreboard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { BenchmarkProgressChart } from "@/components/user/BenchmarkProgressChart";
+import { BenchmarkProgressChart, BenchmarkLog } from "@/components/user/BenchmarkProgressChart";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -23,7 +22,7 @@ export default async function UserDashboardPage() {
         redirect('/login');
     }
 
-    const memberId = (session.user as any).memberId;
+    const memberId = session.user.memberId;
     let memberData = null;
     let memberTeam = null;
 
@@ -50,11 +49,7 @@ export default async function UserDashboardPage() {
 
     const selectedWeek = block.weeks[block.weeks.length - 1]; // Default to latest week
 
-    const metrics = await prisma.teamWeekMetric.findMany({
-        where: { blockWeekId: selectedWeek.id },
-        include: { team: true },
-        orderBy: { team: { name: 'asc' } }
-    });
+
 
     const awards = await prisma.teamWeekAward.findMany({
         where: { blockWeekId: selectedWeek.id },
@@ -74,7 +69,7 @@ export default async function UserDashboardPage() {
 
     const allTeams = await prisma.team.findMany();
     const overallLeaderboard = getLeaderboardStandings(allTeams, teamPoints);
-    const sortedMetrics = sortMetrics(metrics);
+
 
     const allBlockMetrics = await prisma.teamWeekMetric.findMany({
         where: { blockWeek: { blockId: block.id } },
@@ -133,7 +128,7 @@ export default async function UserDashboardPage() {
 
                 {/* Benchmark Chart */}
                 {memberData?.benchmarkLogs && memberData.benchmarkLogs.length > 0 && (
-                    <BenchmarkProgressChart logs={memberData.benchmarkLogs as any} />
+                    <BenchmarkProgressChart logs={memberData.benchmarkLogs as unknown as BenchmarkLog[]} />
                 )}
 
                 {/* OVERALL LEADERBOARD */}

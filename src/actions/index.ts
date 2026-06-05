@@ -1,92 +1,113 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-
 import { revalidatePath } from 'next/cache';
 import { CreateTeamSchema, CreateMemberSchema, UpdateMemberSchema } from '@/lib/schemas';
 import { auth } from '@/auth';
+import { writeAuditLog } from '@/lib/audit';
 
 // --- TEAMS ---
-export async function getTeams() {
-    return await prisma.team.findMany({
-        include: {
-            members: {
-                select: { id: true, firstName: true, lastName: true, isActive: true },
-                orderBy: { lastName: 'asc' }
-            },
-            _count: {
-                select: { members: true }
-            }
-        },
-        orderBy: { name: 'asc' }
-    });
-}
 
 export async function createTeam(formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized" };
 
     const rawData = {
         name: formData.get('name'),
     };
 
-    const validated = CreateTeamSchema.parse(rawData);
+    const validated = CreateTeamSchema.safeParse(rawData);
+    if (!validated.success) {
+        return { success: false, message: validated.error.issues[0].message };
+    }
 
-    await prisma.team.create({
-        data: { name: validated.name }
-    });
-    revalidatePath('/teams');
+    try {
+        const team = await prisma.team.create({
+            data: { name: validated.data.name }
+        });
+        await writeAuditLog({
+            action: "CREATE_TEAM",
+            details: `Created team "${team.name}".`,
+            entityType: "Team",
+            entityId: team.id
+        });
+        revalidatePath('/teams');
+        return { success: true, message: 'Team created successfully' };
+    } catch {
+        return { success: false, message: 'Failed to create team' };
+    }
 }
     
 export async function updateTeam(id: string, formData: FormData) {
     const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    if (!session?.user) return { success: false, message: "Unauthorized" };
 
     const rawData = {
         name: formData.get('name'),
     };
 
-    const validated = CreateTeamSchema.parse(rawData);
+    const validated = CreateTeamSchema.safeParse(rawData);
+    if (!validated.success) {
+        return { success: false, message: validated.error.issues[0].message };
+    }
 
-    await prisma.team.update({
-        where: { id },
-        data: { name: validated.name }
-    });
-    revalidatePath('/teams');
+    try {
+        const team = await prisma.team.update({
+            where: { id },
+            data: { name: validated.data.name }
+        });
+        await writeAuditLog({
+            action: "UPDATE_TEAM",
+            details: `Updated team to "${team.name}" (ID: ${id}).`,
+            entityType: "Team",
+            entityId: id
+        });
+        revalidatePath('/teams');
+        return { success: true, message: 'Team updated successfully' };
+    } catch {
+        return { success: false, message: 'Failed to update team' };
+    }
 }
 
 export async function deleteTeam(id: string) {
     const session = await auth();
     if (!session?.user) throw new Error("Unauthorized");
 
-    // 1. Clean up dependencies
-    // PointLedger
-    await prisma.pointLedger.deleteMany({ where: { teamId: id } });
+    const team = await prisma.team.findUnique({ where: { id } });
+    if (!team) throw new Error("Team not found");
 
-    // TeamWeekAward
-    await prisma.teamWeekAward.deleteMany({ where: { teamId: id } });
+    await prisma.$transaction(async (tx) => {
+        // 1. Clean up dependencies
+        // PointLedger
+        await tx.pointLedger.deleteMany({ where: { teamId: id } });
 
-    // TeamWeekMetric
-    await prisma.teamWeekMetric.deleteMany({ where: { teamId: id } });
+        // TeamWeekAward
+        await tx.teamWeekAward.deleteMany({ where: { teamId: id } });
 
-    // 2. Unassign members
-    await prisma.member.updateMany({
-        where: { teamId: id },
-        data: { teamId: null }
+        // TeamWeekMetric
+        await tx.teamWeekMetric.deleteMany({ where: { teamId: id } });
+
+        // 2. Unassign members
+        await tx.member.updateMany({
+            where: { teamId: id },
+            data: { teamId: null }
+        });
+
+        // 3. Delete Team
+        await tx.team.delete({ where: { id } });
     });
 
-    // 3. Delete Team
-    await prisma.team.delete({ where: { id } });
+    await writeAuditLog({
+        action: "DELETE_TEAM",
+        details: `Deleted team "${team.name}" (ID: ${id}).`,
+        entityType: "Team",
+        entityId: id
+    });
+
     revalidatePath('/teams');
 }
 
 // --- MEMBERS ---
-export async function getMembers() {
-    return await prisma.member.findMany({
-        include: { team: true },
-        orderBy: { lastName: 'asc' }
-    });
-}
 
 export async function createMember(formData: FormData) {
     const session = await auth();
@@ -101,13 +122,19 @@ export async function createMember(formData: FormData) {
 
         const validated = CreateMemberSchema.parse(rawData);
 
-        await prisma.member.create({
+        const member = await prisma.member.create({
             data: {
                 firstName: validated.firstName,
                 lastName: validated.lastName,
                 teamId: validated.teamId || null,
                 isActive: true
             }
+        });
+        await writeAuditLog({
+            action: "CREATE_MEMBER",
+            details: `Created member "${member.firstName} ${member.lastName}".`,
+            entityType: "Member",
+            entityId: member.id
         });
         revalidatePath('/members');
         return { success: true, message: 'Member created successfully' };
@@ -129,13 +156,19 @@ export async function updateMember(memberId: string, formData: FormData) {
 
         const validated = UpdateMemberSchema.parse(rawData);
 
-        await prisma.member.update({
+        const member = await prisma.member.update({
             where: { id: memberId },
             data: {
                 firstName: validated.firstName,
                 lastName: validated.lastName,
                 teamId: validated.teamId || null,
             }
+        });
+        await writeAuditLog({
+            action: "UPDATE_MEMBER",
+            details: `Updated member "${member.firstName} ${member.lastName}".`,
+            entityType: "Member",
+            entityId: memberId
         });
         revalidatePath('/members');
         return { success: true, message: 'Member updated successfully' };
@@ -149,9 +182,15 @@ export async function toggleMemberActive(memberId: string, currentState: boolean
     if (!session?.user) return { success: false, message: "Unauthorized" };
 
     try {
-        await prisma.member.update({
+        const member = await prisma.member.update({
             where: { id: memberId },
             data: { isActive: !currentState }
+        });
+        await writeAuditLog({
+            action: "TOGGLE_MEMBER_ACTIVE",
+            details: `Set member "${member.firstName} ${member.lastName}" active state to ${!currentState}.`,
+            entityType: "Member",
+            entityId: memberId
         });
         revalidatePath('/members');
         return { success: true, message: `Member ${!currentState ? 'activated' : 'deactivated'} successfully` };
@@ -165,14 +204,28 @@ export async function deleteMember(id: string) {
     if (!session?.user) return { success: false, message: "Unauthorized" };
 
     try {
-        // 1. Clean up dependencies
-        await prisma.kmLog.deleteMany({ where: { memberId: id } });
-        await prisma.lifestyleLog.deleteMany({ where: { memberId: id } });
-        await prisma.attendance.deleteMany({ where: { memberId: id } });
-        await prisma.weighIn.deleteMany({ where: { memberId: id } });
+        const member = await prisma.member.findUnique({ where: { id } });
+        if (!member) return { success: false, message: 'Member not found.' };
 
-        // 2. Delete Member
-        await prisma.member.delete({ where: { id } });
+        await prisma.$transaction(async (tx) => {
+            // 1. Clean up dependencies
+            await tx.benchmarkLog.deleteMany({ where: { memberId: id } });
+            await tx.kmLog.deleteMany({ where: { memberId: id } });
+            await tx.lifestyleLog.deleteMany({ where: { memberId: id } });
+            await tx.attendance.deleteMany({ where: { memberId: id } });
+            await tx.weighIn.deleteMany({ where: { memberId: id } });
+
+            // 2. Delete Member
+            await tx.member.delete({ where: { id } });
+        });
+
+        await writeAuditLog({
+            action: "DELETE_MEMBER",
+            details: `Deleted member "${member.firstName} ${member.lastName}" (ID: ${id}).`,
+            entityType: "Member",
+            entityId: id
+        });
+
         revalidatePath('/members');
         return { success: true, message: 'Member deleted successfully' };
     } catch {

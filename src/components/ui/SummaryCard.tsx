@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PremiumCard } from "./PremiumCard";
 
 interface SummaryCardProps {
     icon: LucideIcon;
@@ -23,29 +24,23 @@ export function SummaryCard({
     className
 }: SummaryCardProps) {
     return (
-        <div className={cn(
-            "relative p-6 rounded-2xl border-2 transition-all duration-300",
-            // Much stronger background with gradient
-            "bg-gradient-to-br from-ocean-deep/90 to-earth-dark/90",
-            // Prominent border with glow effect
-            "border-white/10 hover:border-lagoon hover:shadow-2xl hover:shadow-lagoon/20",
-            "backdrop-blur-md",
-            // Add subtle animation on hover
-            "hover:scale-[1.02] hover:-translate-y-1",
-            className
-        )}>
+        <PremiumCard glowBorder className={cn("shimmer-sweep", className)}>
             {/* Top accent line */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-lagoon via-tapa to-tongan rounded-t-2xl opacity-80" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-lagoon via-tapa to-tongan rounded-t-2xl opacity-80 z-20" />
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 p-6 relative z-10">
                 {/* Icon and Label Row */}
                 <div className="flex items-center gap-3">
-                    <div className={cn(
-                        "p-3 rounded-xl shadow-lg",
-                        "ring-2 ring-white/10",
-                        iconBg
-                    )}>
-                        <Icon className={cn("w-6 h-6", iconColor)} />
+                    <div className="relative">
+                        {/* Breathing glow behind icon */}
+                        <div className={cn("absolute inset-0 rounded-xl blur-lg breathing-glow opacity-50", iconBg)} />
+                        <div className={cn(
+                            "relative p-3 rounded-xl shadow-lg",
+                            "ring-2 ring-white/10",
+                            iconBg
+                        )}>
+                            <Icon className={cn("w-6 h-6", iconColor)} />
+                        </div>
                     </div>
                     <p className="text-sm font-bold uppercase text-tapa-cream tracking-wider">
                         {label}
@@ -59,10 +54,10 @@ export function SummaryCard({
                     </p>
                     {trend && (
                         <span className={cn(
-                            "text-lg font-bold",
-                            trend === "up" && "text-green-400",
-                            trend === "down" && "text-red-400",
-                            trend === "neutral" && "text-slate-400"
+                            "inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold border",
+                            trend === "up" && "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+                            trend === "down" && "text-red-400 bg-red-500/10 border-red-500/20",
+                            trend === "neutral" && "text-slate-400 bg-slate-500/10 border-slate-500/20"
                         )}>
                             {trend === "up" && "↑"}
                             {trend === "down" && "↓"}
@@ -76,6 +71,7 @@ export function SummaryCard({
                     <p className="text-sm text-tapa font-semibold">{subtitle}</p>
                 )}
             </div>
-        </div>
+        </PremiumCard>
     );
 }
+

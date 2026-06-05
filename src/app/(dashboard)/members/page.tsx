@@ -1,4 +1,4 @@
-import { getMembers, getTeams } from "@/actions";
+import { getMembers, getTeams } from "@/lib/queries";
 import { MembersClientView } from "@/components/members/MembersClientView";
 
 export default async function MembersPage() {

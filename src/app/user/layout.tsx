@@ -1,5 +1,4 @@
 import { LogOut } from "lucide-react";
-import Link from "next/link";
 import { signOut } from "@/auth";
 
 export default function UserLayout({

@@ -1,6 +1,6 @@
-import { getActiveBlock } from "@/actions/data";
+import { getActiveBlock } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Dumbbell, Award, CheckCircle, AlertCircle, Activity, TrendingUp } from "lucide-react";
+import { Award, CheckCircle, AlertCircle, Activity, TrendingUp } from "lucide-react";
 
 import { SimpleWeekSelector } from "@/components/ui/SimpleWeekSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";

@@ -1,15 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useActionState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button } from "@/components/ui/Button";
 import { Scale, Save, Filter } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
 import { submitWeighIn } from "@/actions/data";
 import { ImportButton } from "@/components/ui/ImportButton";
 import { SubmitIconButton } from "@/components/ui/SubmitIconButton";
-import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 
 interface Member {
@@ -87,6 +85,7 @@ export function WeighInLogList({ members, dateStr }: WeighInLogListProps) {
 
 function WeighInRow({ member, dateStr }: { member: Member, dateStr: string }) {
     const [state, formAction] = useActionState(submitWeighIn, null);
+    const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         if (state?.message) {
@@ -138,16 +137,18 @@ function WeighInRow({ member, dateStr }: { member: Member, dateStr: string }) {
 
             {/* Input Actions */}
             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                <form action={formAction} className="flex items-center space-x-2">
+                <form ref={formRef} action={formAction} className="flex items-center space-x-2">
                     <input type="hidden" name="memberId" value={member.id} />
                     <input type="hidden" name="date" value={dateStr} />
                     <div className="relative group/input">
                         <input
+                            key={`${member.id}-${currentWeight}`}
                             name="weight"
                             type="number"
                             inputMode="decimal"
                             pattern="[0-9]*\.?[0-9]*"
                             step="0.1"
+                            min="0"
                             placeholder="0.0"
                             className={cn(
                                 "w-24 h-12 md:h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",

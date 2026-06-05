@@ -10,11 +10,8 @@ import { cn } from '@/lib/utils';
 import { OceanWaves } from '@/components/ui/Patterns';
 import DashboardAnalytics from '@/components/analytics/DashboardAnalytics';
 import ClientOnly from '@/components/ui/ClientOnly';
-import { Team, TeamWeekMetric, BlockWeek } from '@prisma/client';
-import { AttendanceDataPoint } from '@/components/analytics/Charts';
-
 import { StatCard } from '@/components/dashboard/StatCard';
-import { DataCompletenessWidget, DataCompletenessData } from '@/components/dashboard/DataCompletenessWidget';
+import { DataCompletenessWidget } from '@/components/dashboard/DataCompletenessWidget';
 import { Prisma } from '@prisma/client';
 import type { getStats } from '@/app/(dashboard)/page';
 import { Variants } from 'framer-motion';
@@ -52,6 +49,18 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
             animate="show"
             variants={container}
         >
+            {/* Mission Control Welcome Banner */}
+            <motion.div variants={item} className="flex items-center gap-4">
+                <div>
+                    <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-gradient">
+                        Mission Control
+                    </h2>
+                    <p className="text-xs md:text-sm text-slate-400 font-medium mt-1 tracking-wide">
+                        Block Overview &mdash; Week {stats.currentWeekNumber} Active
+                    </p>
+                </div>
+            </motion.div>
+
             {/* BENTO GRID LAYOUT - Mobile Optimized */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-min">
 
@@ -114,9 +123,12 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                         currentWeekNumber={stats.currentWeekNumber}
                     />
 
+                    {/* Section separator */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
-                            <Crown className="w-5 h-5 text-tongan" />
+                            <Crown className="w-5 h-5 text-tongan drop-shadow-[0_0_6px_rgba(197,0,0,0.4)]" />
                             <h3 className="text-lg font-bold font-display tracking-wide text-white">Top Ranks</h3>
                         </div>
                         <Link href="/scoreboard" className="text-[10px] font-bold text-tongan hover:text-white uppercase tracking-widest transition-colors flex items-center gap-1 group">
@@ -147,11 +159,11 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
 
                                         <div className="flex items-center gap-3 relative z-10">
                                             <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm border shadow-inner", index === 0 ? "bg-tongan text-white border-tongan-light" : "bg-ocean-deep border-white/10 text-lagoon-100")}>
-                                                {index + 1}
+                                                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                                             </div>
                                             <div>
                                                 <p className={cn("font-bold text-sm group-hover:text-white transition-colors", index === 0 ? "text-white" : "text-white/90")}>{team.name}</p>
-                                                {index === 0 && <span className="text-[9px] font-bold text-tongan uppercase tracking-wider">Leader</span>}
+                                                {index === 0 && <span className="text-[9px] font-bold text-tongan uppercase tracking-wider drop-shadow-[0_0_4px_rgba(197,0,0,0.3)]">Leader</span>}
                                             </div>
                                         </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { PremiumCard } from '@/components/ui/PremiumCard';
-import { Trophy, Flame } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LeaderboardEntry {

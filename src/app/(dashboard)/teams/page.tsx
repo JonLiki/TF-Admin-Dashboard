@@ -2,7 +2,8 @@ import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { getTeams, createTeam } from "@/actions";
+import { getTeams } from "@/lib/queries";
+import { createTeam } from "@/actions";
 import { Plus, Shield } from "lucide-react";
 import { TeamsList } from "@/components/teams/TeamsList";
 import { TonganNgatu } from "@/components/ui/Patterns";
@@ -33,7 +34,7 @@ export default async function TeamsPage() {
                             </div>
                             <h3 className="text-lg font-bold text-white tracking-tight">Create New Group</h3>
                         </div>
-                        <form action={createTeam} className="space-y-4 relative z-10">
+                        <form action={async (formData: FormData) => { 'use server'; await createTeam(formData); }} className="space-y-4 relative z-10">
                             <Input name="name" label="Group Name" placeholder="e.g. Group To’a" required className="bg-black/20 border-white/10 focus:border-tongan/50" />
                             <Button type="submit" className="w-full bg-tongan hover:bg-red-700 shadow-tongan/20" size="md">
                                 <Plus className="w-4 h-4 mr-2" />

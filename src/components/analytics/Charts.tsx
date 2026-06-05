@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { PremiumCard } from '../ui/PremiumCard';
 
-import { CHART_COLORS } from '@/lib/theme';
+
 
 interface ChartProps {
     data: Record<string, string | number>[];
@@ -38,9 +38,7 @@ export interface MetricDataPoint {
     Total: number;
 }
 
-export function TeamComparisonChart({ data, title, subtitle, colors }: ChartProps) {
-    const chartColors = colors || CHART_COLORS.series;
-
+export function TeamComparisonChart({ data, title, subtitle }: ChartProps) {
     return (
         <PremiumCard className="p-6">
             <div className="mb-6">

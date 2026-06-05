@@ -1,5 +1,5 @@
-import { getActiveBlock, getSessionsForWeek } from "@/actions/data";
-import { getMembers } from "@/actions";
+import { getActiveBlock, getSessionsForWeek } from "@/lib/queries";
+import { getMembers } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CalendarCheck, TrendingUp, CheckCircle, XCircle, Users, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
