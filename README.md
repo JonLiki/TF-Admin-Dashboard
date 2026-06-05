@@ -1,25 +1,25 @@
 # TO’A FATALONA Admin Dashboard
 
-A production-quality fitness team management system for administering "TO’A FATALONA" blocks. Built with Next.js, Prisma, and PostgreSQL.
+A production-quality fitness team management system for administering "TO’A FATALONA" blocks. Built with Next.js 16, React 19, Prisma, PostgreSQL, and Tailwind CSS v4 featuring a premium Tongan Cultural Identity theme.
 
 ## Features
 
-- **Dashboard**: High-level summary of the training block.
-- **Teams & Members**: Manage teams and members.
-- **Weigh-ins**: Weekly weight logging with auto-calculation of weight loss.
+- **Dashboard**: High-level summary of the training block with Mission Control visuals.
+- **Teams & Groups**: Manage groups and assign participants.
+- **Weigh-ins**: Weight logging with auto-calculation of weekly delta weight loss.
 - **KM Logs & Lifestyle**: Weekly activity tracking.
 - **Attendance**: Session tracking for Mon/Wed/Fri.
 - **Scoreboard**: Automated calculation of weekly awards and points.
 - **Scoring Engine**: Implements rules for KM Avg, Weight Loss Total, and Lifestyle Avg (+1 point for winners).
 - **PDF/Excel Export**: Export table data and summaries easily.
-- **Interactive Analytics**: Trend charts and dynamic dashboard animations.
+- **Interactive Analytics**: Premium trend charts (Recharts) and dynamic dashboard animations (Framer Motion).
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 16 (App Router) with React 19 (React Compiler enabled)
 - **Language**: TypeScript
 - **Database**: PostgreSQL (Prisma ORM)
-- **Styling**: TailwindCSS (with Tongan Cultural Identity Theme)
+- **Styling**: Tailwind CSS v4 (featuring an advanced Tongan Cultural Identity theme with ambient background atmospheres and glassmorphism layouts)
 - **Authentication**: NextAuth (v5 / auth.js)
 - **Testing**: Vitest
 - **Data Visualization**: Recharts, Framer Motion, React Spring
@@ -68,23 +68,32 @@ npm run dev
 
 Visit [http://localhost:3000](http://localhost:3000)
 
-### 6. Testing
+### 6. Testing & Quality Checks
 
 To run the unit tests via Vitest:
 ```bash
 npm run test
 ```
 
+To run lint checks via ESLint:
+```bash
+npm run lint
+```
+*Note: The codebase has been fully audited and cleaned up. It builds and lints with 0 errors and 0 warnings.*
+
 ## Folder Structure
 
-- `src/app`: App Router pages and Server Actions (`actions.ts`, `data-actions.ts`, `scoring-actions.ts`).
-- `src/components`: Reusable UI (`/ui`) and Layout (`/layout`).
-- `src/lib`: Utilities and Prisma client.
+- `src/app`: App Router pages and page-level entry layouts.
+- `src/actions`: Server Actions for all data mutations (blocks, imports, exports, auth, scoring) grouped by function.
+- `src/components`: UI components organized by feature (dashboard, scoreboard, members, teams, benchmarks, layout, ui).
+- `src/lib`: Core utility scripts and helper functions:
+  - `src/lib/scoring-logic.ts`: Pure business logic for metric calculations and winner determination.
+  - `src/lib/queries.ts`: Read-only queries separated from mutations for static analysis and performance.
 - `prisma`: Database schema and seed script.
-- `scripts`: Maintenance, testing, or database utility scripts.
+- `scripts`: Utility scripts for spreadsheet pre-processing and data backfills.
 - `docs`: Additional documentation and project references.
 
 ## Business Rules (Block 1)
 
 - **Dates**: Jan 19, 2026 - Mar 16, 2026 (8 Weeks).
-- **Scoring**: Teams (>4 members) compete for +1 point in KM, Weight Loss, Lifestyle.
+- **Scoring**: Teams (>4 members) compete for +1 point in KM, Weight Loss, Lifestyle, and Attendance.
