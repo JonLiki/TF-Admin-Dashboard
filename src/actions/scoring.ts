@@ -8,8 +8,12 @@ import {
     determineWinners,
     ScorableTeam
 } from '@/lib/scoring-logic';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export async function calculateWeekResults(blockWeekId: string) {
+    const guard = await requireAdmin();
+    if (!guard.success) throw new Error(guard.message);
+
     const blockWeek = await prisma.blockWeek.findUnique({
         where: { id: blockWeekId },
         include: { block: { include: { weeks: { orderBy: { weekNumber: 'asc' } } } } }

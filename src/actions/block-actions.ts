@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { CreateBlockSchema } from '@/lib/schemas';
-import { auth } from '@/auth';
+import { requireAdmin } from '@/lib/auth-guard';
 import { addWeeks, addDays, startOfWeek } from 'date-fns';
 import { calculateWeekResults } from '@/actions/scoring';
 import { writeAuditLog } from '@/lib/audit';
@@ -12,8 +12,8 @@ import { writeAuditLog } from '@/lib/audit';
 
 
 export async function createBlock(formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const rawData = {
@@ -94,8 +94,8 @@ export async function createBlock(formData: FormData) {
 }
 
 export async function activateBlock(blockId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const block = await prisma.block.findUnique({ where: { id: blockId } });
@@ -130,8 +130,8 @@ export async function activateBlock(blockId: string) {
 }
 
 export async function deactivateBlock(blockId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const block = await prisma.block.findUnique({ where: { id: blockId } });
@@ -158,8 +158,8 @@ export async function deactivateBlock(blockId: string) {
 }
 
 export async function deleteBlock(blockId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         // Prevent deleting the active block
@@ -208,8 +208,8 @@ export async function deleteBlock(blockId: string) {
 // --- FINALIZE WEEK ---
 
 export async function finalizeWeek(blockWeekId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const week = await prisma.blockWeek.findUnique({ where: { id: blockWeekId } });
@@ -243,8 +243,8 @@ export async function finalizeWeek(blockWeekId: string) {
 }
 
 export async function unfinalizeWeek(blockWeekId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const week = await prisma.blockWeek.findUnique({ where: { id: blockWeekId } });

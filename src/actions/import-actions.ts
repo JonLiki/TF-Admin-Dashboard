@@ -1,12 +1,12 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { parseCSV } from '@/lib/csvParser';
 import { format } from 'date-fns';
 import { ImportAttendanceRowSchema, ImportKmRowSchema, ImportLifestyleRowSchema, ImportWeighInRowSchema } from '@/lib/schemas';
 import { writeAuditLog } from '@/lib/audit';
+import { requireAdmin } from '@/lib/auth-guard';
 import { z } from 'zod';
 
 // Helper to get active block and members map
@@ -35,6 +35,9 @@ async function getImportContext() {
 }
 
 export async function importAttendance(formData: FormData) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
+
     const file = formData.get('file') as File;
     if (!file) return { success: false, message: 'No file provided' };
 
@@ -163,15 +166,16 @@ async function importWeeklyData({
     formData,
     rowSchema,
     modelName,
-    valueField,
     revalidatePathName
 }: {
     formData: FormData;
     rowSchema: z.ZodTypeAny;
     modelName: 'kmLog' | 'lifestyleLog';
-    valueField: 'totalKm' | 'postCount';
     revalidatePathName: string;
 }) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
+
     const file = formData.get('file') as File;
     if (!file) return { success: false, message: 'No file provided' };
 
@@ -318,7 +322,6 @@ export async function importKm(formData: FormData) {
         formData,
         rowSchema: ImportKmRowSchema,
         modelName: 'kmLog',
-        valueField: 'totalKm',
         revalidatePathName: '/km'
     });
 }
@@ -328,12 +331,14 @@ export async function importLifestyle(formData: FormData) {
         formData,
         rowSchema: ImportLifestyleRowSchema,
         modelName: 'lifestyleLog',
-        valueField: 'postCount',
         revalidatePathName: '/lifestyle'
     });
 }
 
 export async function importWeighIn(formData: FormData) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
+
     const file = formData.get('file') as File;
     if (!file) return { success: false, message: 'No file provided' };
 

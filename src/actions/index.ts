@@ -3,14 +3,14 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { CreateTeamSchema, CreateMemberSchema, UpdateMemberSchema } from '@/lib/schemas';
-import { auth } from '@/auth';
+import { requireAdmin } from '@/lib/auth-guard';
 import { writeAuditLog } from '@/lib/audit';
 
 // --- TEAMS ---
 
 export async function createTeam(formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     const rawData = {
         name: formData.get('name'),
@@ -39,8 +39,8 @@ export async function createTeam(formData: FormData) {
 }
     
 export async function updateTeam(id: string, formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     const rawData = {
         name: formData.get('name'),
@@ -70,8 +70,8 @@ export async function updateTeam(id: string, formData: FormData) {
 }
 
 export async function deleteTeam(id: string) {
-    const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+    const guard = await requireAdmin();
+    if (!guard.success) throw new Error(guard.message);
 
     const team = await prisma.team.findUnique({ where: { id } });
     if (!team) throw new Error("Team not found");
@@ -110,8 +110,8 @@ export async function deleteTeam(id: string) {
 // --- MEMBERS ---
 
 export async function createMember(formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const rawData = {
@@ -144,8 +144,8 @@ export async function createMember(formData: FormData) {
 }
 
 export async function updateMember(memberId: string, formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const rawData = {
@@ -178,8 +178,8 @@ export async function updateMember(memberId: string, formData: FormData) {
 }
 
 export async function toggleMemberActive(memberId: string, currentState: boolean) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const member = await prisma.member.update({
@@ -200,8 +200,8 @@ export async function toggleMemberActive(memberId: string, currentState: boolean
 }
 
 export async function deleteMember(id: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const member = await prisma.member.findUnique({ where: { id } });

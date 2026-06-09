@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { format } from 'date-fns';
+import { requireAdmin } from '@/lib/auth-guard';
 
 /** Escape a CSV field: wrap in double quotes if it contains commas, quotes, or newlines (RFC 4180) */
 function csvEscape(value: string): string {
@@ -17,6 +18,9 @@ function csvRow(fields: string[]): string {
 }
 
 export async function exportBlockData(blockId: string, type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in' | 'benchmarks') {
+    const guard = await requireAdmin();
+    if (!guard.success) throw new Error(guard.message);
+
     const block = await prisma.block.findUnique({
         where: { id: blockId },
         include: {
