@@ -48,3 +48,6 @@ lint_output.txt
 lint.log
 eslint_report.txt
 
+# Project instructions
+GEMINI.md
+
