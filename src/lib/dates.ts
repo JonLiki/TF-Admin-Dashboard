@@ -18,9 +18,20 @@ export function toUtcDateOnly(input: string | Date): Date {
     return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Add whole days as exact 24h steps. Unlike date-fns addDays/addWeeks (which
+ * preserve LOCAL wall-clock time and drift an hour when the range crosses a
+ * DST transition), this keeps UTC-midnight inputs at UTC midnight.
+ */
+export function addUtcDays(date: Date, days: number): Date {
+    return new Date(date.getTime() + days * DAY_MS);
+}
+
 /** Half-open [start, end) window covering one UTC calendar day. */
 export function utcDayRange(input: string | Date): { start: Date; end: Date } {
     const start = toUtcDateOnly(input);
-    const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+    const end = addUtcDays(start, 1);
     return { start, end };
 }

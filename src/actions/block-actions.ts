@@ -4,8 +4,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { CreateBlockSchema } from '@/lib/schemas';
 import { requireAdmin } from '@/lib/auth-guard';
-import { toUtcDateOnly } from '@/lib/dates';
-import { addWeeks, addDays } from 'date-fns';
+import { toUtcDateOnly, addUtcDays } from '@/lib/dates';
 import { calculateWeekResults } from '@/actions/scoring';
 import { writeAuditLog } from '@/lib/audit';
 
@@ -27,11 +26,11 @@ export async function createBlock(formData: FormData) {
 
         // Anchor to the Monday of the chosen week at UTC midnight. All domain
         // dates are stored as UTC midnight (see src/lib/dates.ts) — date-fns
-        // startOfWeek works in server-local time and must not be used here.
+        // local-time helpers (startOfWeek, addDays) must not be used here.
         const chosen = toUtcDateOnly(validated.startDate);
         const daysSinceMonday = (chosen.getUTCDay() + 6) % 7;
-        const start = addDays(chosen, -daysSinceMonday);
-        const end = addWeeks(start, validated.numberOfWeeks);
+        const start = addUtcDays(chosen, -daysSinceMonday);
+        const end = addUtcDays(start, validated.numberOfWeeks * 7);
 
         const block = await prisma.$transaction(async (tx) => {
             // 1. Create the Block
@@ -39,15 +38,15 @@ export async function createBlock(formData: FormData) {
                 data: {
                     name: validated.name,
                     startDate: start,
-                    endDate: addDays(end, -1), // End on last Sunday
+                    endDate: addUtcDays(end, -1), // End on last Sunday
                     isActive: false,
                 }
             });
 
             // 2. Create BlockWeek rows
             for (let i = 0; i < validated.numberOfWeeks; i++) {
-                const weekStart = addWeeks(start, i);
-                const weekEnd = addDays(addWeeks(start, i + 1), -1);
+                const weekStart = addUtcDays(start, i * 7);
+                const weekEnd = addUtcDays(weekStart, 6);
 
                 await tx.blockWeek.create({
                     data: {
@@ -64,10 +63,10 @@ export async function createBlock(formData: FormData) {
             const sessionTypes = ['Monday', 'Wednesday', 'Friday'];
 
             for (let i = 0; i < validated.numberOfWeeks; i++) {
-                const weekStart = addWeeks(start, i);
+                const weekStart = addUtcDays(start, i * 7);
 
                 for (let j = 0; j < sessionDays.length; j++) {
-                    const sessionDate = addDays(weekStart, sessionDays[j]);
+                    const sessionDate = addUtcDays(weekStart, sessionDays[j]);
 
                     await tx.session.create({
                         data: {

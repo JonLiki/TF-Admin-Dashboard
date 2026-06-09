@@ -76,8 +76,17 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
             return { start, end, id: week.id };
         });
 
+        // The final weigh-in is stored on the Monday AFTER block.endDate (blocks
+        // end on a Sunday), so the search window must extend one day past it.
         const blockEndDateStart = startOfDay(new Date(block.endDate));
-        const blockEndDateEnd = endOfDay(new Date(block.endDate));
+        const blockEndDateEndObj = new Date(block.endDate);
+        blockEndDateEndObj.setDate(blockEndDateEndObj.getDate() + 1);
+        const blockEndDateEnd = endOfDay(blockEndDateEndObj);
+
+        const parsedSessions = sessions.map(s => ({
+            ...s,
+            parsedDate: new Date(s.date)
+        }));
 
         const precomputed: PrecomputedTeamData[] = [];
 
@@ -120,10 +129,6 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                 });
 
                 const attendanceByWeekId: Record<string, { present: number; total: number }> = {};
-                const parsedSessions = sessions.map(s => ({
-                    ...s,
-                    parsedDate: new Date(s.date)
-                }));
 
                 weekDates.forEach((wd, weekIdx) => {
                     const weekStart = wd.start;

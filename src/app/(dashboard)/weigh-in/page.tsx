@@ -2,7 +2,8 @@ import { getActiveBlock, getMembersWithWeighIn } from "@/lib/queries";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Scale, Award, CheckCircle, Users, AlertCircle } from "lucide-react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
+import { addUtcDays } from "@/lib/dates";
 import { DateSelector } from "@/components/ui/DateSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { WeighInLogList } from "@/components/weigh-in/WeighInLogList";
@@ -19,7 +20,7 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
 
     // Weigh-ins happen on Mondays; the final one falls on the Monday AFTER the
     // block's endDate (blocks end on a Sunday).
-    const finalWeighInDate = addDays(block.endDate, 1);
+    const finalWeighInDate = addUtcDays(block.endDate, 1);
 
     // Calculate summary statistics
     // Note: WeighIn only has weight field, not startWeight/currentWeight
