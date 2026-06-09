@@ -3,6 +3,7 @@ import { getActiveBlock, getMembersWithWeighIn } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Scale, Award, CheckCircle, Users, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
+import { addUtcDays } from "@/lib/dates";
 import { DateSelector } from "@/components/ui/DateSelector";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { WeighInLogList } from "@/components/weigh-in/WeighInLogList";
@@ -16,6 +17,10 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
     const selectedDateStr = (await searchParams)?.date || block.weeks[0].startDate.toISOString();
     const selectedDate = new Date(selectedDateStr);
     const members = await getMembersWithWeighIn(selectedDate);
+
+    // Weigh-ins happen on Mondays; the final one falls on the Monday AFTER the
+    // block's endDate (blocks end on a Sunday).
+    const finalWeighInDate = addUtcDays(block.endDate, 1);
 
     // Calculate summary statistics
     // Note: WeighIn only has weight field, not startWeight/currentWeight
@@ -40,10 +45,10 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
                             value: w.startDate.toISOString(),
                             label: `Week ${w.weekNumber - 1} End – ${format(w.startDate, 'MMM d')}`
                         })),
-                        // Final weigh-in: block endDate (e.g. Mar 16) = end of last week
+                        // Final weigh-in: the Monday after the block's last week
                         {
-                            value: block.endDate.toISOString(),
-                            label: `Week ${block.weeks.length} End – ${format(block.endDate, 'MMM d')}`
+                            value: finalWeighInDate.toISOString(),
+                            label: `Week ${block.weeks.length} End – ${format(finalWeighInDate, 'MMM d')}`
                         }
                     ]}
                     selectedDate={selectedDateStr}

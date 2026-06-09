@@ -108,11 +108,11 @@ export function Sidebar() {
 
             {/* Sidebar */}
             <div className={cn(
-                "flex flex-col bg-obsidian shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden",
+                "flex flex-col bg-obsidian/45 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.6)] relative overflow-hidden",
                 // Desktop: floating island with margins and rounded corners
-                "lg:m-3 lg:rounded-2xl lg:border lg:border-bio-cyan/10 lg:h-[calc(100vh-1.5rem)]",
+                "lg:m-3 lg:rounded-2xl lg:border lg:border-white/10 lg:h-[calc(100vh-1.5rem)]",
                 // Mobile: full-height fixed panel
-                "h-full border-r border-bio-cyan/10 lg:border-r-0",
+                "h-full border-r border-white/10 lg:border-r-0",
                 "fixed inset-y-0 left-0 z-50 w-64",
                 "transform transition-transform duration-300 ease-in-out",
                 "lg:translate-x-0 lg:static lg:z-auto",
@@ -120,8 +120,8 @@ export function Sidebar() {
             )}>
                 {/* --- TONGAN WARRIOR VISUALS (CSS FALLBACK) --- */}
 
-                {/* 1. Deep Obsidian Base */}
-                <div className="absolute inset-0 bg-obsidian z-0" />
+                {/* 1. Translucent Obsidian Base with Glass effect */}
+                <div className="absolute inset-0 bg-obsidian/45 backdrop-blur-xl z-0" />
 
                 {/* 2. Atmospheric Glows (Bioluminescence & Volcanic) */}
                 <div className="absolute top-[-10%] left-[-20%] w-[150%] h-[50%] bg-[radial-gradient(circle,rgba(102,252,241,0.15)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
@@ -184,7 +184,7 @@ export function Sidebar() {
                                             {isActive && (
                                                 <motion.div
                                                     layoutId="sidebarActive"
-                                                    className="absolute inset-0 bg-gradient-to-r from-tongan/20 to-transparent border-r-2 border-tongan"
+                                                    className="absolute inset-0 bg-gradient-to-r from-tongan/20 via-tongan/5 to-transparent border-r-2 border-tongan shadow-[inset_0_0_12px_rgba(200,16,46,0.15)]"
                                                     initial={false}
                                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                                 />
@@ -216,11 +216,11 @@ export function Sidebar() {
                                                     />
                                                 </motion.div>
                                                 <div className="flex flex-col">
-                                                    <span className={cn("text-sm font-bold tracking-wide", isActive ? "text-white" : "text-offwhite/80 group-hover:text-lagoon-100")}>
+                                                    <span className={cn("text-xs font-bold tracking-wide", isActive ? "text-white" : "text-offwhite/80 group-hover:text-lagoon-100")}>
                                                         {item.name}
                                                     </span>
                                                     <span className={cn(
-                                                        "text-[10px] tracking-wider uppercase transition-colors font-medium",
+                                                        "text-micro tracking-wider uppercase transition-colors font-medium",
                                                         isActive ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"
                                                     )}>
                                                         {item.subtitle}

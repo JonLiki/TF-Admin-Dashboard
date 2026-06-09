@@ -96,4 +96,5 @@ npm run lint
 ## Business Rules (Block 1)
 
 - **Dates**: Jan 19, 2026 - Mar 16, 2026 (8 Weeks).
-- **Scoring**: Teams (>4 members) compete for +1 point in KM, Weight Loss, Lifestyle, and Attendance.
+- **Scoring**: Teams with 4 or more members compete for +1 point per weekly category: KM Average, Weight Loss, Lifestyle Average, and Attendance Average. Ties award a point to every tied team.
+- **Weeks**: Run Monday through Sunday (stored as UTC-midnight dates). Weigh-ins happen on Mondays; a week's weight loss compares its Monday weigh-in to the next Monday's, and the final weigh-in falls on the Monday after the block ends.

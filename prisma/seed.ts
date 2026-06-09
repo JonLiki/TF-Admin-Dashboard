@@ -63,7 +63,7 @@ async function main() {
 
     // ── 1. Create Block ────────────────────────────────────────────────────
     const BLOCK_START = new Date('2026-01-19T00:00:00.000Z');
-    const BLOCK_END = addDays(BLOCK_START, 63); // 9 weeks
+    const BLOCK_END = addDays(BLOCK_START, 62); // 9 weeks, ending on the last Sunday
 
     const currentBlock = await prisma.block.create({
         data: {
@@ -77,9 +77,12 @@ async function main() {
 
     // ── 2. Create Block Weeks ──────────────────────────────────────────────
     const blockWeeks = [];
+    // Weeks run Monday..Sunday. endDate must be the Sunday (start + 6), matching
+    // createBlock() — an endDate of start + 7 lands on the next week's Monday and
+    // makes date-range queries count Monday data in two weeks.
     for (let i = 0; i < 9; i++) {
         const weekStart = addDays(BLOCK_START, i * 7);
-        const weekEnd = addDays(weekStart, 7);
+        const weekEnd = addDays(weekStart, 6);
         const bw = await prisma.blockWeek.create({
             data: {
                 blockId: currentBlock.id,
@@ -218,7 +221,17 @@ async function main() {
     await prisma.attendance.createMany({ data: attendanceList });
 
     // ── 5. Create Admin User ───────────────────────────────────────────────
-    const adminPassword = await hash('password123', 12);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const adminPlainPassword = process.env.SEED_ADMIN_PASSWORD;
+
+    if (isProduction && !adminPlainPassword) {
+        throw new Error(
+            'Refusing to seed the default admin password in production. ' +
+            'Set SEED_ADMIN_PASSWORD to seed the admin user.'
+        );
+    }
+
+    const adminPassword = await hash(adminPlainPassword ?? 'password123', 12);
     await prisma.user.upsert({
         where: { email: 'admin@toafatalona.com' },
         update: {},
@@ -229,12 +242,12 @@ async function main() {
             name: 'System Admin',
         },
     });
-    console.log('Admin user upserted: admin@toafatalona.com (pw: password123)');
+    console.log(`Admin user upserted: admin@toafatalona.com${adminPlainPassword ? '' : ' (pw: password123)'}`);
 
-    // ── 6. Create Test Participant ─────────────────────────────────────────
+    // ── 6. Create Test Participant (dev only) ──────────────────────────────
     const firstMember = await prisma.member.findFirst({ orderBy: { createdAt: 'asc' } });
-    if (firstMember) {
-        const participantPassword = await hash('participant123', 12);
+    if (firstMember && !isProduction) {
+        const participantPassword = await hash(process.env.SEED_PARTICIPANT_PASSWORD ?? 'participant123', 12);
         await prisma.user.upsert({
             where: { email: 'participant@test.com' },
             update: {},

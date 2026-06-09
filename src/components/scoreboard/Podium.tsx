@@ -3,7 +3,7 @@
 
 import { ScoreboardMetric } from "@/types/scoreboard";
 import { PremiumTrophy } from "@/components/ui/PremiumTrophy";
-import { OceanWaves, TonganNgatu, NgatuDivider, WinnerBadge } from "@/components/ui/Patterns";
+import { OceanWaves, TonganNgatu, NgatuDivider, WinnerBadge, LalavaKnot } from "@/components/ui/Patterns";
 import { motion } from "framer-motion";
 
 interface PodiumProps {
@@ -67,6 +67,15 @@ export function Podium({ standings }: PodiumProps) {
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-lagoon/10 to-ocean-deep opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
                         <OceanWaves className="absolute inset-0 opacity-15 mix-blend-overlay" />
                         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-lagoon-100 to-transparent opacity-80" />
+                        {/* Neon glow ledge */}
+                        <div className="absolute inset-x-0 top-0 h-[2px] bg-lagoon blur-sm animate-pulse" />
+                        {/* Cultural details */}
+                        <div className="absolute top-3 left-3 opacity-40">
+                            <LalavaKnot className="w-3.5 h-3.5 text-lagoon-100" opacity={0.5} />
+                        </div>
+                        <div className="absolute top-3 right-3 opacity-40">
+                            <div className="scale-x-[-1]"><LalavaKnot className="w-3.5 h-3.5 text-lagoon-100" opacity={0.5} /></div>
+                        </div>
                         <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-lagoon/40 to-ocean-deep group-hover:from-lagoon/60 transition-all duration-500 drop-shadow-sm">2</span>
                         </div>
@@ -92,6 +101,15 @@ export function Podium({ standings }: PodiumProps) {
                             transition={{ duration: 1.2, delay: 0.8 }}
                         />
 
+                        {/* Spotlight beam */}
+                        <motion.div
+                            className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-40 h-[400px] bg-gradient-to-b from-tongan/10 to-transparent blur-2xl -z-10 rounded-t-full pointer-events-none"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 0.75, height: 400 }}
+                            transition={{ duration: 1.5, delay: 1, ease: "easeOut" }}
+                            style={{ transformOrigin: "top" }}
+                        />
+
                         <WinnerBadge className="absolute -top-14 left-1/2 -translate-x-1/2 w-28 h-28 animate-pulse-slow drop-shadow-[0_0_15px_rgba(200,16,46,0.5)]" />
                         <div className="mt-12">
                             <span className="text-2xl font-black text-white uppercase tracking-wider block drop-shadow-md">{first.name}</span>
@@ -111,6 +129,15 @@ export function Podium({ standings }: PodiumProps) {
                         <div className="absolute inset-0 bg-[length:200%_200%] bg-gradient-to-b from-transparent via-tongan/20 to-tongan-dark opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
                         <TonganNgatu className="absolute inset-0 opacity-10 mix-blend-overlay" />
                         <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-tongan-dark via-tongan-light to-tongan-dark opacity-80" />
+                        {/* Neon glow ledge */}
+                        <div className="absolute inset-x-0 top-0 h-[3px] bg-tongan blur-sm animate-pulse" />
+                        {/* Cultural details */}
+                        <div className="absolute top-3.5 left-3.5 opacity-55">
+                            <LalavaKnot className="w-4 h-4 text-tongan-light" opacity={0.7} />
+                        </div>
+                        <div className="absolute top-3.5 right-3.5 opacity-55">
+                            <div className="scale-x-[-1]"><LalavaKnot className="w-4 h-4 text-tongan-light" opacity={0.7} /></div>
+                        </div>
                         <div className="absolute inset-0 flex items-center justify-center pb-8">
                             <div className="relative w-28 h-28 group-hover:scale-110 transition-all duration-700 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
                                 <PremiumTrophy variant="gold" className="w-full h-full" />
@@ -150,6 +177,15 @@ export function Podium({ standings }: PodiumProps) {
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-600/10 to-slate-900 opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
                         <NgatuDivider className="absolute bottom-0 w-full opacity-10 mix-blend-overlay" />
                         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-slate-400 to-transparent opacity-60" />
+                        {/* Neon glow ledge */}
+                        <div className="absolute inset-x-0 top-0 h-[2px] bg-slate-500/50 blur-sm animate-pulse" />
+                        {/* Cultural details */}
+                        <div className="absolute top-2 left-2 opacity-30">
+                            <LalavaKnot className="w-3 h-3 text-slate-400" opacity={0.4} />
+                        </div>
+                        <div className="absolute top-2 right-2 opacity-30">
+                            <div className="scale-x-[-1]"><LalavaKnot className="w-3 h-3 text-slate-400" opacity={0.4} /></div>
+                        </div>
                         <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-600/50 to-slate-900 group-hover:from-slate-500/70 transition-all duration-500 drop-shadow-sm">3</span>
                         </div>

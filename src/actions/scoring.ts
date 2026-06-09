@@ -8,13 +8,23 @@ import {
     determineWinners,
     ScorableTeam
 } from '@/lib/scoring-logic';
+import { requireAdmin } from '@/lib/auth-guard';
 
-export async function calculateWeekResults(blockWeekId: string) {
+export async function calculateWeekResults(
+    blockWeekId: string,
+    options?: { lockWeek?: boolean }
+) {
+    const guard = await requireAdmin();
+    if (!guard.success) throw new Error(guard.message);
+
     const blockWeek = await prisma.blockWeek.findUnique({
         where: { id: blockWeekId },
         include: { block: { include: { weeks: { orderBy: { weekNumber: 'asc' } } } } }
     });
     if (!blockWeek) throw new Error("Week not found");
+    if (blockWeek.isFinalized) {
+        throw new Error("Week is already finalized. Unfinalize it before recalculating.");
+    }
 
     // 1. Fetch Data for Current Week (KM, Lifestyle, Attendance, WeighIns)
     // Weight loss is calculated directly by calculateTeamMetrics as:
@@ -136,6 +146,15 @@ export async function calculateWeekResults(blockWeekId: string) {
                     amount: 1,
                     reason: `Winner: ${award.category} (Week ${blockWeek.weekNumber})`
                 }
+            });
+        }
+
+        // D. Lock the week in the same transaction so a failure can never
+        // leave computed awards on an unlocked (still editable) week.
+        if (options?.lockWeek) {
+            await tx.blockWeek.update({
+                where: { id: blockWeekId },
+                data: { isFinalized: true }
             });
         }
     });

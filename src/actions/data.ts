@@ -4,12 +4,13 @@ import prisma from '@/lib/prisma';
 
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { WeighInSchema, KmLogSchema, LifestyleLogSchema, BenchmarkLogSchema } from '@/lib/schemas';
-import { auth } from '@/auth';
+import { requireAdmin } from '@/lib/auth-guard';
+import { toUtcDateOnly } from '@/lib/dates';
 
 // --- WEIGH-INS ---
 export async function submitWeighIn(prevState: unknown, formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     const weightStr = formData.get('weight') as string;
     const weightVal = weightStr ? parseFloat(weightStr) : undefined;
@@ -34,9 +35,9 @@ export async function submitWeighIn(prevState: unknown, formData: FormData) {
         return { success: false, message: validated.error.issues[0].message };
     }
 
-    // Parse date correctly and normalize to start of day to avoid timezone/time mismatches
-    const dateObj = new Date(validated.data.date);
-    dateObj.setHours(0, 0, 0, 0);
+    // Normalize to UTC midnight — seed and CSV import store UTC-midnight dates,
+    // and WeighIn has a @@unique([memberId, date]) key that must match them.
+    const dateObj = toUtcDateOnly(validated.data.date);
 
     try {
         await prisma.weighIn.upsert({
@@ -64,8 +65,8 @@ export async function submitWeighIn(prevState: unknown, formData: FormData) {
 
 // --- KM LOGS ---
 export async function submitKmLog(prevState: unknown, formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     const kmStr = formData.get('totalKm') as string;
     const kmVal = kmStr ? parseFloat(kmStr) : undefined;
@@ -118,8 +119,8 @@ export async function submitKmLog(prevState: unknown, formData: FormData) {
 
 // --- LIFESTYLE LOGS ---
 export async function submitLifestyleLog(prevState: unknown, formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     const postCountStr = formData.get('postCount') as string;
     const postCountVal = postCountStr ? parseInt(postCountStr) : undefined;
@@ -172,8 +173,8 @@ export async function submitLifestyleLog(prevState: unknown, formData: FormData)
 
 // --- BENCHMARK LOGS ---
 export async function submitBenchmarkLog(prevState: unknown, formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized. Please log in again." };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     const squats = formData.get('squats') ? parseInt(formData.get('squats') as string) : undefined;
     const pushups = formData.get('pushups') ? parseInt(formData.get('pushups') as string) : undefined;
@@ -194,7 +195,7 @@ export async function submitBenchmarkLog(prevState: unknown, formData: FormData)
         return { success: false, message: validated.error.issues[0].message };
     }
 
-    const dateObj = new Date(validated.data.date);
+    const dateObj = toUtcDateOnly(validated.data.date);
 
     try {
         const blockWeek = await prisma.blockWeek.findUnique({ where: { id: validated.data.blockWeekId } });
@@ -242,8 +243,8 @@ export async function submitBenchmarkLog(prevState: unknown, formData: FormData)
 
 // --- ATTENDANCE ---
 export async function toggleAttendance(sessionId: string, memberId: string, isPresent: boolean) {
-    const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized. Please log in again.");
+    const guard = await requireAdmin();
+    if (!guard.success) throw new Error(guard.message);
 
     // Guard: check if the session's week is finalized
     const sessionRecord = await prisma.session.findUnique({

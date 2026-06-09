@@ -3,8 +3,8 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { CreateBlockSchema } from '@/lib/schemas';
-import { auth } from '@/auth';
-import { addWeeks, addDays, startOfWeek } from 'date-fns';
+import { requireAdmin } from '@/lib/auth-guard';
+import { toUtcDateOnly, addUtcDays } from '@/lib/dates';
 import { calculateWeekResults } from '@/actions/scoring';
 import { writeAuditLog } from '@/lib/audit';
 
@@ -12,8 +12,8 @@ import { writeAuditLog } from '@/lib/audit';
 
 
 export async function createBlock(formData: FormData) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const rawData = {
@@ -24,9 +24,13 @@ export async function createBlock(formData: FormData) {
 
         const validated = CreateBlockSchema.parse(rawData);
 
-        // Calculate end date from start + weeks
-        const start = startOfWeek(new Date(validated.startDate + 'T00:00:00'), { weekStartsOn: 1 }); // Monday
-        const end = addWeeks(start, validated.numberOfWeeks);
+        // Anchor to the Monday of the chosen week at UTC midnight. All domain
+        // dates are stored as UTC midnight (see src/lib/dates.ts) — date-fns
+        // local-time helpers (startOfWeek, addDays) must not be used here.
+        const chosen = toUtcDateOnly(validated.startDate);
+        const daysSinceMonday = (chosen.getUTCDay() + 6) % 7;
+        const start = addUtcDays(chosen, -daysSinceMonday);
+        const end = addUtcDays(start, validated.numberOfWeeks * 7);
 
         const block = await prisma.$transaction(async (tx) => {
             // 1. Create the Block
@@ -34,15 +38,15 @@ export async function createBlock(formData: FormData) {
                 data: {
                     name: validated.name,
                     startDate: start,
-                    endDate: addDays(end, -1), // End on last Sunday
+                    endDate: addUtcDays(end, -1), // End on last Sunday
                     isActive: false,
                 }
             });
 
             // 2. Create BlockWeek rows
             for (let i = 0; i < validated.numberOfWeeks; i++) {
-                const weekStart = addWeeks(start, i);
-                const weekEnd = addDays(addWeeks(start, i + 1), -1);
+                const weekStart = addUtcDays(start, i * 7);
+                const weekEnd = addUtcDays(weekStart, 6);
 
                 await tx.blockWeek.create({
                     data: {
@@ -59,10 +63,10 @@ export async function createBlock(formData: FormData) {
             const sessionTypes = ['Monday', 'Wednesday', 'Friday'];
 
             for (let i = 0; i < validated.numberOfWeeks; i++) {
-                const weekStart = addWeeks(start, i);
+                const weekStart = addUtcDays(start, i * 7);
 
                 for (let j = 0; j < sessionDays.length; j++) {
-                    const sessionDate = addDays(weekStart, sessionDays[j]);
+                    const sessionDate = addUtcDays(weekStart, sessionDays[j]);
 
                     await tx.session.create({
                         data: {
@@ -94,8 +98,8 @@ export async function createBlock(formData: FormData) {
 }
 
 export async function activateBlock(blockId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const block = await prisma.block.findUnique({ where: { id: blockId } });
@@ -130,8 +134,8 @@ export async function activateBlock(blockId: string) {
 }
 
 export async function deactivateBlock(blockId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const block = await prisma.block.findUnique({ where: { id: blockId } });
@@ -158,8 +162,8 @@ export async function deactivateBlock(blockId: string) {
 }
 
 export async function deleteBlock(blockId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         // Prevent deleting the active block
@@ -208,22 +212,17 @@ export async function deleteBlock(blockId: string) {
 // --- FINALIZE WEEK ---
 
 export async function finalizeWeek(blockWeekId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const week = await prisma.blockWeek.findUnique({ where: { id: blockWeekId } });
         if (!week) return { success: false, message: 'Week not found.' };
         if (week.isFinalized) return { success: false, message: 'Week is already finalized.' };
 
-        // 1. Calculate and persist all week results (metrics, awards, points)
-        await calculateWeekResults(blockWeekId);
-
-        // 2. Lock the week
-        await prisma.blockWeek.update({
-            where: { id: blockWeekId },
-            data: { isFinalized: true }
-        });
+        // Calculate and persist all week results (metrics, awards, points) and
+        // lock the week in the same transaction.
+        await calculateWeekResults(blockWeekId, { lockWeek: true });
 
         await writeAuditLog({
             action: "FINALIZE_WEEK",
@@ -243,8 +242,8 @@ export async function finalizeWeek(blockWeekId: string) {
 }
 
 export async function unfinalizeWeek(blockWeekId: string) {
-    const session = await auth();
-    if (!session?.user) return { success: false, message: "Unauthorized" };
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
 
     try {
         const week = await prisma.blockWeek.findUnique({ where: { id: blockWeekId } });

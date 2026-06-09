@@ -48,6 +48,11 @@ export function TeamComparisonChart({ data, title, subtitle }: ChartProps) {
             <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <LineChart data={data} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                        <defs>
+                            <filter id="teamComparisonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--color-tongan)" floodOpacity="0.4" />
+                            </filter>
+                        </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
                         <XAxis
                             dataKey="date"
@@ -85,6 +90,7 @@ export function TeamComparisonChart({ data, title, subtitle }: ChartProps) {
                             strokeWidth={3}
                             dot={{ fill: 'var(--color-tongan)', strokeWidth: 2, r: 4, stroke: '#fff' }}
                             activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
+                            filter="url(#teamComparisonGlow)"
                         />
                     </LineChart>
                 </ResponsiveContainer>
@@ -105,9 +111,13 @@ export function TotalProgressChart({ data, title, subtitle }: ChartProps) {
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <defs>
                             <linearGradient id={`${title}-gradient`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="var(--color-tongan)" stopOpacity={0.3} />
+                                <stop offset="5%" stopColor="var(--color-tongan)" stopOpacity={0.4} />
+                                <stop offset="50%" stopColor="var(--color-tongan)" stopOpacity={0.15} />
                                 <stop offset="95%" stopColor="var(--color-tongan)" stopOpacity={0} />
                             </linearGradient>
+                            <filter id={`${title}-glow`} x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--color-tongan)" floodOpacity="0.4" />
+                            </filter>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
                         <XAxis
@@ -141,6 +151,7 @@ export function TotalProgressChart({ data, title, subtitle }: ChartProps) {
                             fill={`url(#${title}-gradient)`}
                             strokeWidth={3}
                             activeDot={{ r: 6, strokeWidth: 0 }}
+                            filter={`url(#${title}-glow)`}
                         />
                     </AreaChart>
                 </ResponsiveContainer>
@@ -175,9 +186,13 @@ export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }
                     <AreaChart data={formattedData} margin={{ top: 20, right: 30, left: -10, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="var(--color-lagoon)" stopOpacity={0.3} />
+                                <stop offset="5%" stopColor="var(--color-lagoon)" stopOpacity={0.4} />
+                                <stop offset="50%" stopColor="var(--color-lagoon)" stopOpacity={0.15} />
                                 <stop offset="95%" stopColor="var(--color-lagoon)" stopOpacity={0} />
                             </linearGradient>
+                            <filter id="attendanceGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--color-lagoon)" floodOpacity="0.4" />
+                            </filter>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" vertical={false} />
                         <XAxis
@@ -226,6 +241,7 @@ export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }
                             fillOpacity={1}
                             fill="url(#colorAttendance)"
                             activeDot={{ r: 6, strokeWidth: 4, stroke: "var(--color-ocean-deep)", fill: '#fff' }}
+                            filter="url(#attendanceGlow)"
                         />
                     </AreaChart>
                 </ResponsiveContainer>
@@ -244,10 +260,14 @@ export function MetricAreaChart({ data, color = "var(--color-lagoon)", unit = ""
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
                         <defs>
-                            <linearGradient id={`colorGradient-${color}`} x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id={`colorGradient-${color.replace(/[^a-zA-Z0-9]/g, '')}`} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor={color} stopOpacity={0.4} />
+                                <stop offset="50%" stopColor={color} stopOpacity={0.15} />
                                 <stop offset="95%" stopColor={color} stopOpacity={0} />
                             </linearGradient>
+                            <filter id={`filterGlow-${color.replace(/[^a-zA-Z0-9]/g, '')}`} x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor={color} floodOpacity="0.4" />
+                            </filter>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                         <XAxis
@@ -288,10 +308,11 @@ export function MetricAreaChart({ data, color = "var(--color-lagoon)", unit = ""
                             stroke={color}
                             strokeWidth={3}
                             fillOpacity={1}
-                            fill={`url(#colorGradient-${color})`}
+                            fill={`url(#colorGradient-${color.replace(/[^a-zA-Z0-9]/g, '')})`}
                             activeDot={{ r: 6, strokeWidth: 4, stroke: 'var(--color-ocean-deep)', fill: color }}
                             animationDuration={1500}
                             animationEasing="ease-out"
+                            filter={`url(#filterGlow-${color.replace(/[^a-zA-Z0-9]/g, '')})`}
                         />
                     </AreaChart>
                 </ResponsiveContainer>
@@ -306,6 +327,11 @@ export function MetricBarChart({ data, color = "var(--color-primary)", unit = ""
             <div className="h-[350px] w-full p-4 relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={32}>
+                        <defs>
+                            <filter id={`barGlow-${color.replace(/[^a-zA-Z0-9]/g, '')}`} x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor={color} floodOpacity="0.35" />
+                            </filter>
+                        </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
                         <XAxis
                             dataKey="name"
@@ -336,6 +362,7 @@ export function MetricBarChart({ data, color = "var(--color-primary)", unit = ""
                             fill={color}
                             radius={[4, 4, 0, 0]}
                             animationDuration={1200}
+                            filter={`url(#barGlow-${color.replace(/[^a-zA-Z0-9]/g, '')})`}
                         />
                     </BarChart>
                 </ResponsiveContainer>
