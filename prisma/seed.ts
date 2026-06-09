@@ -63,7 +63,7 @@ async function main() {
 
     // ── 1. Create Block ────────────────────────────────────────────────────
     const BLOCK_START = new Date('2026-01-19T00:00:00.000Z');
-    const BLOCK_END = addDays(BLOCK_START, 63); // 9 weeks
+    const BLOCK_END = addDays(BLOCK_START, 62); // 9 weeks, ending on the last Sunday
 
     const currentBlock = await prisma.block.create({
         data: {
@@ -77,9 +77,12 @@ async function main() {
 
     // ── 2. Create Block Weeks ──────────────────────────────────────────────
     const blockWeeks = [];
+    // Weeks run Monday..Sunday. endDate must be the Sunday (start + 6), matching
+    // createBlock() — an endDate of start + 7 lands on the next week's Monday and
+    // makes date-range queries count Monday data in two weeks.
     for (let i = 0; i < 9; i++) {
         const weekStart = addDays(BLOCK_START, i * 7);
-        const weekEnd = addDays(weekStart, 7);
+        const weekEnd = addDays(weekStart, 6);
         const bw = await prisma.blockWeek.create({
             data: {
                 blockId: currentBlock.id,

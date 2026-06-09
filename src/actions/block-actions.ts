@@ -4,7 +4,8 @@ import prisma from '@/lib/prisma';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { CreateBlockSchema } from '@/lib/schemas';
 import { requireAdmin } from '@/lib/auth-guard';
-import { addWeeks, addDays, startOfWeek } from 'date-fns';
+import { toUtcDateOnly } from '@/lib/dates';
+import { addWeeks, addDays } from 'date-fns';
 import { calculateWeekResults } from '@/actions/scoring';
 import { writeAuditLog } from '@/lib/audit';
 
@@ -24,8 +25,12 @@ export async function createBlock(formData: FormData) {
 
         const validated = CreateBlockSchema.parse(rawData);
 
-        // Calculate end date from start + weeks
-        const start = startOfWeek(new Date(validated.startDate + 'T00:00:00'), { weekStartsOn: 1 }); // Monday
+        // Anchor to the Monday of the chosen week at UTC midnight. All domain
+        // dates are stored as UTC midnight (see src/lib/dates.ts) — date-fns
+        // startOfWeek works in server-local time and must not be used here.
+        const chosen = toUtcDateOnly(validated.startDate);
+        const daysSinceMonday = (chosen.getUTCDay() + 6) % 7;
+        const start = addDays(chosen, -daysSinceMonday);
         const end = addWeeks(start, validated.numberOfWeeks);
 
         const block = await prisma.$transaction(async (tx) => {

@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { WeighInSchema, KmLogSchema, LifestyleLogSchema, BenchmarkLogSchema } from '@/lib/schemas';
 import { requireAdmin } from '@/lib/auth-guard';
+import { toUtcDateOnly } from '@/lib/dates';
 
 // --- WEIGH-INS ---
 export async function submitWeighIn(prevState: unknown, formData: FormData) {
@@ -34,9 +35,9 @@ export async function submitWeighIn(prevState: unknown, formData: FormData) {
         return { success: false, message: validated.error.issues[0].message };
     }
 
-    // Parse date correctly and normalize to start of day to avoid timezone/time mismatches
-    const dateObj = new Date(validated.data.date);
-    dateObj.setHours(0, 0, 0, 0);
+    // Normalize to UTC midnight — seed and CSV import store UTC-midnight dates,
+    // and WeighIn has a @@unique([memberId, date]) key that must match them.
+    const dateObj = toUtcDateOnly(validated.data.date);
 
     try {
         await prisma.weighIn.upsert({
@@ -194,7 +195,7 @@ export async function submitBenchmarkLog(prevState: unknown, formData: FormData)
         return { success: false, message: validated.error.issues[0].message };
     }
 
-    const dateObj = new Date(validated.data.date);
+    const dateObj = toUtcDateOnly(validated.data.date);
 
     try {
         const blockWeek = await prisma.blockWeek.findUnique({ where: { id: validated.data.blockWeekId } });

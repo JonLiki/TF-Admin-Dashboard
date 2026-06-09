@@ -53,7 +53,8 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
                 where: {
                     date: {
                         gte: block.startDate,
-                        lte: new Date(new Date(block.endDate).setHours(23, 59, 59, 999))
+                        // Final weigh-in lands on the Monday after the block's Sunday endDate
+                        lte: new Date(block.endDate.getTime() + 24 * 60 * 60 * 1000)
                     }
                 },
                 orderBy: { date: 'asc' }

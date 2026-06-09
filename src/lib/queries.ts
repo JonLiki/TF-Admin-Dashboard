@@ -8,6 +8,7 @@
  */
 
 import prisma from '@/lib/prisma';
+import { utcDayRange } from '@/lib/dates';
 
 // ─── Block Queries ──────────────────────────────────────────────────────────
 
@@ -126,16 +127,13 @@ export async function getSessionsForWeek(weekId: string) {
 // ─── Weigh-In Queries ───────────────────────────────────────────────────────
 
 export async function getWeighIns(date: Date) {
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    const { start, end } = utcDayRange(date);
 
     return await prisma.weighIn.findMany({
         where: {
             date: {
-                gte: startOfDay,
-                lte: endOfDay
+                gte: start,
+                lt: end
             }
         },
         include: { member: true }
@@ -180,10 +178,7 @@ export async function getMembersWithLogs(blockWeekId: string) {
 }
 
 export async function getMembersWithWeighIn(date: Date) {
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    const { start, end } = utcDayRange(date);
 
     return await prisma.member.findMany({
         where: { isActive: true },
@@ -192,8 +187,8 @@ export async function getMembersWithWeighIn(date: Date) {
             weighIns: {
                 where: {
                     date: {
-                        gte: startOfDay,
-                        lte: endOfDay
+                        gte: start,
+                        lt: end
                     }
                 }
             }
@@ -214,6 +209,10 @@ export async function getFullBlockSummary() {
 
     if (!block) return null;
 
+    // Blocks end on a Sunday but the final weigh-in is logged on the following
+    // Monday, so the window extends one day past endDate.
+    const finalWeighInDate = new Date(block.endDate.getTime() + 24 * 60 * 60 * 1000);
+
     const members = await prisma.member.findMany({
         where: { isActive: true },
         include: {
@@ -222,7 +221,7 @@ export async function getFullBlockSummary() {
                 where: {
                     date: {
                         gte: block.startDate,
-                        lte: new Date(new Date(block.endDate).setHours(23, 59, 59, 999))
+                        lte: finalWeighInDate
                     }
                 },
                 orderBy: { date: 'asc' }
