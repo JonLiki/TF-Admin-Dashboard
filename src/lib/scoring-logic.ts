@@ -57,8 +57,17 @@ export function calculateTeamMetrics(teams: ScorableTeam[], config: BlockWeekCon
 
             // Weight Loss
             // Logic: Find the earliest and latest weigh-ins in a window around this week.
-            // Window: [startDate - 1 day, startDate + 9 days] 
-            // This covers the previous Sunday through to the Tuesday of the following week.
+            // Window: [startDate - 1 day, startDate + 9 days]
+            // This covers the previous Sunday through to the Tuesday of the following week,
+            // so a week's loss = (weigh-in at the start of this week) - (weigh-in at the
+            // start of the next week), tolerating entries logged a day or two late.
+            //
+            // Two intentional consequences of this rule:
+            //  1. Adjacent weeks' windows OVERLAP — a single weigh-in pair can contribute
+            //     to two consecutive weeks if entries are sparse.
+            //  2. Gains are clamped to 0 (Math.max below), so the sum of weekly losses
+            //     does NOT equal a member's start-to-end weight change. Weekly numbers
+            //     reward losing weeks; use first-vs-last weigh-in for true block totals.
             const windowStart = new Date(config.startDate);
             windowStart.setDate(windowStart.getDate() - 1);
             windowStart.setHours(0, 0, 0, 0);

@@ -221,14 +221,9 @@ export async function finalizeWeek(blockWeekId: string) {
         if (!week) return { success: false, message: 'Week not found.' };
         if (week.isFinalized) return { success: false, message: 'Week is already finalized.' };
 
-        // 1. Calculate and persist all week results (metrics, awards, points)
-        await calculateWeekResults(blockWeekId);
-
-        // 2. Lock the week
-        await prisma.blockWeek.update({
-            where: { id: blockWeekId },
-            data: { isFinalized: true }
-        });
+        // Calculate and persist all week results (metrics, awards, points) and
+        // lock the week in the same transaction.
+        await calculateWeekResults(blockWeekId, { lockWeek: true });
 
         await writeAuditLog({
             action: "FINALIZE_WEEK",
