@@ -218,7 +218,17 @@ async function main() {
     await prisma.attendance.createMany({ data: attendanceList });
 
     // ── 5. Create Admin User ───────────────────────────────────────────────
-    const adminPassword = await hash('password123', 12);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const adminPlainPassword = process.env.SEED_ADMIN_PASSWORD;
+
+    if (isProduction && !adminPlainPassword) {
+        throw new Error(
+            'Refusing to seed the default admin password in production. ' +
+            'Set SEED_ADMIN_PASSWORD to seed the admin user.'
+        );
+    }
+
+    const adminPassword = await hash(adminPlainPassword ?? 'password123', 12);
     await prisma.user.upsert({
         where: { email: 'admin@toafatalona.com' },
         update: {},
@@ -229,12 +239,12 @@ async function main() {
             name: 'System Admin',
         },
     });
-    console.log('Admin user upserted: admin@toafatalona.com (pw: password123)');
+    console.log(`Admin user upserted: admin@toafatalona.com${adminPlainPassword ? '' : ' (pw: password123)'}`);
 
-    // ── 6. Create Test Participant ─────────────────────────────────────────
+    // ── 6. Create Test Participant (dev only) ──────────────────────────────
     const firstMember = await prisma.member.findFirst({ orderBy: { createdAt: 'asc' } });
-    if (firstMember) {
-        const participantPassword = await hash('participant123', 12);
+    if (firstMember && !isProduction) {
+        const participantPassword = await hash(process.env.SEED_PARTICIPANT_PASSWORD ?? 'participant123', 12);
         await prisma.user.upsert({
             where: { email: 'participant@test.com' },
             update: {},
