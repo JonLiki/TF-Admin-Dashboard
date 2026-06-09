@@ -29,7 +29,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <button
                 ref={ref}
                 className={cn(
-                    "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tongan-red/50 focus-visible:ring-offset-1 focus-visible:ring-offset-obsidian disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]",
+                    "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tongan-red/50 focus-visible:ring-offset-1 focus-visible:ring-offset-obsidian disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] relative overflow-hidden group",
                     variants[variant],
                     sizes[size],
                     className
@@ -37,8 +37,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 disabled={disabled || isLoading}
                 {...props}
             >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {children}
+                {/* Shimmer sweep effect on hover for primary/secondary */}
+                {(variant === 'primary' || variant === 'secondary') && (
+                    <span className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                    </span>
+                )}
+                <span className="relative z-10 flex items-center justify-center">
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {children}
+                </span>
             </button>
         );
     }

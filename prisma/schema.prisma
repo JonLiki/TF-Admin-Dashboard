@@ -42,6 +42,8 @@ model BlockWeek {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([blockId])
 }
 
 model Team {
@@ -73,6 +75,8 @@ model Member {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([teamId])
 }
 
 model Session {
@@ -85,6 +89,8 @@ model Session {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([blockId])
 }
 
 model Attendance {
@@ -99,6 +105,7 @@ model Attendance {
   updatedAt DateTime @updatedAt
 
   @@unique([sessionId, memberId])
+  @@index([memberId])
 }
 
 model WeighIn {
@@ -126,6 +133,7 @@ model KmLog {
   updatedAt DateTime @updatedAt
 
   @@unique([memberId, blockWeekId])
+  @@index([blockWeekId])
 }
 
 model LifestyleLog {
@@ -140,6 +148,7 @@ model LifestyleLog {
   updatedAt DateTime @updatedAt
 
   @@unique([memberId, blockWeekId])
+  @@index([blockWeekId])
 }
 
 model BenchmarkLog {
@@ -158,6 +167,7 @@ model BenchmarkLog {
   updatedAt DateTime @updatedAt
 
   @@unique([memberId, blockWeekId])
+  @@index([blockWeekId])
 }
 
 model TeamWeekMetric {
@@ -180,6 +190,7 @@ model TeamWeekMetric {
   updatedAt DateTime @updatedAt
 
   @@unique([teamId, blockWeekId])
+  @@index([blockWeekId])
 }
 
 model TeamWeekAward {
@@ -192,6 +203,9 @@ model TeamWeekAward {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+  @@index([blockWeekId])
 }
 
 model PointLedger {
@@ -206,6 +220,9 @@ model PointLedger {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+  @@index([blockId])
 }
 
 model Account {
@@ -277,4 +294,6 @@ model AuditLog {
   entityType String?  // e.g. "BlockWeek", "Team", "Member"
   entityId   String?
   timestamp  DateTime @default(now())
+
+  @@index([userId])
 }

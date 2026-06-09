@@ -62,6 +62,26 @@ export async function importAttendance(formData: FormData) {
 
         // 2. Process Rows inside a transaction for atomicity
         await prisma.$transaction(async (tx) => {
+            const sessionIds = Array.from(sessionColMap.values());
+            const memberIds = Array.from(memberMap.values());
+
+            // Fetch existing attendance records
+            const existingAttendance = await tx.attendance.findMany({
+                where: {
+                    sessionId: { in: sessionIds },
+                    memberId: { in: memberIds }
+                }
+            });
+
+            // Set of "sessionId_memberId" to identify existing records
+            const existingSet = new Set<string>();
+            existingAttendance.forEach(a => {
+                existingSet.add(`${a.sessionId}_${a.memberId}`);
+            });
+
+            const toCreate: { sessionId: string; memberId: string; isPresent: boolean }[] = [];
+            const toUpdate: { sessionId: string; memberId: string; isPresent: boolean }[] = [];
+
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
                 if (row.length < 2) continue;
@@ -90,14 +110,32 @@ export async function importAttendance(formData: FormData) {
                     const isPresent = result.data;
 
                     if (isPresent !== null) { // true or false
-                        await tx.attendance.upsert({
-                            where: { sessionId_memberId: { sessionId, memberId } },
-                            update: { isPresent },
-                            create: { sessionId, memberId, isPresent }
-                        });
+                        const matchKey = `${sessionId}_${memberId}`;
+                        if (existingSet.has(matchKey)) {
+                            toUpdate.push({ sessionId, memberId, isPresent });
+                        } else {
+                            toCreate.push({ sessionId, memberId, isPresent });
+                        }
                         successCount++;
                     }
                 }
+            }
+
+            // Perform bulk inserts
+            if (toCreate.length > 0) {
+                await tx.attendance.createMany({ data: toCreate });
+            }
+
+            // Perform parallel updates
+            if (toUpdate.length > 0) {
+                await Promise.all(
+                    toUpdate.map(upd => 
+                        tx.attendance.update({
+                            where: { sessionId_memberId: { sessionId: upd.sessionId, memberId: upd.memberId } },
+                            data: { isPresent: upd.isPresent }
+                        })
+                    )
+                );
             }
         }, { timeout: 30000 });
 
@@ -121,22 +159,17 @@ export async function importAttendance(formData: FormData) {
     }
 }
 
-type RowUpsertFunction = (
-    tx: Prisma.TransactionClient,
-    memberId: string,
-    blockWeekId: string,
-    value: number
-) => Promise<void>;
-
 async function importWeeklyData({
     formData,
     rowSchema,
-    upsertRow,
+    modelName,
+    valueField,
     revalidatePathName
 }: {
     formData: FormData;
     rowSchema: z.ZodTypeAny;
-    upsertRow: RowUpsertFunction;
+    modelName: 'kmLog' | 'lifestyleLog';
+    valueField: 'totalKm' | 'postCount';
     revalidatePathName: string;
 }) {
     const file = formData.get('file') as File;
@@ -165,6 +198,29 @@ async function importWeeklyData({
         let errors = 0;
 
         await prisma.$transaction(async (tx) => {
+            const weekIds = Array.from(weekColMap.values());
+            const memberIds = Array.from(memberMap.values());
+
+            // 1. Fetch existing logs
+            let existingLogs: { memberId: string; blockWeekId: string }[] = [];
+            if (modelName === 'kmLog') {
+                existingLogs = await tx.kmLog.findMany({
+                    where: { memberId: { in: memberIds }, blockWeekId: { in: weekIds } }
+                });
+            } else {
+                existingLogs = await tx.lifestyleLog.findMany({
+                    where: { memberId: { in: memberIds }, blockWeekId: { in: weekIds } }
+                });
+            }
+
+            const existingSet = new Set<string>();
+            existingLogs.forEach(log => {
+                existingSet.add(`${log.memberId}_${log.blockWeekId}`);
+            });
+
+            const toCreate: { memberId: string; blockWeekId: string; value: number }[] = [];
+            const toUpdate: { memberId: string; blockWeekId: string; value: number }[] = [];
+
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
                 if (row.length < 2) continue;
@@ -186,9 +242,57 @@ async function importWeeklyData({
                         errors++;
                         continue;
                     }
+                    const value = result.data as number;
 
-                    await upsertRow(tx, memberId, blockWeekId, result.data as number);
+                    const matchKey = `${memberId}_${blockWeekId}`;
+                    if (existingSet.has(matchKey)) {
+                        toUpdate.push({ memberId, blockWeekId, value });
+                    } else {
+                        toCreate.push({ memberId, blockWeekId, value });
+                    }
                     successCount++;
+                }
+            }
+
+            // 2. Perform bulk insertions
+            if (toCreate.length > 0) {
+                if (modelName === 'kmLog') {
+                    const createData = toCreate.map(item => ({
+                        memberId: item.memberId,
+                        blockWeekId: item.blockWeekId,
+                        totalKm: item.value
+                    }));
+                    await tx.kmLog.createMany({ data: createData });
+                } else {
+                    const createData = toCreate.map(item => ({
+                        memberId: item.memberId,
+                        blockWeekId: item.blockWeekId,
+                        postCount: item.value
+                    }));
+                    await tx.lifestyleLog.createMany({ data: createData });
+                }
+            }
+
+            // 3. Perform parallel updates
+            if (toUpdate.length > 0) {
+                if (modelName === 'kmLog') {
+                    await Promise.all(
+                        toUpdate.map(upd =>
+                            tx.kmLog.update({
+                                where: { memberId_blockWeekId: { memberId: upd.memberId, blockWeekId: upd.blockWeekId } },
+                                data: { totalKm: upd.value }
+                            })
+                        )
+                    );
+                } else {
+                    await Promise.all(
+                        toUpdate.map(upd =>
+                            tx.lifestyleLog.update({
+                                where: { memberId_blockWeekId: { memberId: upd.memberId, blockWeekId: upd.blockWeekId } },
+                                data: { postCount: upd.value }
+                            })
+                        )
+                    );
                 }
             }
         }, { timeout: 30000 });
@@ -213,14 +317,9 @@ export async function importKm(formData: FormData) {
     return importWeeklyData({
         formData,
         rowSchema: ImportKmRowSchema,
-        revalidatePathName: '/km',
-        upsertRow: async (tx, memberId, blockWeekId, value) => {
-            await tx.kmLog.upsert({
-                where: { memberId_blockWeekId: { memberId, blockWeekId } },
-                update: { totalKm: value },
-                create: { memberId, blockWeekId, totalKm: value }
-            });
-        }
+        modelName: 'kmLog',
+        valueField: 'totalKm',
+        revalidatePathName: '/km'
     });
 }
 
@@ -228,14 +327,9 @@ export async function importLifestyle(formData: FormData) {
     return importWeeklyData({
         formData,
         rowSchema: ImportLifestyleRowSchema,
-        revalidatePathName: '/lifestyle',
-        upsertRow: async (tx, memberId, blockWeekId, value) => {
-            await tx.lifestyleLog.upsert({
-                where: { memberId_blockWeekId: { memberId, blockWeekId } },
-                update: { postCount: value },
-                create: { memberId, blockWeekId, postCount: value }
-            });
-        }
+        modelName: 'lifestyleLog',
+        valueField: 'postCount',
+        revalidatePathName: '/lifestyle'
     });
 }
 
@@ -267,6 +361,31 @@ export async function importWeighIn(formData: FormData) {
         let errors = 0;
 
         await prisma.$transaction(async (tx) => {
+            const memberIds = Array.from(memberMap.values());
+            
+            // 1. Fetch all existing weigh-ins for these members in this block
+            const existingWeighIns = await tx.weighIn.findMany({
+                where: {
+                    memberId: { in: memberIds },
+                    date: {
+                        gte: block.startDate,
+                        lte: block.endDate
+                    }
+                }
+            });
+
+            // Group existing records by memberId for O(1) retrieval
+            const existingMap = new Map<string, typeof existingWeighIns>();
+            existingWeighIns.forEach(w => {
+                if (!existingMap.has(w.memberId)) {
+                    existingMap.set(w.memberId, []);
+                }
+                existingMap.get(w.memberId)!.push(w);
+            });
+
+            const toCreate: { memberId: string; date: Date; weight: number }[] = [];
+            const toUpdate: { memberId: string; date: Date; weight: number }[] = [];
+
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
                 if (row.length < 2) continue;
@@ -295,25 +414,45 @@ export async function importWeighIn(formData: FormData) {
                     const weekEnd = new Date(weekStart);
                     weekEnd.setDate(weekEnd.getDate() + 6);
 
-                    const existing = await tx.weighIn.findFirst({
-                        where: {
-                            memberId,
-                            date: { gte: weekStart, lte: weekEnd }
-                        }
+                    // Search in-memory
+                    const memberWeighIns = existingMap.get(memberId) || [];
+                    const existing = memberWeighIns.find(w => {
+                        const d = new Date(w.date);
+                        return d >= weekStart && d <= weekEnd;
                     });
 
                     if (existing) {
-                        await tx.weighIn.update({
-                            where: { memberId_date: { memberId: existing.memberId, date: existing.date } },
-                            data: { weight }
+                        toUpdate.push({
+                            memberId: existing.memberId,
+                            date: existing.date,
+                            weight
                         });
                     } else {
-                        await tx.weighIn.create({
-                            data: { memberId, date: weekStart, weight }
+                        toCreate.push({
+                            memberId,
+                            date: weekStart,
+                            weight
                         });
                     }
                     successCount++;
                 }
+            }
+
+            // 2. Perform bulk insertions
+            if (toCreate.length > 0) {
+                await tx.weighIn.createMany({ data: toCreate });
+            }
+
+            // 3. Perform parallel updates
+            if (toUpdate.length > 0) {
+                await Promise.all(
+                    toUpdate.map(upd =>
+                        tx.weighIn.update({
+                            where: { memberId_date: { memberId: upd.memberId, date: upd.date } },
+                            data: { weight: upd.weight }
+                        })
+                    )
+                );
             }
         }, { timeout: 30000 });
         await writeAuditLog({

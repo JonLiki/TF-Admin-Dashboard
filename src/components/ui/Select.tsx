@@ -147,9 +147,9 @@ export function Select({
                     "flex h-11 items-center justify-between w-full px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300",
                     "bg-surface-ocean/30 border border-white/10 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)] backdrop-blur-md",
                     "hover:bg-surface-ocean/55 hover:border-white/20",
-                    "focus:outline-none focus:ring-4 focus:ring-lagoon/15 focus:border-lagoon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)]",
+                    "focus:outline-none focus:ring-4 focus:ring-lagoon/15 focus:border-lagoon/50 focus:shadow-[0_0_20px_rgba(102,252,241,0.15)]",
                     disabled && "opacity-50 cursor-not-allowed",
-                    isOpen && "border-lagoon/50 ring-4 ring-lagoon/15 bg-surface-ocean/60 shadow-[0_0_15px_rgba(102,252,241,0.1)]"
+                    isOpen && "border-lagoon/50 ring-4 ring-lagoon/15 bg-surface-ocean/60 shadow-[0_0_20px_rgba(102,252,241,0.15)]"
                 )}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
@@ -175,9 +175,9 @@ export function Select({
                     ref={dropdownRef}
                     className={cn(
                         "absolute z-50 w-full mt-2 py-1 rounded-xl",
-                        "bg-obsidian/95 border border-white/10 shadow-2xl backdrop-blur-lg",
+                        "bg-obsidian/90 border border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl",
                         "max-h-[300px] overflow-auto",
-                        "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20",
+                        "custom-scrollbar",
                         "animate-in fade-in-0 zoom-in-95 duration-200"
                     )}
                     role="listbox"
