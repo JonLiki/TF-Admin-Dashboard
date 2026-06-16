@@ -1,5 +1,5 @@
 import React from 'react';
-import { NgatuDivider } from './Patterns';
+import { KupesiBand } from './Patterns';
 
 interface PageHeaderProps {
     title: string;
@@ -20,11 +20,11 @@ export function PageHeader({ title, subtitle, showDivider = true, children }: Pa
 
                 {/* Visual Anchor conditionally rendered */}
                 {showDivider && (
-                    <div className="relative mt-6 w-full max-w-4xl">
-                        <NgatuDivider className="h-1.5 opacity-40 relative z-10" />
-                        <div className="absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-lagoon/60 via-tongan-red/50 to-transparent blur-[2px] rounded-full" />
-                        {/* Animated underline grow */}
-                        <div className="absolute bottom-[-2px] left-0 h-[2px] bg-gradient-to-r from-lagoon to-transparent rounded-full animate-[page-enter_0.6s_ease-out]" style={{ width: '60%' }} />
+                    <div className="relative mt-5 w-72 max-w-full">
+                        {/* Kupesi tapa band — the signature To'a Fatalona page motif */}
+                        <KupesiBand />
+                        {/* Fade the right edge so it reads as a deliberate motif, not a full rule */}
+                        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-surface-deep to-transparent pointer-events-none" />
                     </div>
                 )}
             </div>

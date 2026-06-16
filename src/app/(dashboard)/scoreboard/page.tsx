@@ -16,6 +16,7 @@ import { PerformanceTrendsChart } from "@/components/scoreboard/PerformanceTrend
 import { getLeaderboardStandings, sortMetrics, getTrendData } from "@/lib/transformers/scoreboard";
 import { TeamPoints } from "@/types/scoreboard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ScoringRulesPanel } from "@/components/scoreboard/ScoringRulesPanel";
 
 export default async function ScoreboardPage({ searchParams }: { searchParams: Promise<{ weekId?: string }> }) {
     const block = await getActiveBlock();
@@ -127,7 +128,7 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                             </div>
                             <div>
                                 <h2 className="text-2xl font-black uppercase tracking-widest text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Overall Standings</h2>
-                                <p className="text-tongan-light text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-80">Block Leaderboard</p>
+                                <p className="text-tongan-light text-micro font-bold tracking-[0.2em] uppercase mt-1 opacity-80">Block Leaderboard</p>
                             </div>
                         </div>
 
@@ -141,6 +142,8 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                         />
                     </div>
                 </PremiumCard>
+
+                <ScoringRulesPanel />
 
                 {/* PERFORMANCE TRENDS CHART */}
                 <PerformanceTrendsChart

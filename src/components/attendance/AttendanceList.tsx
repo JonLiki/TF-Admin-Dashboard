@@ -58,7 +58,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                     <div className="flex items-center gap-4 w-full md:w-auto">
                         <div className="hidden md:block text-right mr-2">
                             <div className="text-2xl font-black text-foreground leading-none">{presentCount}</div>
-                            <div className="text-[10px] uppercase font-bold text-lagoon-100/60">Present</div>
+                            <div className="text-micro uppercase font-bold text-lagoon-100/60">Present</div>
                         </div>
                         <ImportButton type="attendance" />
                         <SearchInput
@@ -114,7 +114,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                                     )}>
                                         {member.firstName} {member.lastName}
                                     </div>
-                                    <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
+                                    <div className="flex items-center text-micro uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
                                         <span>Warrior</span>
                                     </div>
                                 </div>
@@ -133,7 +133,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                             {/* Status Indicator */}
                             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
                                 <span className={cn(
-                                    "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border shadow-sm",
+                                    "inline-flex items-center px-3 py-1 rounded-full text-micro font-bold uppercase tracking-wide border shadow-sm",
                                     isPresent
                                         ? "bg-green-500/10 text-green-400 border-green-500/20"
                                         : "bg-ocean-deep text-lagoon-100/40 border-white/5"

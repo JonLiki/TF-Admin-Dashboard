@@ -248,16 +248,18 @@ async function main() {
     const firstMember = await prisma.member.findFirst({ orderBy: { createdAt: 'asc' } });
     if (firstMember && !isProduction) {
         const participantPassword = await hash(process.env.SEED_PARTICIPANT_PASSWORD ?? 'participant123', 12);
+        const participantData = {
+            password: participantPassword,
+            role: 'PARTICIPANT' as const,
+            name: `${firstMember.firstName} ${firstMember.lastName}`,
+            memberId: firstMember.id,
+        };
         await prisma.user.upsert({
             where: { email: 'participant@test.com' },
-            update: {},
-            create: {
-                email: 'participant@test.com',
-                password: participantPassword,
-                role: 'PARTICIPANT',
-                name: `${firstMember.firstName} ${firstMember.lastName}`,
-                memberId: firstMember.id,
-            },
+            // Link memberId on update too, so a pre-existing participant row is
+            // healed on re-seed (empty `update` left memberId unset → no dashboard).
+            update: participantData,
+            create: { email: 'participant@test.com', ...participantData },
         });
         console.log(`Test participant: participant@test.com (pw: participant123) → ${firstMember.firstName} ${firstMember.lastName}`);
     }

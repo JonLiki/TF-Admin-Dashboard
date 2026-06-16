@@ -240,7 +240,7 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     <h3 className="text-base font-bold text-foreground truncate">{block.name}</h3>
                                                     {block.isActive && (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-micro font-bold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                                                             <Zap className="w-3 h-3" /> Active
                                                         </span>
                                                     )}

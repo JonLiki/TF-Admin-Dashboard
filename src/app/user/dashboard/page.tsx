@@ -1,7 +1,9 @@
 import { getActiveBlock } from "@/lib/queries";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Trophy, AlertCircle, User as UserIcon, Activity, Flame } from "lucide-react";
+import { Trophy, AlertCircle } from "lucide-react";
+import { MemberProgressHero } from "@/components/user/MemberProgressHero";
+import { getMemberProgress } from "@/lib/transformers/memberProgress";
 import { PremiumTrophy } from "@/components/ui/PremiumTrophy";
 import prisma from "@/lib/prisma";
 import { Team, TeamWeekAward } from "@prisma/client";
@@ -12,6 +14,7 @@ import { PerformanceTrendsChart } from "@/components/scoreboard/PerformanceTrend
 import { getLeaderboardStandings, getTrendData } from "@/lib/transformers/scoreboard";
 import { TeamPoints } from "@/types/scoreboard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ScoringRulesPanel } from "@/components/scoreboard/ScoringRulesPanel";
 import { BenchmarkProgressChart, BenchmarkLog } from "@/components/user/BenchmarkProgressChart";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -30,8 +33,8 @@ export default async function UserDashboardPage() {
         memberData = await prisma.member.findUnique({
             where: { id: memberId },
             include: { 
-                team: true, 
-                weighIns: true, 
+                team: true,
+                weighIns: { orderBy: { date: 'asc' } },
                 attendance: true,
                 benchmarkLogs: { 
                     include: { blockWeek: true }, 
@@ -43,6 +46,10 @@ export default async function UserDashboardPage() {
             memberTeam = memberData.team;
         }
     }
+
+    const progress = memberData
+        ? getMemberProgress(memberData.weighIns, memberData.attendance)
+        : null;
 
     const block = await getActiveBlock();
     if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Challenge" description="There is no active competition at the moment. Check back later." /></div>;
@@ -85,46 +92,8 @@ export default async function UserDashboardPage() {
 
             <div className="px-6 md:px-10 mt-6 space-y-8">
 
-                {/* PERSONAL STATS SECTION (ONLY VISIBLE IF MEMBER PROFILE LINKED) */}
-                {memberData && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <PremiumCard className="p-6 bg-gradient-to-br from-tongan/20 to-ocean-deep border-tongan/30">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-tongan/20 rounded-xl">
-                                    <UserIcon className="w-6 h-6 text-tongan-light" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-tapa uppercase tracking-widest">Athlete</h3>
-                                    <p className="text-xl font-black text-foreground">{memberData.firstName} {memberData.lastName}</p>
-                                </div>
-                            </div>
-                        </PremiumCard>
-
-                        <PremiumCard className="p-6 bg-gradient-to-br from-lagoon/20 to-ocean-deep border-lagoon/30">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-lagoon/20 rounded-xl">
-                                    <Flame className="w-6 h-6 text-lagoon-100" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-tapa uppercase tracking-widest">Weigh-ins</h3>
-                                    <p className="text-xl font-black text-foreground">{memberData.weighIns?.length || 0} Recorded</p>
-                                </div>
-                            </div>
-                        </PremiumCard>
-
-                        <PremiumCard className="p-6 bg-gradient-to-br from-sand/20 to-ocean-deep border-sand/30">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-sand/20 rounded-xl">
-                                    <Activity className="w-6 h-6 text-sand" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-tapa uppercase tracking-widest">Attendance</h3>
-                                    <p className="text-xl font-black text-foreground">{memberData.attendance?.filter(a => a.isPresent).length || 0} Sessions</p>
-                                </div>
-                            </div>
-                        </PremiumCard>
-                    </div>
-                )}
+                {/* PERSONAL PROGRESS HERO (ONLY VISIBLE IF MEMBER PROFILE LINKED) */}
+                {progress && <MemberProgressHero progress={progress} />}
 
                 {/* Benchmark Chart */}
                 {memberData?.benchmarkLogs && memberData.benchmarkLogs.length > 0 && (
@@ -141,7 +110,7 @@ export default async function UserDashboardPage() {
                             </div>
                             <div>
                                 <h2 className="text-2xl font-black uppercase tracking-widest text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Overall Standings</h2>
-                                <p className="text-tongan-light text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-80">Block Leaderboard</p>
+                                <p className="text-tongan-light text-micro font-bold tracking-[0.2em] uppercase mt-1 opacity-80">Block Leaderboard</p>
                             </div>
                         </div>
 
@@ -154,6 +123,8 @@ export default async function UserDashboardPage() {
                         />
                     </div>
                 </PremiumCard>
+
+                <ScoringRulesPanel />
 
                 <PerformanceTrendsChart
                     data={trendData}

@@ -57,7 +57,7 @@ export function WinnerBadge({ className, ...props }: PatternProps) {
             <div className="absolute inset-0 flex items-center justify-center">
                 <Trophy className="w-6 h-6 text-tongan drop-shadow-md" />
             </div>
-            <span className="absolute -bottom-6 text-[10px] font-bold tracking-[0.2em] text-tongan">IKUNA</span>
+            <span className="absolute -bottom-6 text-micro font-bold tracking-[0.2em] text-tongan">IKUNA</span>
         </div>
     );
 }
@@ -72,6 +72,26 @@ export function TonganNgatu({ className, opacity = 0.05, ...props }: PatternProp
                 opacity: opacity
             }}
             {...props}
+        />
+    );
+}
+
+const KUPESI_TILE = `data:image/svg+xml,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="12" viewBox="0 0 20 12">' +
+    '<path d="M5 0L10 6L5 12L0 6Z" fill="#C8102E"/>' +
+    '<path d="M15 0L20 6L15 12L10 6Z" fill="none" stroke="#C8102E" stroke-width="1.25"/>' +
+    '</svg>'
+)}`;
+
+export function KupesiBand({ className }: { className?: string }) {
+    // Kupesi (tapa diamond) band — the signature To'a Fatalona page motif: a row of
+    // alternating solid/outline lozenges in Tongan red (#C8102E, identical in both
+    // themes). Rendered as a repeating background so it reliably fills the width.
+    return (
+        <div
+            className={cn("h-3 w-full bg-repeat-x", className)}
+            style={{ backgroundImage: `url("${KUPESI_TILE}")`, backgroundSize: 'auto 100%' }}
+            aria-hidden="true"
         />
     );
 }

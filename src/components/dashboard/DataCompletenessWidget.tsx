@@ -138,7 +138,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                             Week {currentWeekNumber} Status
                         </h3>
                     </div>
-                    <span className={cn("text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border shadow-inner transition-colors duration-300", getBgColor(avgPercentage))}>
+                    <span className={cn("text-micro font-black uppercase tracking-widest px-2 py-0.5 rounded border shadow-inner transition-colors duration-300", getBgColor(avgPercentage))}>
                         {allComplete ? 'Ready' : `${avgPercentage}%`}
                     </span>
                 </div>
@@ -211,7 +211,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                 key={centerLabel}
                                 initial={{ opacity: 0, y: 3 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-[8px] font-bold uppercase tracking-widest text-foreground/50 mt-0.5"
+                                className="text-micro font-bold uppercase tracking-widest text-foreground/50 mt-0.5"
                             >
                                 {centerLabel}
                             </motion.span>
@@ -244,7 +244,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                                     <span className="text-[11px] font-bold text-foreground/90 group-hover:text-foreground transition-colors">
                                                         {cat.label}
                                                     </span>
-                                                    <span className="text-[9px] text-foreground/50 uppercase tracking-widest font-semibold mt-0.5 leading-none">
+                                                    <span className="text-micro text-foreground/50 uppercase tracking-widest font-semibold mt-0.5 leading-none">
                                                         {cat.value}
                                                     </span>
                                                 </div>

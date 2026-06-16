@@ -214,7 +214,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                     >
                                         {member.firstName} {member.lastName}
                                     </Link>
-                                    <p className="text-[10px] uppercase tracking-wider text-tapa font-semibold opacity-80">Member</p>
+                                    <p className="text-micro uppercase tracking-wider text-tapa font-semibold opacity-80">Member</p>
                                 </div>
                             </div>
 

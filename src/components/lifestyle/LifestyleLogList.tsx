@@ -119,7 +119,7 @@ function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
                     <div className="font-bold text-foreground text-lg group-hover:text-pink-400 transition-colors">
                         {member.firstName} {member.lastName}
                     </div>
-                    <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
+                    <div className="flex items-center text-micro uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
                         <Camera className="w-3 h-3 mr-1" />
                         <span>Influencer</span>
                     </div>
@@ -169,7 +169,7 @@ function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
             {/* Status Indicator */}
             <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
                 {hasLog && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-pink-500/10 text-pink-400 border border-pink-500/20 shadow-[0_0_10px_rgba(236,72,153,0.15)]">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-micro font-bold uppercase tracking-wide bg-pink-500/10 text-pink-400 border border-pink-500/20 shadow-[0_0_10px_rgba(236,72,153,0.15)]">
                         Active
                     </span>
                 )}

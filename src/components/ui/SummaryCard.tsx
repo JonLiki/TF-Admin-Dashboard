@@ -24,7 +24,7 @@ export function SummaryCard({
     className
 }: SummaryCardProps) {
     return (
-        <PremiumCard glowBorder className={cn("shimmer-sweep", className)}>
+        <PremiumCard className={className}>
             {/* Top accent line */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-lagoon via-tapa to-tongan rounded-t-2xl opacity-80 z-20" />
 
@@ -32,8 +32,6 @@ export function SummaryCard({
                 {/* Icon and Label Row */}
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        {/* Breathing glow behind icon */}
-                        <div className={cn("absolute inset-0 rounded-xl blur-lg breathing-glow opacity-50", iconBg)} />
                         <div className={cn(
                             "relative p-3 rounded-xl shadow-lg",
                             "ring-2 ring-white/10",

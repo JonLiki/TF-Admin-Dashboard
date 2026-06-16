@@ -81,7 +81,7 @@ export function WinnerCard({ teamName, category, weekNumber, className }: Winner
                         <Icon className={cn("w-6 h-6", config.color)} />
                     </div>
                     <div className="flex flex-col items-end">
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-tapa opacity-80">Week {weekNumber}</span>
+                        <span className="text-micro uppercase tracking-widest font-bold text-tapa opacity-80">Week {weekNumber}</span>
                         <span className={cn("text-xs font-bold uppercase tracking-wide", config.color)}>IKUNA</span>
                     </div>
                 </div>

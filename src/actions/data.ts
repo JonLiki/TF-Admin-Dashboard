@@ -63,6 +63,56 @@ export async function submitWeighIn(prevState: unknown, formData: FormData) {
     }
 }
 
+// Bulk save: one transaction for every `weight_<memberId>` field with a value.
+// Blank inputs are skipped (not deleted); invalid ones are counted and reported.
+export async function submitWeighInsBulk(prevState: unknown, formData: FormData) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
+
+    const dateRaw = formData.get('date');
+    if (typeof dateRaw !== 'string' || !dateRaw) {
+        return { success: false, message: "Missing weigh-in date" };
+    }
+    const dateObj = toUtcDateOnly(dateRaw);
+
+    const ops: { memberId: string; weight: number }[] = [];
+    let invalid = 0;
+
+    for (const [key, value] of formData.entries()) {
+        if (!key.startsWith('weight_')) continue;
+        const raw = typeof value === 'string' ? value.trim() : '';
+        if (raw === '') continue; // blank = leave untouched
+        const weight = parseFloat(raw);
+        const memberId = key.slice('weight_'.length);
+        const validated = WeighInSchema.safeParse({ memberId, weight, date: dateRaw });
+        if (!validated.success || Number.isNaN(weight)) { invalid++; continue; }
+        ops.push({ memberId: validated.data.memberId, weight: validated.data.weight });
+    }
+
+    if (ops.length === 0) {
+        return { success: false, message: invalid > 0 ? "No valid weights to save" : "No weights entered" };
+    }
+
+    try {
+        await prisma.$transaction(
+            ops.map((o) =>
+                prisma.weighIn.upsert({
+                    where: { memberId_date: { memberId: o.memberId, date: dateObj } },
+                    update: { weight: o.weight },
+                    create: { memberId: o.memberId, date: dateObj, weight: o.weight },
+                }),
+            ),
+        );
+        revalidatePath('/weigh-in');
+        revalidateTag('dashboard-stats', 'max');
+        const suffix = invalid > 0 ? ` (${invalid} skipped)` : '';
+        return { success: true, message: `Saved ${ops.length} weigh-in${ops.length === 1 ? '' : 's'}${suffix}` };
+    } catch (error) {
+        console.error("Database error saving weigh-ins (bulk):", error);
+        return { success: false, message: "Failed to save weigh-ins" };
+    }
+}
+
 // --- KM LOGS ---
 export async function submitKmLog(prevState: unknown, formData: FormData) {
     const guard = await requireAdmin();

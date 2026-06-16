@@ -79,6 +79,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                 {/* 2. HERO METRIC: Total Loss (Top Mid) - Full width on mobile, 2 cols on desktop */}
                 <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-2">
                     <StatCard
+                        variant="hero"
                         label="Block Weight Loss"
                         value={`${stats.totalLoss.toFixed(1)} kg`}
                         icon={Scale}
@@ -131,7 +132,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                             <Crown className="w-5 h-5 text-tongan drop-shadow-[0_0_6px_rgba(197,0,0,0.4)]" />
                             <h3 className="text-lg font-bold font-display tracking-wide text-foreground">Top Ranks</h3>
                         </div>
-                        <Link href="/scoreboard" className="text-[10px] font-bold text-tongan hover:text-foreground uppercase tracking-widest transition-colors flex items-center gap-1 group">
+                        <Link href="/scoreboard" className="text-micro font-bold text-tongan hover:text-foreground uppercase tracking-widest transition-colors flex items-center gap-1 group">
                             Full Board <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
@@ -163,7 +164,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                                             </div>
                                             <div>
                                                 <p className={cn("font-bold text-sm group-hover:text-foreground transition-colors", index === 0 ? "text-foreground" : "text-foreground/90")}>{team.name}</p>
-                                                {index === 0 && <span className="text-[9px] font-bold text-tongan uppercase tracking-wider drop-shadow-[0_0_4px_rgba(197,0,0,0.3)]">Leader</span>}
+                                                {index === 0 && <span className="text-micro font-bold text-tongan uppercase tracking-wider drop-shadow-[0_0_4px_rgba(197,0,0,0.3)]">Leader</span>}
                                             </div>
                                         </div>
 

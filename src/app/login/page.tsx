@@ -69,7 +69,7 @@ export default function LoginPage() {
                                 {/* Email Input */}
                                 <div className="space-y-2">
                                     <label
-                                        className="block text-[10px] font-bold uppercase tracking-wider text-foreground/60 ml-1"
+                                        className="block text-micro font-bold uppercase tracking-wider text-foreground/60 ml-1"
                                         htmlFor="email"
                                     >
                                         Official Email
@@ -90,7 +90,7 @@ export default function LoginPage() {
                                 {/* Password Input */}
                                 <div className="space-y-2">
                                     <label
-                                        className="block text-[10px] font-bold uppercase tracking-wider text-foreground/60 ml-1"
+                                        className="block text-micro font-bold uppercase tracking-wider text-foreground/60 ml-1"
                                         htmlFor="password"
                                     >
                                         Passcode

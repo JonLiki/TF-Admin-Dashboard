@@ -94,13 +94,13 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                 <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead className="sticky top-0 z-20 bg-ocean-deep/95 backdrop-blur-md shadow-md border-b border-lagoon/30">
                         <tr>
-                            <th className="p-4 text-xs font-bold text-lagoon-100/70 uppercase tracking-widest whitespace-nowrap">Member</th>
+                            <th className="sticky left-0 z-30 bg-ocean-deep p-4 text-xs font-bold text-lagoon-100/70 uppercase tracking-widest whitespace-nowrap">Member</th>
                             <th className="p-4 text-xs font-bold text-lagoon-100/70 uppercase tracking-widest whitespace-nowrap">Group</th>
                             {sessions.map(session => (
                                 <th key={session.id} className="p-4 text-center text-xs font-bold text-lagoon-100 uppercase tracking-widest min-w-[120px]">
                                     <div className="flex flex-col items-center">
                                         <span className="text-foreground font-extrabold">{session.type}</span>
-                                        <span className="text-[10px] text-lagoon-100/50">{format(new Date(session.date), 'MMM d')}</span>
+                                        <span className="text-micro text-lagoon-100/50">{format(new Date(session.date), 'MMM d')}</span>
                                     </div>
                                 </th>
                             ))}
@@ -109,7 +109,7 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                     <tbody className="divide-y divide-lagoon/10">
                         {filteredMembers.map((member) => (
                             <tr key={member.id} className="hover:bg-ocean/20 transition-colors group">
-                                <td className="p-4">
+                                <td className="sticky left-0 z-10 bg-ocean-deep p-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full bg-ocean-deep border border-white/5 flex items-center justify-center text-xs font-bold text-lagoon-100/50 shadow-inner group-hover:border-lagoon/30 group-hover:text-lagoon-100 transition-colors">
                                             {member.firstName[0]}{member.lastName[0]}

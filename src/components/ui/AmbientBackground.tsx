@@ -51,8 +51,9 @@ export function AmbientBackground() {
         />
       ))}
 
-      {/* Layer 4: Tongan Ngatu cultural pattern */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay">
+      {/* Layer 4: Tongan Ngatu cultural pattern — whisper-quiet; the deliberate
+          identity now lives in the KupesiBand page-title motif (see PageHeader). */}
+      <div className="absolute inset-0 opacity-[0.015] mix-blend-overlay">
         <TonganNgatu />
       </div>
 

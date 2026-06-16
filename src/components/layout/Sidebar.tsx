@@ -136,7 +136,7 @@ export function Sidebar() {
                     <TonganNgatu opacity={0.3} />
                 </div>
 
-                <div className="absolute bottom-4 left-4 right-4 text-[10px] text-foreground/40 text-center font-mono">
+                <div className="absolute bottom-4 left-4 right-4 text-micro text-foreground/40 text-center font-mono">
                     To&apos;a Fatalona &copy; 2026
                 </div>
 
@@ -152,7 +152,7 @@ export function Sidebar() {
                         </div>
                         <div>
                             <h1 className="text-lg font-bold leading-none tracking-tight font-display text-gradient">TO&apos;A FATALONA</h1>
-                            <p className="text-[10px] text-foreground/60 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Admin Command</p>
+                            <p className="text-micro text-foreground/60 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Admin Command</p>
                         </div>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ export function Sidebar() {
                         <div key={section.label} className={cn(sectionIndex > 0 && "mt-4")}>
                             {/* Section Divider Label */}
                             <div className="flex items-center gap-2 px-4 mb-2">
-                                <span className="text-[9px] font-bold text-foreground/50 uppercase tracking-[0.2em]">{section.label}</span>
+                                <span className="text-micro font-bold text-foreground/50 uppercase tracking-[0.2em]">{section.label}</span>
                                 <div className="flex-1 h-px bg-gradient-to-r from-white/5 to-transparent" />
                             </div>
 
@@ -248,7 +248,7 @@ export function Sidebar() {
                         </div>
                         <div className="ml-3 overflow-hidden">
                             <p className="text-sm font-bold text-offwhite group-hover:text-sand transition-colors truncate">Administrator</p>
-                            <p className="text-[10px] text-offwhite/60 group-hover:opacity-100 truncate">admin@toafatalona.com</p>
+                            <p className="text-micro text-offwhite/60 group-hover:opacity-100 truncate">admin@toafatalona.com</p>
                         </div>
                     </div>
 

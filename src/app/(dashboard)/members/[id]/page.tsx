@@ -203,7 +203,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                                 <div>
                                     <p className="text-xs font-bold uppercase opacity-70 text-cyan-900 dark:text-cyan-100">Benchmark</p>
                                     <p className="text-xl font-mono font-bold text-cyan-950 dark:text-cyan-50">{totalBenchmarkReps.toLocaleString()} <span className="text-sm">reps</span></p>
-                                    <p className="text-[10px] text-cyan-700 dark:text-cyan-300/60 font-medium mt-0.5">
+                                    <p className="text-micro text-cyan-700 dark:text-cyan-300/60 font-medium mt-0.5">
                                         {totalSquats}sq · {totalPushups}pu · {totalBurpees}bp
                                     </p>
                                 </div>

@@ -28,9 +28,9 @@ export function AnalyticsTable({ data, activeMetric }: AnalyticsTableProps) {
     return (
         <div className="overflow-x-auto rounded-xl border border-white/5 shadow-lg">
             <table className="w-full text-sm text-left">
-                <thead className="bg-ocean-deep/80 backdrop-blur-md text-foreground font-semibold uppercase tracking-wider text-xs border-b border-border/30 dark:border-white/10 sticky top-0 z-10">
+                <thead className="bg-ocean-deep/80 backdrop-blur-md text-foreground font-semibold uppercase tracking-wider text-xs border-b border-border/30 dark:border-white/10 sticky top-0 z-20">
                     <tr>
-                        <th className="px-6 py-4 rounded-tl-xl">Group</th>
+                        <th className="sticky left-0 z-30 bg-ocean-deep px-6 py-4 rounded-tl-xl">Group</th>
                         <th className="px-6 py-4 text-right font-mono">Total Points</th>
                         <th className="px-6 py-4 text-right font-mono">Weight Loss</th>
                         <th className="px-6 py-4 text-right font-mono">Avg KM / Wk</th>
@@ -48,7 +48,7 @@ export function AnalyticsTable({ data, activeMetric }: AnalyticsTableProps) {
                             index % 2 === 0 ? "bg-ocean-deep" : "bg-foreground/[0.02] dark:bg-white/[0.02]",
                             "hover:bg-foreground/[0.03] dark:hover:bg-white/[0.06] hover:shadow-[inset_0_0_20px_rgba(102,252,241,0.03)]"
                         )}>
-                            <td className="px-6 py-4 font-medium text-foreground/80 group-hover:text-foreground dark:text-slate-300 dark:group-hover:text-white transition-colors">
+                            <td className="sticky left-0 z-10 bg-ocean-deep px-6 py-4 font-medium text-foreground/80 group-hover:text-foreground dark:text-slate-300 dark:group-hover:text-white transition-colors">
                                 <span className="flex items-center gap-2">
                                     {index < 3 && <span className="text-xs">{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</span>}
                                     {row.name}

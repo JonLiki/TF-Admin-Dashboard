@@ -92,7 +92,7 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
                                         {m.team.name}
                                     </span>
                                 </Link>
-                                {i === 0 && <span className="text-[10px] text-yellow-500/80 uppercase tracking-wider font-semibold">Leader</span>}
+                                {i === 0 && <span className="text-micro text-yellow-500/80 uppercase tracking-wider font-semibold">Leader</span>}
                             </div>
                         </div>
 
@@ -105,7 +105,7 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
                             )}>
                                 {(Number(m[valueKey]) || 0).toFixed(valueKey === 'lifestyleAverage' ? 1 : 2)}
                             </span>
-                            <span className="text-[10px] text-tapa uppercase font-semibold opacity-60">{unit}</span>
+                            <span className="text-micro text-tapa uppercase font-semibold opacity-60">{unit}</span>
                         </div>
                     </div>
                 ))}

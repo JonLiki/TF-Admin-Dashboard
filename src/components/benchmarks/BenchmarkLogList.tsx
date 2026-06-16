@@ -154,7 +154,7 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                                 defaultValue={log?.squats || ""}
                                 title="Squats"
                             />
-                            <span className="text-[10px] ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">SQ</span>
+                            <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">SQ</span>
                         </div>
 
                         <div className="relative group/input flex justify-center items-center">
@@ -172,7 +172,7 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                                 defaultValue={log?.pushups || ""}
                                 title="Pushups"
                             />
-                            <span className="text-[10px] ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">PU</span>
+                            <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">PU</span>
                         </div>
 
                         <div className="relative group/input flex justify-center items-center">
@@ -190,7 +190,7 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                                 defaultValue={log?.burpees || ""}
                                 title="Burpees"
                             />
-                            <span className="text-[10px] ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">BP</span>
+                            <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">BP</span>
                         </div>
                     </div>
 
@@ -205,7 +205,7 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
             {/* Status Indicator */}
             <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
                 {hasLog && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-lagoon/10 text-lagoon-100 border border-lagoon/20 shadow-[0_0_10px_rgba(28,114,147,0.15)]">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-micro font-bold uppercase tracking-wide bg-lagoon/10 text-lagoon-100 border border-lagoon/20 shadow-[0_0_10px_rgba(28,114,147,0.15)]">
                         Logged
                     </span>
                 )}

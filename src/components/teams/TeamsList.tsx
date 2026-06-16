@@ -135,7 +135,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                                                 <h3 className="font-bold text-foreground text-lg group-hover:text-lagoon-100 transition-colors">
                                                     {team.name}
                                                 </h3>
-                                                <p className="text-[10px] uppercase tracking-wider text-tapa font-semibold opacity-80">Group</p>
+                                                <p className="text-micro uppercase tracking-wider text-tapa font-semibold opacity-80">Group</p>
                                             </>
                                         )}
                                     </div>
@@ -210,7 +210,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                                                         )}>
                                                             {member.firstName} {member.lastName}
                                                         </span>
-                                                        {!member.isActive && <span className="text-[10px] text-tongan uppercase tracking-wider">Inactive</span>}
+                                                        {!member.isActive && <span className="text-micro text-tongan uppercase tracking-wider">Inactive</span>}
                                                     </div>
                                                 </li>
                                             ))}

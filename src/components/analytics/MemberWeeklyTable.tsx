@@ -62,7 +62,7 @@ export function MemberWeeklyTable({ stats }: MemberWeeklyTableProps) {
                             >
                                 <td className="px-6 py-3 font-medium text-foreground">
                                     {week.weekLabel}
-                                    {week.isCurrent && <span className="ml-2 text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase tracking-wider">Current</span>}
+                                    {week.isCurrent && <span className="ml-2 text-micro bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase tracking-wider">Current</span>}
                                 </td>
                                 <td className="px-6 py-3 text-right font-mono text-foreground/80">
                                     {week.weight ? week.weight.toFixed(1) : <span className="text-muted-foreground/50">-</span>}
@@ -99,15 +99,15 @@ export function MemberWeeklyTable({ stats }: MemberWeeklyTableProps) {
                                     <td className="px-6 py-3 text-center">
                                         {week.benchmarks ? (
                                             <div className="inline-flex items-center gap-1">
-                                                <span className="inline-flex items-center justify-center bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 px-1.5 py-0.5 rounded text-[10px] font-bold min-w-[22px]" title="Squats">
+                                                <span className="inline-flex items-center justify-center bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 px-1.5 py-0.5 rounded text-micro font-bold min-w-[22px]" title="Squats">
                                                     {week.benchmarks.squats}
                                                 </span>
-                                                <span className="text-muted-foreground/30 text-[10px]">/</span>
-                                                <span className="inline-flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-1.5 py-0.5 rounded text-[10px] font-bold min-w-[22px]" title="Push-ups">
+                                                <span className="text-muted-foreground/30 text-micro">/</span>
+                                                <span className="inline-flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-1.5 py-0.5 rounded text-micro font-bold min-w-[22px]" title="Push-ups">
                                                     {week.benchmarks.pushups}
                                                 </span>
-                                                <span className="text-muted-foreground/30 text-[10px]">/</span>
-                                                <span className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-bold min-w-[22px]" title="Burpees">
+                                                <span className="text-muted-foreground/30 text-micro">/</span>
+                                                <span className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded text-micro font-bold min-w-[22px]" title="Burpees">
                                                     {week.benchmarks.burpees}
                                                 </span>
                                             </div>

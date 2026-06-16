@@ -451,7 +451,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                     {block.weeks.map((week: BlockWeek, i: number) => (
                                         <th key={week.id} className="p-4 text-xs font-bold text-foreground/60 uppercase tracking-wider text-center min-w-[100px]">
                                             W{i + 1}<br />
-                                            <span className="text-[9px] opacity-50 lowercase font-normal">
+                                            <span className="text-micro opacity-50 lowercase font-normal">
                                                 {format(new Date(week.startDate), 'MMM d')}
                                             </span>
                                         </th>

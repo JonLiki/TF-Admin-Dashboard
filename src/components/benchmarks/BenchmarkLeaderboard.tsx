@@ -55,7 +55,7 @@ export function BenchmarkLeaderboard({ entries }: BenchmarkLeaderboardProps) {
                     {Object.entries(exerciseColors).map(([key, val]) => (
                         <div key={key} className="flex items-center gap-1.5">
                             <div className={cn('w-2.5 h-2.5 rounded-full', val.dot)} />
-                            <span className="text-[10px] font-bold text-foreground/60 uppercase tracking-wider">{key}</span>
+                            <span className="text-micro font-bold text-foreground/60 uppercase tracking-wider">{key}</span>
                         </div>
                     ))}
                 </div>
@@ -104,7 +104,7 @@ export function BenchmarkLeaderboard({ entries }: BenchmarkLeaderboardProps) {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-sm font-bold text-foreground truncate">{entry.name}</p>
-                                    <p className="text-[10px] text-foreground/50 font-medium truncate">{entry.teamName}</p>
+                                    <p className="text-micro text-foreground/50 font-medium truncate">{entry.teamName}</p>
                                 </div>
                             </div>
  

@@ -56,11 +56,11 @@ export default function ErrorBoundary({
                 {process.env.NODE_ENV === 'development' && (
                     <div className="p-4 bg-black/40 border-t border-white/5 text-left overflow-auto">
                         <p className="text-xs font-mono text-red-400 font-bold mb-1">Error Details:</p>
-                        <p className="text-[10px] font-mono text-lagoon-100/40 break-all">
+                        <p className="text-micro font-mono text-lagoon-100/40 break-all">
                             {error.message || "Unknown Application Error"}
                         </p>
                         {error.digest && (
-                            <p className="text-[10px] font-mono text-lagoon-100/40 mt-1 mt-1 break-all">
+                            <p className="text-micro font-mono text-lagoon-100/40 mt-1 mt-1 break-all">
                                 Digest: {error.digest}
                             </p>
                         )}

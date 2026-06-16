@@ -64,7 +64,7 @@ function CategoryChart({ title, icon, color, gradientTo, bg, border, data }: {
                 <div className="flex items-center gap-2">
                     <span className="text-lg">{icon}</span>
                     <h4 className="text-sm font-bold text-foreground tracking-wide">{title}</h4>
-                    <span className="text-[10px] text-foreground/50 font-medium ml-auto uppercase tracking-wider">Top 5</span>
+                    <span className="text-micro text-foreground/50 font-medium ml-auto uppercase tracking-wider">Top 5</span>
                 </div>
             </div>
             <div className="px-2 py-3">
