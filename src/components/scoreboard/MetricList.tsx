@@ -59,7 +59,7 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
             {/* Header */}
             <div className={cn("p-4 border-b flex items-center space-x-3 bg-opacity-80 backdrop-blur-md", styles.headerBg)}>
                 <Icon className={cn("w-5 h-5", styles.iconColor)} />
-                <h3 className="font-bold text-white text-lg tracking-wide uppercase">{title}</h3>
+                <h3 className="font-bold text-foreground text-lg tracking-wide uppercase">{title}</h3>
             </div>
 
             {/* List */}
@@ -84,10 +84,10 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
                             </div>
 
                             <div className="flex flex-col">
-                                <Link href={`/scoreboard/team/${m.team.id}?weekId=${weekId}`} className="group-hover:text-white transition-colors">
+                                <Link href={`/scoreboard/team/${m.team.id}?weekId=${weekId}`} className="group-hover:text-foreground transition-colors">
                                     <span className={cn(
                                         "font-bold text-sm block leading-tight transition-colors",
-                                        i === 0 ? "text-white text-base" : "text-lagoon-100/80 group-hover:text-white"
+                                        i === 0 ? "text-foreground text-base" : "text-lagoon-100/80 group-hover:text-foreground"
                                     )}>
                                         {m.team.name}
                                     </span>
@@ -100,7 +100,7 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
                         <div className="text-right">
                             <span className={cn(
                                 "font-mono font-bold block leading-none",
-                                i === 0 ? "text-xl text-white" : "text-sm text-lagoon-100/60",
+                                i === 0 ? "text-xl text-foreground" : "text-sm text-lagoon-100/60",
                                 i === 0 && styles.accent
                             )}>
                                 {(Number(m[valueKey]) || 0).toFixed(valueKey === 'lifestyleAverage' ? 1 : 2)}

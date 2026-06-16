@@ -55,7 +55,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                     <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-gradient">
                         Mission Control
                     </h2>
-                    <p className="text-xs md:text-sm text-slate-400 font-medium mt-1 tracking-wide">
+                    <p className="text-xs md:text-sm text-foreground/60 font-medium mt-1 tracking-wide">
                         Block Overview &mdash; Week {stats.currentWeekNumber} Active
                     </p>
                 </div>
@@ -116,7 +116,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                 </motion.div>
 
                 {/* 5. LEADERBOARD (Middle Right) - Stack on mobile, 1 col on desktop */}
-                <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-1 md:row-span-2 text-white flex flex-col h-full space-y-4">
+                <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-1 md:row-span-2 flex flex-col h-full space-y-4">
                     {/* Data Completeness Widget */}
                     <DataCompletenessWidget
                         data={stats.dataCompleteness}
@@ -129,9 +129,9 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Crown className="w-5 h-5 text-tongan drop-shadow-[0_0_6px_rgba(197,0,0,0.4)]" />
-                            <h3 className="text-lg font-bold font-display tracking-wide text-white">Top Ranks</h3>
+                            <h3 className="text-lg font-bold font-display tracking-wide text-foreground">Top Ranks</h3>
                         </div>
-                        <Link href="/scoreboard" className="text-[10px] font-bold text-tongan hover:text-white uppercase tracking-widest transition-colors flex items-center gap-1 group">
+                        <Link href="/scoreboard" className="text-[10px] font-bold text-tongan hover:text-foreground uppercase tracking-widest transition-colors flex items-center gap-1 group">
                             Full Board <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
@@ -144,7 +144,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                                 "bg-ocean/30 border-lagoon/20 hover:border-lagoon/40", // 2nd
                                 "bg-ocean/20 border-orange-700/20 hover:border-orange-700/40" // 3rd
                             ];
-                            const defaultStyle = "bg-ocean/20 border-white/5 text-slate-400";
+                            const defaultStyle = "bg-ocean/20 border-white/5 text-foreground/60";
                             const rankStyle = rankStyles[index] || defaultStyle;
 
                             return (
@@ -162,13 +162,13 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                                                 {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                                             </div>
                                             <div>
-                                                <p className={cn("font-bold text-sm group-hover:text-white transition-colors", index === 0 ? "text-white" : "text-white/90")}>{team.name}</p>
+                                                <p className={cn("font-bold text-sm group-hover:text-foreground transition-colors", index === 0 ? "text-foreground" : "text-foreground/90")}>{team.name}</p>
                                                 {index === 0 && <span className="text-[9px] font-bold text-tongan uppercase tracking-wider drop-shadow-[0_0_4px_rgba(197,0,0,0.3)]">Leader</span>}
                                             </div>
                                         </div>
 
                                         <div className="relative z-10">
-                                            <span className={cn("font-mono font-black text-lg", index === 0 ? "text-white" : "text-slate-300")}>
+                                            <span className={cn("font-mono font-black text-lg", index === 0 ? "text-foreground" : "text-foreground/70")}>
                                                 {team.points}
                                             </span>
                                         </div>
@@ -180,7 +180,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                         {/* Quick Actions */}
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                             <Link href="/weigh-in" className="mt-4 block">
-                                <Button className="w-full bg-ocean-deep border border-dashed border-lagoon/30 hover:border-tongan text-lagoon-100/60 hover:text-white hover:bg-tongan/10 justify-center h-12 shadow-none transition-all duration-300 group">
+                                <Button className="w-full bg-ocean-deep border border-dashed border-lagoon/30 hover:border-tongan text-lagoon-100/60 hover:text-foreground hover:bg-tongan/10 justify-center h-12 shadow-none transition-all duration-300 group">
                                     <Scale className="w-4 h-4 mr-2 group-hover:text-tongan transition-colors" />
                                     <span className="text-xs font-bold uppercase tracking-widest">Log Weigh-in</span>
                                 </Button>

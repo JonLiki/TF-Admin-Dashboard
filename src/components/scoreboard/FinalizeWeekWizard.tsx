@@ -19,8 +19,7 @@ import {
     ShieldCheck,
     BarChart3,
 } from 'lucide-react';
-import { finalizeWeek, unfinalizeWeek } from '@/actions/block-actions';
-import { getWeekDataCompleteness } from '@/lib/queries';
+import { finalizeWeek, unfinalizeWeek, fetchWeekDataCompleteness } from '@/actions/block-actions';
 
 interface FinalizeWeekWizardProps {
     weekId: string;
@@ -67,7 +66,7 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
     const loadCompleteness = () => {
         setIsOpen(true);
         startTransition(async () => {
-            const data = await getWeekDataCompleteness(weekId);
+            const data = await fetchWeekDataCompleteness(weekId);
             if (data) {
                 setCompleteness(data);
                 setIsFinalized(data.isFinalized);
@@ -144,7 +143,7 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
             <Button
                 onClick={loadCompleteness}
                 disabled={isPending}
-                className="bg-ocean hover:bg-ocean-deep text-white shadow-lg shadow-ocean/20"
+                className="bg-ocean hover:bg-ocean-deep text-foreground shadow-lg shadow-ocean/20"
             >
                 {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
                 Finalize Week {weekNumber}
@@ -164,24 +163,24 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                 <PremiumCard>
                     <div className="p-5 space-y-4">
                         {/* Step indicator */}
-                        <div className="flex items-center gap-2 text-xs text-white/40">
-                            <span className={cn("font-bold", step === 'check' ? "text-lagoon" : "text-white/30")}>1. Data Check</span>
+                        <div className="flex items-center gap-2 text-xs text-foreground/40">
+                            <span className={cn("font-bold", step === 'check' ? "text-lagoon" : "text-foreground/30")}>1. Data Check</span>
                             <ArrowRight className="w-3 h-3" />
-                            <span className={cn("font-bold", step === 'confirm' ? "text-lagoon" : "text-white/30")}>2. Confirm</span>
+                            <span className={cn("font-bold", step === 'confirm' ? "text-lagoon" : "text-foreground/30")}>2. Confirm</span>
                             <ArrowRight className="w-3 h-3" />
-                            <span className={cn("font-bold", step === 'done' ? "text-emerald-400" : "text-white/30")}>3. Done</span>
+                            <span className={cn("font-bold", step === 'done' ? "text-emerald-400" : "text-foreground/30")}>3. Done</span>
                         </div>
 
                         {/* Step 1: Data Check */}
                         {step === 'check' && (
                             <div className="space-y-4">
-                                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                                     <BarChart3 className="w-4 h-4 text-lagoon" />
                                     Week {weekNumber} Data Completeness
                                 </h3>
 
                                 {isPending || !completeness ? (
-                                    <div className="flex items-center gap-2 text-white/50 text-sm py-4">
+                                    <div className="flex items-center gap-2 text-foreground/50 text-sm py-4">
                                         <Loader2 className="w-4 h-4 animate-spin" /> Loading data status...
                                     </div>
                                 ) : (
@@ -192,10 +191,10 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                                                 const pct = getPercentage(entered, total);
                                                 return (
                                                     <div key={cat.key} className="flex items-center gap-3">
-                                                        <cat.icon className="w-4 h-4 text-white/40 shrink-0" />
+                                                        <cat.icon className="w-4 h-4 text-foreground/40 shrink-0" />
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center justify-between mb-1">
-                                                                <span className="text-xs text-white/70">{cat.label}</span>
+                                                                <span className="text-xs text-foreground/70">{cat.label}</span>
                                                                 <span className={cn("text-xs font-mono font-bold", pct >= 90 ? "text-emerald-400" : pct >= 50 ? "text-amber-400" : "text-red-400")}>
                                                                     {entered}/{total}
                                                                 </span>
@@ -210,10 +209,10 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
 
                                             {/* Attendance */}
                                             <div className="flex items-center gap-3">
-                                                <CalendarCheck className="w-4 h-4 text-white/40 shrink-0" />
+                                                <CalendarCheck className="w-4 h-4 text-foreground/40 shrink-0" />
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-xs text-white/70">Attendance</span>
+                                                        <span className="text-xs text-foreground/70">Attendance</span>
                                                         <span className={cn("text-xs font-mono font-bold",
                                                             getPercentage(completeness.attendance.sessionsWithData, completeness.attendance.totalSessions) >= 90 ? "text-emerald-400" : "text-amber-400"
                                                         )}>
@@ -245,7 +244,7 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                                         <div className="flex items-center gap-2 justify-end">
                                             <Button
                                                 onClick={() => { setIsOpen(false); setStep('check'); }}
-                                                className="bg-white/5 hover:bg-white/10 text-white/50 text-xs"
+                                                className="bg-white/5 hover:bg-white/10 text-foreground/50 text-xs"
                                             >
                                                 Cancel
                                             </Button>
@@ -264,25 +263,25 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                         {/* Step 2: Confirm */}
                         {step === 'confirm' && (
                             <div className="space-y-4">
-                                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                                     <ShieldCheck className="w-4 h-4 text-lagoon" />
                                     Confirm Finalization
                                 </h3>
 
                                 <div className="p-3 rounded-lg bg-white/5 border border-white/10 space-y-2">
-                                    <p className="text-xs text-white/70">This will:</p>
-                                    <ul className="text-xs text-white/60 space-y-1.5 ml-4 list-disc">
+                                    <p className="text-xs text-foreground/70">This will:</p>
+                                    <ul className="text-xs text-foreground/60 space-y-1.5 ml-4 list-disc">
                                         <li>Calculate team metrics (KM avg, weight loss, lifestyle, attendance)</li>
                                         <li>Determine and award weekly winners</li>
                                         <li>Update the point ledger</li>
-                                        <li><strong className="text-white/80">Lock Week {weekNumber}</strong> from further data entry</li>
+                                        <li><strong className="text-foreground/80">Lock Week {weekNumber}</strong> from further data entry</li>
                                     </ul>
                                 </div>
 
                                 <div className="flex items-center gap-2 justify-end">
                                     <Button
                                         onClick={() => setStep('check')}
-                                        className="bg-white/5 hover:bg-white/10 text-white/50 text-xs"
+                                        className="bg-white/5 hover:bg-white/10 text-foreground/50 text-xs"
                                     >
                                         Back
                                     </Button>
@@ -311,11 +310,11 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                                 >
                                     <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
                                 </motion.div>
-                                <h3 className="text-sm font-bold text-white">Week {weekNumber} Finalized!</h3>
-                                <p className="text-xs text-white/50">Metrics calculated, winners awarded, and week locked.</p>
+                                <h3 className="text-sm font-bold text-foreground">Week {weekNumber} Finalized!</h3>
+                                <p className="text-xs text-foreground/50">Metrics calculated, winners awarded, and week locked.</p>
                                 <Button
                                     onClick={() => { setIsOpen(false); }}
-                                    className="bg-white/5 hover:bg-white/10 text-white/50 text-xs mt-2"
+                                    className="bg-white/5 hover:bg-white/10 text-foreground/50 text-xs mt-2"
                                 >
                                     Close
                                 </Button>

@@ -12,7 +12,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import { PremiumCard } from '@/components/ui/PremiumCard';
-import { CHART_COLORS } from '@/lib/theme';
+import { CHART_SERIES } from '@/lib/theme';
 import { animated, useSpring } from 'react-spring';
 
 import { TrendDataPoint } from '@/lib/transformers/scoreboard';
@@ -50,8 +50,8 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
 
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10">
                     <div>
-                        <h3 className="text-xl font-bold tracking-tight text-white mb-1">{title}</h3>
-                        <p className="text-sm text-slate-400">Compare team trajectories over the block.</p>
+                        <h3 className="text-xl font-bold tracking-tight text-foreground mb-1">{title}</h3>
+                        <p className="text-sm text-foreground/60">Compare team trajectories over the block.</p>
                     </div>
 
                     {/* Metric Selector Toggles */}
@@ -62,7 +62,7 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
                                 onClick={() => setActiveMetric(m.id as TrendMetric)}
                                 className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-300 ${activeMetric === m.id
                                     ? 'bg-tongan text-white shadow-[0_0_15px_rgba(200,16,46,0.3)]'
-                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                    : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
                                     }`}
                             >
                                 {m.label}
@@ -74,18 +74,18 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
                 <div className="h-[350px] w-full relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data[activeMetric]} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                             <XAxis
                                 dataKey="name"
-                                stroke="#64748b"
+                                stroke="var(--color-text-secondary)"
                                 fontSize={12}
                                 tickLine={false}
-                                axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                                axisLine={{ stroke: 'var(--border)' }}
                                 fontFamily="var(--font-mono)"
                                 dy={10}
                             />
                             <YAxis
-                                stroke="#64748b"
+                                stroke="var(--color-text-secondary)"
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
@@ -94,19 +94,19 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
                             />
                             <Tooltip
                                 contentStyle={{
-                                    backgroundColor: 'rgba(11, 12, 16, 0.95)',
+                                    backgroundColor: 'var(--popover-background)',
                                     borderRadius: '12px',
-                                    border: '1px solid rgba(102, 252, 241, 0.2)',
+                                    border: '1px solid var(--color-lagoon)',
                                     boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
                                     backdropFilter: 'blur(10px)',
-                                    color: '#f8fafc',
+                                    color: 'var(--foreground)',
                                     padding: '12px'
                                 }}
-                                itemStyle={{ color: '#E2E8F0', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
-                                labelStyle={{ color: '#94a3b8', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                                itemStyle={{ color: 'var(--foreground)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
+                                labelStyle={{ color: 'var(--color-text-secondary)', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                             />
                             <Legend
-                                wrapperStyle={{ paddingTop: '20px', fontSize: '12px', textTransform: 'uppercase', color: '#94a3b8' }}
+                                wrapperStyle={{ paddingTop: '20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}
                                 iconType="circle"
                             />
 
@@ -115,10 +115,10 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
                                     key={team}
                                     type="monotone"
                                     dataKey={team}
-                                    stroke={CHART_COLORS.series[index % CHART_COLORS.series.length]}
+                                    stroke={CHART_SERIES[index % CHART_SERIES.length]}
                                     strokeWidth={3}
-                                    dot={{ fill: CHART_COLORS.series[index % CHART_COLORS.series.length], strokeWidth: 2, r: 4, stroke: '#111827' }}
-                                    activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff' }}
+                                    dot={{ fill: CHART_SERIES[index % CHART_SERIES.length], strokeWidth: 2, r: 4, stroke: 'var(--color-ocean-deep)' }}
+                                    activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--foreground)' }}
                                     animationDuration={1500}
                                     animationEasing="ease-out"
                                 />

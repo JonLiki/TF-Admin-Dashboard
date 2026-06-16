@@ -9,93 +9,65 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* --- Ocean Colors (Existing) --- */
-  --color-ocean: #0B3C5D;
-  --color-ocean-deep: #051621;
-  --color-ocean-light: #1C7293;
+  /* --- Ocean Colors --- */
+  --color-ocean: var(--color-ocean-val);
+  --color-ocean-deep: var(--color-ocean-deep-val);
+  --color-ocean-light: var(--color-ocean-light-val);
 
-  /* --- Lagoon Colors (Existing) --- */
-  --color-lagoon: #1C7293;
-  --color-lagoon-100: #D1E9F1;
+  /* --- Lagoon Colors --- */
+  --color-lagoon: var(--color-lagoon-val);
+  --color-lagoon-100: var(--color-lagoon-100-val);
 
-  /* --- Tongan Colors (Existing) --- */
-  --color-tongan: #C8102E;
-  --color-tongan-dark: #8B0000;
-  --color-tongan-red: #C8102E;
-  --color-tongan-offwhite: #FAF9F6;
-  --color-tongan-charcoal: #333333;
+  /* --- Tongan Colors --- */
+  --color-tongan: var(--color-tongan-val);
+  --color-tongan-dark: var(--color-tongan-dark-val);
+  --color-tongan-red: var(--color-tongan-red-val);
+  --color-tongan-offwhite: var(--color-tongan-offwhite-val);
+  --color-tongan-charcoal: var(--color-tongan-charcoal-val);
 
-  /* --- Sand Colors (Existing) --- */
-  --color-sand: #F3E9DC;
-  --color-sand-light: #FDFBF9;
+  /* --- Sand Colors --- */
+  --color-sand: var(--color-sand-val);
+  --color-sand-light: var(--color-sand-light-val);
 
-  /* --- UI Colors (Existing) --- */
-  --color-offwhite: #F7F6F2;
+  /* --- UI Colors --- */
+  --color-offwhite: var(--color-offwhite-val);
 
-  /* --- Charcoal Colors (Existing) --- */
-  --color-charcoal: #1E2933;
-  --color-charcoal-muted: #4B5563;
+  /* --- Charcoal Colors --- */
+  --color-charcoal: var(--color-charcoal-val);
+  --color-charcoal-muted: var(--color-charcoal-muted-val);
 
-  /* --- Tapa Colors (Existing) --- */
-  --color-tapa: #D2B48C;
-  --color-tapa-cream: #Ece0d1;
-  --color-tapa-brown: #8B4513;
+  /* --- Tapa Colors --- */
+  --color-tapa: var(--color-tapa-val);
+  --color-tapa-cream: var(--color-tapa-cream-val);
+  --color-tapa-brown: var(--color-tapa-brown-val);
 
-  /* --- Earth Colors (Existing) --- */
-  --color-earth: #5D4037;
-  --color-earth-dark: #3E2723;
-
-  /* ========================================= */
-  /* === TONGAN MARVEL THEME TOKENS === */
-  /* ========================================= */
+  /* --- Earth Colors --- */
+  --color-earth: var(--color-earth-val);
+  --color-earth-dark: var(--color-earth-dark-val);
 
   /* --- Cinematic / High-Tech Colors --- */
-  --color-obsidian: #0B0C10;
-  /* Deepest Dark (Background) */
-  --color-deep-ocean: #1F2833;
-  /* Dark Grey/Blue (Cards) */
-  --color-steel: #C5C6C7;
-  /* Text / Subtle Elements */
+  --color-obsidian: var(--color-obsidian-val);
+  --color-deep-ocean: var(--color-deep-ocean-val);
+  --color-steel: var(--color-steel-val);
 
   /* --- Table Surface Colors --- */
-  --color-table-header: var(--color-table-header);
-  --color-table-row: var(--color-table-row);
-  --color-table-row-hover: var(--color-table-row-hover);
-  --color-table-totals: var(--color-table-totals);
+  --color-table-header: var(--color-table-header-val);
+  --color-table-row: var(--color-table-row-val);
+  --color-table-row-hover: var(--color-table-row-hover-val);
+  --color-table-totals: var(--color-table-totals-val);
 
   /* --- Glowing Accents --- */
-  --color-bio-cyan: #66FCF1;
-  /* Primary Glow (Tongan Motifs) */
-  --color-cyan-dim: #45A29E;
-  /* Secondary Cyan */
-  --color-volcanic-red: #C50000;
-  /* Aggressive/Alert Accent */
+  --color-bio-cyan: var(--color-bio-cyan-val);
+  --color-cyan-dim: var(--color-cyan-dim-val);
+  --color-volcanic-red: var(--color-volcanic-red-val);
 
   /* --- Glassmorphism --- */
-  --glass-bg: rgba(31, 40, 51, 0.4);
-  --glass-border: rgba(102, 252, 241, 0.1);
+  --glass-bg: var(--glass-bg-val);
+  --glass-border: var(--glass-border-val);
   --glass-blur: 12px;
   --glass-blur-sm: 4px;
   --glass-blur-md: 12px;
   --glass-blur-lg: 24px;
-
-  /* --- Legacy Mapping (Backwards Compatibility) --- */
-  /* Mapping old variables to Tongan Marvel palette */
-  --color-ocean-deep: var(--color-obsidian);
-  --color-ocean: var(--color-deep-ocean);
-  --color-ocean-light: var(--color-cyan-dim);
-
-  --color-lagoon: var(--color-bio-cyan);
-  /* Accents -> Cyan */
-  --color-lagoon-100: #E0FFF1;
-
-  --color-tongan: var(--color-volcanic-red);
-  /* Primary Action -> Red */
-  --color-tongan-red: var(--color-volcanic-red);
-  --color-tongan-dark: #8B0000;
-
-  --color-sand: var(--color-deep-ocean);
-  --color-offwhite: #F8FAFC;
 
   /* --- Typography Scale --- */
   --text-micro: 0.6875rem;
@@ -131,31 +103,29 @@
   --spacing-2xl: 3rem;
   /* 48px */
 
-  /* --- Semantic Colors (Accessibility) --- */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #C5C6C7;
-  /* Steel Grey */
-  --color-text-muted: #6B7280;
+  /* --- Semantic Colors --- */
+  --color-text-primary: var(--color-text-primary-val);
+  --color-text-secondary: var(--color-text-secondary-val);
+  --color-text-muted: var(--color-text-muted-val);
 
-  --color-interactive-hover: #66FCF1;
-  /* Cyan hover */
-  --color-interactive-active: #45A29E;
-  --color-focus-ring: rgba(102, 252, 241, 0.5);
+  --color-interactive-hover: var(--color-interactive-hover-val);
+  --color-interactive-active: var(--color-interactive-active-val);
+  --color-focus-ring: var(--color-focus-ring-val);
 
   /* Semantic State Colors */
-  --color-status-finalized: var(--color-volcanic-red);
-  --color-status-pending: var(--color-cyan-dim);
-  --color-status-active: var(--color-bio-cyan);
+  --color-status-finalized: var(--color-volcanic-red-val);
+  --color-status-pending: var(--color-cyan-dim-val);
+  --color-status-active: var(--color-bio-cyan-val);
 
   /* --- Elevation & Shadows --- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6), 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.7), 0 8px 10px rgba(0, 0, 0, 0.5);
+  --shadow-sm: var(--shadow-sm-val);
+  --shadow-md: var(--shadow-md-val);
+  --shadow-lg: var(--shadow-lg-val);
+  --shadow-xl: var(--shadow-xl-val);
 
   /* --- Glowing Neon Shadows --- */
-  --shadow-neon-cyan: 0 0 15px rgba(102, 252, 241, 0.4);
-  --shadow-neon-red: 0 0 20px rgba(197, 0, 0, 0.4);
+  --shadow-neon-cyan: var(--shadow-neon-cyan-val);
+  --shadow-neon-red: var(--shadow-neon-red-val);
 
   /* --- Animations --- */
   --animate-page-enter: page-enter 0.4s ease-out;
@@ -184,44 +154,211 @@
   }
 }
 
+/* ========================================= */
+/* === LIGHT MODE (Default :root)        === */
+/* ========================================= */
 :root {
-  /* Default (Tongan Marvel Theme) Variables */
+  /* --- Core --- */
+  --background: #F8F6F1;
+  --foreground: #1A1A2E;
+
+  /* --- Semantic Colors --- */
+  --color-primary: #0E7C7B;
+  --color-secondary: #C8102E;
+  --color-accent: #2AA198;
+  --color-neutral: #E8E4DD;
+
+  /* --- Card / Surface --- */
+  --card-background: #FFFFFF;
+  --card-foreground: #1A1A2E;
+  --popover-background: #FFFFFF;
+  --popover-foreground: #1A1A2E;
+  --surface-ocean: #FFFFFF;
+  --surface-deep: #F0ECE5;
+
+  /* --- Border --- */
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.06);
+  --ring: #0E7C7B;
+
+  /* --- Table --- */
+  --color-table-header-val: #F0ECE5;
+  --color-table-row-val: #FFFFFF;
+  --color-table-row-hover-val: #F8F6F1;
+  --color-table-totals-val: #EDE9E0;
+
+  /* --- Ocean --- */
+  --color-ocean-val: #E8E4DD;
+  --color-ocean-deep-val: #F0ECE5;
+  --color-ocean-light-val: #2AA198;
+
+  /* --- Lagoon --- */
+  --color-lagoon-val: #0E7C7B;
+  --color-lagoon-100-val: #0B5E5E;
+
+  /* --- Tongan --- */
+  --color-tongan-val: #C8102E;
+  --color-tongan-dark-val: #9A0A22;
+  --color-tongan-red-val: #C8102E;
+  --color-tongan-offwhite-val: #FAF9F6;
+  --color-tongan-charcoal-val: #333333;
+
+  /* --- Sand --- */
+  --color-sand-val: #E8E4DD;
+  --color-sand-light-val: #FDFBF9;
+
+  /* --- UI --- */
+  --color-offwhite-val: #1A1A2E;
+
+  /* --- Charcoal --- */
+  --color-charcoal-val: #2D3748;
+  --color-charcoal-muted-val: #718096;
+
+  /* --- Tapa --- */
+  --color-tapa-val: #8B7355;
+  --color-tapa-cream-val: #4A4A4A;
+  --color-tapa-brown-val: #6B4226;
+
+  /* --- Earth --- */
+  --color-earth-val: #5D4037;
+  --color-earth-dark-val: #3E2723;
+
+  /* --- Cinematic --- */
+  --color-obsidian-val: #F0ECE5;
+  --color-deep-ocean-val: #FFFFFF;
+  --color-steel-val: #4A5568;
+
+  /* --- Accents --- */
+  --color-bio-cyan-val: #0E7C7B;
+  --color-cyan-dim-val: #2AA198;
+  --color-volcanic-red-val: #C8102E;
+
+  /* --- Glass --- */
+  --glass-bg-val: rgba(255, 255, 255, 0.6);
+  --glass-border-val: rgba(0, 0, 0, 0.06);
+
+  /* --- Text --- */
+  --color-text-primary-val: #1A1A2E;
+  --color-text-secondary-val: #4A5568;
+  --color-text-muted-val: #A0AEC0;
+
+  --color-interactive-hover-val: #0E7C7B;
+  --color-interactive-active-val: #2AA198;
+  --color-focus-ring-val: rgba(14, 124, 123, 0.4);
+
+  /* --- Shadows --- */
+  --shadow-sm-val: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md-val: 0 4px 6px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg-val: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.04);
+  --shadow-xl-val: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.04);
+  --shadow-neon-cyan-val: 0 2px 8px rgba(14, 124, 123, 0.15);
+  --shadow-neon-red-val: 0 2px 8px rgba(200, 16, 46, 0.12);
+}
+
+/* ========================================= */
+/* === DARK MODE (.dark class)           === */
+/* ========================================= */
+.dark {
+  /* --- Core --- */
   --background: #0B0C10;
-  /* Obsidian */
   --foreground: #FFFFFF;
 
-  /* Semantic Colors */
+  /* --- Semantic Colors --- */
   --color-primary: #66FCF1;
-  /* Bio-Cyan */
   --color-secondary: #C50000;
-  /* Volcanic Red */
   --color-accent: #45A29E;
-  /* Dim Cyan */
   --color-neutral: #1F2833;
-  /* Deep Ocean */
 
-  /* Card/Surface Colors (Glassmorphism Base) */
+  /* --- Card / Surface --- */
   --card-background: #1F2833;
   --card-foreground: #FFFFFF;
   --popover-background: #0B0C10;
   --popover-foreground: #FFFFFF;
-
-  /* Surface colors */
   --surface-ocean: #1F2833;
   --surface-deep: #0B0C10;
 
-  /* Border Colors */
+  /* --- Border --- */
   --border: rgba(102, 252, 241, 0.1);
-  /* Subtle Cyan Tint */
   --input: rgba(255, 255, 255, 0.1);
   --ring: #66FCF1;
 
-  /* Table Surface Colors (for sticky columns) */
-  --color-table-header: #0c1a25;
-  --color-table-row: #0b1620;
-  --color-table-row-hover: #112231;
-  --color-table-totals: #162a3b;
+  /* --- Table --- */
+  --color-table-header-val: #0c1a25;
+  --color-table-row-val: #0b1620;
+  --color-table-row-hover-val: #112231;
+  --color-table-totals-val: #162a3b;
+
+  /* --- Ocean --- */
+  --color-ocean-val: #0B3C5D;
+  --color-ocean-deep-val: #051621;
+  --color-ocean-light-val: #1C7293;
+
+  /* --- Lagoon --- */
+  --color-lagoon-val: #66FCF1;
+  --color-lagoon-100-val: #D1E9F1;
+
+  /* --- Tongan --- */
+  --color-tongan-val: #C8102E;
+  --color-tongan-dark-val: #8B0000;
+  --color-tongan-red-val: #C8102E;
+  --color-tongan-offwhite-val: #FAF9F6;
+  --color-tongan-charcoal-val: #333333;
+
+  /* --- Sand --- */
+  --color-sand-val: #1F2833;
+  --color-sand-light-val: #FDFBF9;
+
+  /* --- UI --- */
+  --color-offwhite-val: #F8FAFC;
+
+  /* --- Charcoal --- */
+  --color-charcoal-val: #1E2933;
+  --color-charcoal-muted-val: #4B5563;
+
+  /* --- Tapa --- */
+  --color-tapa-val: #D2B48C;
+  --color-tapa-cream-val: #Ece0d1;
+  --color-tapa-brown-val: #8B4513;
+
+  /* --- Earth --- */
+  --color-earth-val: #5D4037;
+  --color-earth-dark-val: #3E2723;
+
+  /* --- Cinematic --- */
+  --color-obsidian-val: #0B0C10;
+  --color-deep-ocean-val: #1F2833;
+  --color-steel-val: #C5C6C7;
+
+  /* --- Accents --- */
+  --color-bio-cyan-val: #66FCF1;
+  --color-cyan-dim-val: #45A29E;
+  --color-volcanic-red-val: #C50000;
+
+  /* --- Glass --- */
+  --glass-bg-val: rgba(31, 40, 51, 0.4);
+  --glass-border-val: rgba(102, 252, 241, 0.1);
+
+  /* --- Text --- */
+  --color-text-primary-val: #FFFFFF;
+  --color-text-secondary-val: #C5C6C7;
+  --color-text-muted-val: #6B7280;
+
+  --color-interactive-hover-val: #66FCF1;
+  --color-interactive-active-val: #45A29E;
+  --color-focus-ring-val: rgba(102, 252, 241, 0.5);
+
+  /* --- Shadows --- */
+  --shadow-sm-val: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md-val: 0 4px 6px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg-val: 0 10px 15px rgba(0, 0, 0, 0.6), 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-xl-val: 0 20px 25px rgba(0, 0, 0, 0.7), 0 8px 10px rgba(0, 0, 0, 0.5);
+  --shadow-neon-cyan-val: 0 0 15px rgba(102, 252, 241, 0.4);
+  --shadow-neon-red-val: 0 0 20px rgba(197, 0, 0, 0.4);
 }
+
+/* ========================================= */
+/* === UTILITY CLASSES                   === */
+/* ========================================= */
 
 /* Glassmorphism Utilities */
 .glass-panel {
@@ -232,16 +369,16 @@
 }
 
 .text-glow {
-  text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+  text-shadow: 0 0 10px var(--color-focus-ring-val);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  transition: colors 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom scrollbar with neon hover */
+/* Custom scrollbar — theme-aware */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -251,15 +388,25 @@ body {
   background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar-thumb {
   background: rgba(102, 252, 241, 0.15);
   border-radius: 3px;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(102, 252, 241, 0.35);
   box-shadow: 0 0 8px rgba(102, 252, 241, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }
 
 /* Staggered list animation utility */
@@ -335,10 +482,20 @@ body {
   }
 }
 
-.gradient-mesh {
+/* Dark mode: dramatic gradient mesh */
+.dark .gradient-mesh {
   background: radial-gradient(ellipse at 20% 50%, rgba(102, 252, 241, 0.06) 0%, transparent 50%),
               radial-gradient(ellipse at 80% 20%, rgba(197, 0, 0, 0.04) 0%, transparent 50%),
               radial-gradient(ellipse at 50% 80%, rgba(69, 162, 158, 0.05) 0%, transparent 50%);
+  background-size: 200% 200%;
+  animation: gradient-shift 20s ease-in-out infinite;
+}
+
+/* Light mode: soft warm gradient mesh */
+.gradient-mesh {
+  background: radial-gradient(ellipse at 20% 50%, rgba(14, 124, 123, 0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 20%, rgba(200, 16, 46, 0.02) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 80%, rgba(42, 161, 152, 0.03) 0%, transparent 50%);
   background-size: 200% 200%;
   animation: gradient-shift 20s ease-in-out infinite;
 }
@@ -364,8 +521,13 @@ body {
 }
 
 /* --- Ambient Grid Dot Pattern --- */
-.ambient-grid {
+.dark .ambient-grid {
   background-image: radial-gradient(circle, rgba(102, 252, 241, 0.12) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.ambient-grid {
+  background-image: radial-gradient(circle, rgba(14, 124, 123, 0.08) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
@@ -389,7 +551,7 @@ body {
   100% { transform: translateY(100%); }
 }
 
-.scanline::before {
+.dark .scanline::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -407,15 +569,29 @@ body {
 }
 
 /* --- Text Gradient Utility --- */
-.text-gradient {
+.dark .text-gradient {
   background: linear-gradient(135deg, #FFFFFF 0%, #66FCF1 50%, #45A29E 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.text-gradient-red {
+.text-gradient {
+  background: linear-gradient(135deg, #1A1A2E 0%, #0E7C7B 50%, #2AA198 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient-red {
   background: linear-gradient(135deg, #FFFFFF 0%, #C50000 50%, #8B0000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-red {
+  background: linear-gradient(135deg, #1A1A2E 0%, #C8102E 50%, #9A0A22 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -433,10 +609,7 @@ body {
   inherits: false;
 }
 
-.animated-border {
-  position: relative;
-}
-.animated-border::before {
+.dark .animated-border::before {
   content: '';
   position: absolute;
   inset: -1px;
@@ -449,6 +622,35 @@ body {
     rgba(197, 0, 0, 0.2) 50%,
     transparent 65%,
     rgba(102, 252, 241, 0.2) 80%,
+    transparent 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  animation: border-rotate 8s linear infinite;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.animated-border {
+  position: relative;
+}
+.animated-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--angle),
+    transparent 0%,
+    rgba(14, 124, 123, 0.2) 15%,
+    transparent 30%,
+    rgba(200, 16, 46, 0.12) 50%,
+    transparent 65%,
+    rgba(14, 124, 123, 0.15) 80%,
     transparent 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -485,15 +687,25 @@ body {
   animation: pulse-attention 2s ease-in-out infinite;
 }
 
-/* --- Improved Selection Styling --- */
-::selection {
+/* --- Selection Styling --- */
+.dark ::selection {
   background: rgba(102, 252, 241, 0.25);
   color: #FFFFFF;
 }
 
-::-moz-selection {
+.dark ::-moz-selection {
   background: rgba(102, 252, 241, 0.25);
   color: #FFFFFF;
+}
+
+::selection {
+  background: rgba(14, 124, 123, 0.2);
+  color: #1A1A2E;
+}
+
+::-moz-selection {
+  background: rgba(14, 124, 123, 0.2);
+  color: #1A1A2E;
 }
 
 /* --- Smooth Scroll Behavior --- */

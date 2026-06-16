@@ -402,34 +402,34 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                 "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300",
                                 activeTab === tab.id
                                     ? "bg-gradient-to-r from-lagoon to-ocean text-white shadow-lg shadow-lagoon/20"
-                                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                                    : "text-foreground/60 hover:text-foreground hover:bg-white/5"
                             )}
                         >
-                            <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-white" : "text-slate-500")} />
+                            <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-foreground" : "text-foreground/50")} />
                             {tab.label}
                         </button>
                     ))}
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mr-2 hidden md:block">Export:</span>
+                    <span className="text-xs font-medium text-foreground/50 uppercase tracking-wider mr-2 hidden md:block">Export:</span>
                     <button
                         onClick={() => handleExport('pdf')}
-                        className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors tooltip"
+                        className="p-2 text-foreground/60 hover:text-foreground hover:bg-white/10 rounded-lg transition-colors tooltip"
                         title="Export PDF"
                     >
                         <FileText className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => handleExport('csv')}
-                        className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors tooltip"
+                        className="p-2 text-foreground/60 hover:text-foreground hover:bg-white/10 rounded-lg transition-colors tooltip"
                         title="Export CSV"
                     >
                         <FileType className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => handleExport('excel')}
-                        className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors tooltip"
+                        className="p-2 text-foreground/60 hover:text-foreground hover:bg-white/10 rounded-lg transition-colors tooltip"
                         title="Export Excel"
                     >
                         <FileSpreadsheet className="w-4 h-4" />
@@ -445,11 +445,11 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-white/10 bg-black/20">
-                                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider sticky left-0 z-20 bg-table-header">
+                                    <th className="p-4 text-xs font-bold text-foreground/60 uppercase tracking-wider sticky left-0 z-20 bg-table-header">
                                         Member
                                     </th>
                                     {block.weeks.map((week: BlockWeek, i: number) => (
-                                        <th key={week.id} className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center min-w-[100px]">
+                                        <th key={week.id} className="p-4 text-xs font-bold text-foreground/60 uppercase tracking-wider text-center min-w-[100px]">
                                             W{i + 1}<br />
                                             <span className="text-[9px] opacity-50 lowercase font-normal">
                                                 {format(new Date(week.startDate), 'MMM d')}
@@ -485,7 +485,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
                                                     return (
                                                         <tr key={md.member.id} className="hover:bg-white/5 transition-colors group">
-                                                            <td className="p-3 pl-6 text-sm font-medium text-white sticky left-0 bg-table-row group-hover:bg-table-row-hover transition-colors border-r border-white/5">
+                                                            <td className="p-3 pl-6 text-sm font-medium text-foreground sticky left-0 bg-table-row group-hover:bg-table-row-hover transition-colors border-r border-white/5">
                                                                 {md.member.firstName} {md.member.lastName}
                                                             </td>
                                                             {block.weeks.map((week, weekIndex) => {
@@ -505,7 +505,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                                         content = (
                                                                             <span className={cn(
                                                                                 "font-medium",
-                                                                                isLoss ? "text-green-400" : (delta < 0 ? "text-red-400" : "text-slate-400")
+                                                                                isLoss ? "text-green-400" : (delta < 0 ? "text-red-400" : "text-foreground/60")
                                                                             )}>
                                                                                 {delta > 0 ? '-' : '+'}{Math.abs(delta).toFixed(1)}
                                                                             </span>
@@ -521,11 +521,11 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
                                                                     content = l ? l.postCount : '-';
                                                                 } else if (activeTab === 'attendance') {
                                                                     const a = md.attendanceByWeekId[week.id];
-                                                                    content = <span className={cn(a.present === a.total ? "text-green-400" : "text-white")}>{a.present}/{a.total}</span>;
+                                                                    content = <span className={cn(a.present === a.total ? "text-green-400" : "text-foreground")}>{a.present}/{a.total}</span>;
                                                                 }
 
                                                                 return (
-                                                                    <td key={week.id} className="p-3 text-sm text-slate-300 text-center border-r border-dashed border-white/5">
+                                                                    <td key={week.id} className="p-3 text-sm text-foreground/80 text-center border-r border-dashed border-white/5">
                                                                         {content}
                                                                     </td>
                                                                 );

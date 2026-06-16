@@ -52,7 +52,7 @@ export function Podium({ standings }: PodiumProps) {
                     custom={0.2}
                 >
                     <div className="mb-3 text-center">
-                        <span className="text-lg font-bold text-white block truncate w-full px-2">{second.name}</span>
+                        <span className="text-lg font-bold text-foreground block truncate w-full px-2">{second.name}</span>
                         <span className="text-xl font-mono font-bold text-lagoon-100">
                             <AnimatedNumber value={second.points} /> pts
                         </span>
@@ -112,7 +112,7 @@ export function Podium({ standings }: PodiumProps) {
 
                         <WinnerBadge className="absolute -top-14 left-1/2 -translate-x-1/2 w-28 h-28 animate-pulse-slow drop-shadow-[0_0_15px_rgba(200,16,46,0.5)]" />
                         <div className="mt-12">
-                            <span className="text-2xl font-black text-white uppercase tracking-wider block drop-shadow-md">{first.name}</span>
+                            <span className="text-2xl font-black text-foreground uppercase tracking-wider block drop-shadow-md">{first.name}</span>
                             <span className="text-4xl font-mono font-black text-tongan drop-shadow-[0_0_10px_rgba(200,16,46,0.4)]">
                                 <AnimatedNumber value={first.points} /> pts
                             </span>
@@ -162,13 +162,13 @@ export function Podium({ standings }: PodiumProps) {
                     custom={0.1}
                 >
                     <div className="mb-3 text-center">
-                        <span className="text-lg font-bold text-white block truncate w-full px-2">{third.name}</span>
-                        <span className="text-xl font-mono font-bold text-slate-400">
+                        <span className="text-lg font-bold text-foreground block truncate w-full px-2">{third.name}</span>
+                        <span className="text-xl font-mono font-bold text-foreground/60 dark:text-slate-400">
                             <AnimatedNumber value={third.points} /> pts
                         </span>
                     </div>
                     <motion.div
-                        className="w-full h-32 bg-gradient-to-t from-slate-900 via-slate-800 to-slate-700/40 border-t-2 border-x border-slate-500/40 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(148,163,184,0.15)]"
+                        className="w-full h-32 bg-gradient-to-t from-slate-200 via-slate-300 to-slate-100/40 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700/40 border-t-2 border-x border-slate-300/40 dark:border-slate-500/40 rounded-t-lg relative group overflow-hidden shadow-[0_0_20px_rgba(148,163,184,0.15)]"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}
                         transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -181,13 +181,13 @@ export function Podium({ standings }: PodiumProps) {
                         <div className="absolute inset-x-0 top-0 h-[2px] bg-slate-500/50 blur-sm animate-pulse" />
                         {/* Cultural details */}
                         <div className="absolute top-2 left-2 opacity-30">
-                            <LalavaKnot className="w-3 h-3 text-slate-400" opacity={0.4} />
+                            <LalavaKnot className="w-3 h-3 text-foreground/60" opacity={0.4} />
                         </div>
                         <div className="absolute top-2 right-2 opacity-30">
-                            <div className="scale-x-[-1]"><LalavaKnot className="w-3 h-3 text-slate-400" opacity={0.4} /></div>
+                            <div className="scale-x-[-1]"><LalavaKnot className="w-3 h-3 text-foreground/60" opacity={0.4} /></div>
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-600/50 to-slate-900 group-hover:from-slate-500/70 transition-all duration-500 drop-shadow-sm">3</span>
+                            <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-400/50 to-slate-200 dark:from-slate-600/50 dark:to-slate-900 group-hover:from-slate-300/50 dark:group-hover:from-slate-500/70 transition-all duration-500 drop-shadow-sm">3</span>
                         </div>
                     </motion.div>
                 </motion.div>

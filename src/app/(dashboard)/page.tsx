@@ -76,7 +76,7 @@ async function DashboardContent() {
     return (
       <div className="min-h-full pb-10 flex items-center justify-center">
         <div className="text-center p-10 bg-ocean-deep/80 backdrop-blur-md rounded-xl shadow-2xl border border-lagoon/20">
-          <h2 className="text-xl font-bold text-white">No Active Block Found</h2>
+          <h2 className="text-xl font-bold text-foreground">No Active Block Found</h2>
           <p className="text-lagoon-100/60 mt-2">Please initialize a training block in the database.</p>
         </div>
       </div>

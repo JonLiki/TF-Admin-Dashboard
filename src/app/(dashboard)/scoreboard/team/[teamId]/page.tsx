@@ -101,7 +101,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
         <div className="min-h-full pb-10">
             <div className="mb-6 px-6 md:px-10">
                 <Link href={`/scoreboard?weekId=${selectedWeekId}`}>
-                    <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white hover:bg-white/10">
+                    <Button variant="ghost" size="sm" className="text-foreground/60 hover:text-foreground hover:bg-white/10">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Scoreboard
                     </Button>
@@ -121,7 +121,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             </div>
                             <div>
                                 <p className="text-xs font-bold uppercase text-offwhite/60 tracking-widest">Avg KM</p>
-                                <p className="text-2xl font-mono font-bold text-white">{teamMetric?.kmAverage?.toFixed(2) || "0.00"}</p>
+                                <p className="text-2xl font-mono font-bold text-foreground">{teamMetric?.kmAverage?.toFixed(2) || "0.00"}</p>
                             </div>
                         </div>
                     </PremiumCard>
@@ -132,7 +132,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             </div>
                             <div>
                                 <p className="text-xs font-bold uppercase text-offwhite/60 tracking-widest">Total Loss</p>
-                                <p className="text-2xl font-mono font-bold text-white">{teamMetric?.weightLossTotal?.toFixed(1) || "0.0"} <span className="text-sm text-offwhite/60">kg</span></p>
+                                <p className="text-2xl font-mono font-bold text-foreground">{teamMetric?.weightLossTotal?.toFixed(1) || "0.0"} <span className="text-sm text-offwhite/60">kg</span></p>
                             </div>
                         </div>
                     </PremiumCard>
@@ -143,7 +143,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             </div>
                             <div>
                                 <p className="text-xs font-bold uppercase text-offwhite/60 tracking-widest">Avg Lifestyle</p>
-                                <p className="text-2xl font-mono font-bold text-white">{teamMetric?.lifestyleAverage?.toFixed(1) || "0.0"}</p>
+                                <p className="text-2xl font-mono font-bold text-foreground">{teamMetric?.lifestyleAverage?.toFixed(1) || "0.0"}</p>
                             </div>
                         </div>
                     </PremiumCard>
@@ -154,7 +154,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             </div>
                             <div>
                                 <p className="text-xs font-bold uppercase text-offwhite/60 tracking-widest">Avg Attendance</p>
-                                <p className="text-2xl font-mono font-bold text-white">{teamMetric?.attendanceAverage?.toFixed(2) || "0.00"}</p>
+                                <p className="text-2xl font-mono font-bold text-foreground">{teamMetric?.attendanceAverage?.toFixed(2) || "0.00"}</p>
                             </div>
                         </div>
                     </PremiumCard>
@@ -179,13 +179,13 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                         <div className="p-2 bg-ocean/10 rounded-lg">
                             <User className="w-5 h-5 text-ocean-dark" />
                         </div>
-                        <h3 className="font-bold text-white text-lg tracking-wide">Member Contributions</h3>
+                        <h3 className="font-bold text-foreground text-lg tracking-wide">Member Contributions</h3>
                     </div>
 
                     {/* DESKTOP TABLE */}
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm text-left">
-                            <thead className="bg-ocean text-white font-semibold uppercase text-xs">
+                            <thead className="bg-ocean text-foreground font-semibold uppercase text-xs">
                                 <tr>
                                     <th className="px-6 py-4">Member</th>
                                     <th className="px-6 py-4 text-center">Sessions</th>
@@ -197,27 +197,27 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             <tbody className="divide-y divide-white/5">
                                 {memberStats.map(m => (
                                     <tr key={m.id} className="hover:bg-ocean transition-colors border-l-4 border-transparent hover:border-lagoon">
-                                        <td className="px-6 py-4 font-bold text-white">
+                                        <td className="px-6 py-4 font-bold text-foreground">
                                             {m.firstName} {m.lastName}
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <span className={cn(
                                                 "inline-block px-2 py-1 rounded text-xs font-bold",
-                                                m.stats.sessions >= 3 ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-white/10 text-slate-400 border border-white/10"
+                                                m.stats.sessions >= 3 ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-white/10 text-foreground/60 border border-white/10"
                                             )}>
                                                 {m.stats.sessions}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right font-mono text-white">
+                                        <td className="px-6 py-4 text-right font-mono text-foreground">
                                             {m.stats.totalKm.toFixed(2)}
                                         </td>
-                                        <td className="px-6 py-4 text-right font-mono text-white">
+                                        <td className="px-6 py-4 text-right font-mono text-foreground">
                                             {m.stats.lifestylePoints}
                                         </td>
-                                        <td className="px-6 py-4 text-right font-mono text-white">
+                                        <td className="px-6 py-4 text-right font-mono text-foreground">
                                             {m.stats.weightLoss > 0
                                                 ? <span className="text-green-400">-{m.stats.weightLoss.toFixed(1)}</span>
-                                                : <span className="text-slate-500">-</span>
+                                                : <span className="text-foreground/50">-</span>
                                             }
                                         </td>
                                     </tr>
@@ -231,10 +231,10 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                         {memberStats.map(m => (
                             <div key={m.id} className="p-4 hover:bg-white/5 transition-colors">
                                 <div className="flex justify-between items-start mb-3">
-                                    <h4 className="font-bold text-white">{m.firstName} {m.lastName}</h4>
+                                    <h4 className="font-bold text-foreground">{m.firstName} {m.lastName}</h4>
                                     <span className={cn(
                                         "inline-block px-2 py-0.5 rounded text-xs font-bold",
-                                        m.stats.sessions >= 3 ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-white/10 text-slate-400 border border-white/10"
+                                        m.stats.sessions >= 3 ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-white/10 text-foreground/60 border border-white/10"
                                     )}>
                                         {m.stats.sessions} Sessions
                                     </span>
@@ -268,7 +268,7 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                             <div className="p-2 bg-tongan/10 rounded-lg border border-tongan/20">
                                 <Trophy className="w-5 h-5 text-tongan" />
                             </div>
-                            <h3 className="font-bold text-white text-lg tracking-wide">Points History</h3>
+                            <h3 className="font-bold text-foreground text-lg tracking-wide">Points History</h3>
                         </div>
                         <div className="text-right">
                             <p className="text-xs font-bold uppercase text-offwhite/60 tracking-widest">Total Points</p>
@@ -293,8 +293,8 @@ export default async function TeamDetailPage({ params, searchParams }: { params:
                                             </div>
                                         </div>
                                         <div>
-                                            <p className="font-bold text-white text-sm md:text-base">{point.reason}</p>
-                                            <p className="text-xs text-slate-400 mt-1">
+                                            <p className="font-bold text-foreground text-sm md:text-base">{point.reason}</p>
+                                            <p className="text-xs text-foreground/60 mt-1">
                                                 {new Date(point.date).toLocaleDateString('en-NZ', {
                                                     weekday: 'short',
                                                     month: 'short',

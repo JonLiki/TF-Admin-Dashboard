@@ -19,6 +19,7 @@ export function SubmitIconButton({ icon, className, variant = 'secondary', ...pr
             type="submit" 
             variant={variant} 
             disabled={pending || props.disabled}
+            aria-label={props['aria-label'] ?? 'Save'}
             className={cn("h-10 w-10 p-0 rounded-lg flex items-center justify-center transition-all", className)}
             {...props}
         >

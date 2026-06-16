@@ -52,7 +52,7 @@ export function MembersClientView({ members, teams }: MembersPageProps) {
                             <div className="p-2.5 bg-gradient-to-br from-[#00A0D1] to-[#005F99] text-white rounded-xl shadow-lg shadow-lagoon/20 ring-1 ring-white/10">
                                 <UserPlus className="w-5 h-5" />
                             </div>
-                            <h3 className="text-lg font-bold text-white tracking-tight">New Member</h3>
+                            <h3 className="text-lg font-bold text-foreground tracking-tight">New Member</h3>
                         </div>
 
                         <AddMemberForm onSuccess={() => setIsSheetOpen(false)} teams={teams} />
@@ -84,7 +84,7 @@ function AddMemberForm({ onSuccess, teams }: { onSuccess: () => void, teams: Tea
             <Input name="firstName" label="First Name" placeholder="Sione" required className="bg-black/20 border-white/10 focus:border-lagoon/50" />
             <Input name="lastName" label="Last Name" placeholder="Tui" required className="bg-black/20 border-white/10 focus:border-lagoon/50" />
             <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Assign Group</label>
+                <label className="text-xs font-bold text-foreground/60 uppercase tracking-wide ml-1">Assign Group</label>
                 <Select
                     options={[
                         { value: '', label: 'No Group' },

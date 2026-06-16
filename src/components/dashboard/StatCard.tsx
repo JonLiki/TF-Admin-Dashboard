@@ -55,10 +55,10 @@ export function StatCard({ label, value, subtext, icon: Icon, colorClass, border
             </div>
 
             <div className="z-10">
-                <h3 className="font-mono text-3xl font-black text-white tracking-tighter mt-4 group-hover:translate-x-1 transition-transform duration-300 drop-shadow-md">
+                <h3 className="font-mono text-3xl font-black text-foreground tracking-tighter mt-4 group-hover:translate-x-1 transition-transform duration-300 drop-shadow-md">
                     {isNumber && typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
                 </h3>
-                <p className="text-micro font-bold font-display uppercase tracking-widest text-lagoon-100/60 mt-1 group-hover:text-white transition-colors">{label}</p>
+                <p className="text-micro font-bold font-display uppercase tracking-widest text-foreground/50 mt-1 group-hover:text-foreground transition-colors">{label}</p>
             </div>
         </PremiumCard>
     );

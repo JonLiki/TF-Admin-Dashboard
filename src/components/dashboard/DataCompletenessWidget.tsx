@@ -134,7 +134,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                         ) : (
                             <AlertCircle className="w-4 h-4 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
                         )}
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-white">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground">
                             Week {currentWeekNumber} Status
                         </h3>
                     </div>
@@ -167,7 +167,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                             cy="85"
                                             r={cat.radius}
                                             fill="transparent"
-                                            stroke="rgba(255, 255, 255, 0.03)"
+                                            stroke="var(--border)"
                                             strokeWidth={isHovered ? 7.5 : 6}
                                             className="transition-all duration-300"
                                         />
@@ -203,7 +203,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                 key={centerPct}
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="text-xl font-black font-mono text-white tracking-tighter"
+                                className="text-xl font-black font-mono text-foreground tracking-tighter"
                             >
                                 {centerPct}%
                             </motion.span>
@@ -211,7 +211,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                 key={centerLabel}
                                 initial={{ opacity: 0, y: 3 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-[8px] font-bold uppercase tracking-widest text-slate-500 mt-0.5"
+                                className="text-[8px] font-bold uppercase tracking-widest text-foreground/50 mt-0.5"
                             >
                                 {centerLabel}
                             </motion.span>
@@ -241,10 +241,10 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                                     <cat.icon className="w-3.5 h-3.5" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[11px] font-bold text-white/90 group-hover:text-white transition-colors">
+                                                    <span className="text-[11px] font-bold text-foreground/90 group-hover:text-foreground transition-colors">
                                                         {cat.label}
                                                     </span>
-                                                    <span className="text-[9px] text-slate-500 uppercase tracking-widest font-semibold mt-0.5 leading-none">
+                                                    <span className="text-[9px] text-foreground/50 uppercase tracking-widest font-semibold mt-0.5 leading-none">
                                                         {cat.value}
                                                     </span>
                                                 </div>
@@ -254,7 +254,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                                 <span className={cn("text-[11px] font-bold font-mono", getTextColor(cat.pct))}>
                                                     {cat.pct}%
                                                 </span>
-                                                <ArrowRight className="w-3 h-3 text-slate-600 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                                                <ArrowRight className="w-3 h-3 text-foreground/40 group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
                                             </div>
                                         </div>
                                     </Link>

@@ -50,7 +50,7 @@ function TabButton({ active, onClick, icon: Icon, label }: { active: boolean, on
                 "flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-semibold transition-all duration-200 ease-out",
                 active
                     ? "bg-lagoon text-white shadow-sm"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-foreground/60 hover:text-foreground hover:bg-foreground/5"
             )}
         >
             <Icon className={cn("w-4 h-4", active ? "text-white" : "stroke-[2.5px] opacity-70")} />

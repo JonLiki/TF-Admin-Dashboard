@@ -28,7 +28,7 @@ export default function ErrorBoundary({
                         <AlertCircle className="w-8 h-8 text-red-500" />
                     </div>
 
-                    <h2 className="text-2xl font-bold font-display text-white mb-3">Something went wrong!</h2>
+                    <h2 className="text-2xl font-bold font-display text-foreground mb-3">Something went wrong!</h2>
 
                     <p className="text-lagoon-100/60 mb-8 max-w-sm mx-auto">
                         We encountered an unexpected error processing your request. Please try again or return to the dashboard.

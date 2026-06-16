@@ -34,19 +34,19 @@ export function LeaderboardList({ items, startIndex, isPublic = false }: Leaderb
                             <span className={cn(
                                 "flex items-center justify-center w-8 h-8 rounded-lg text-sm font-black transition-colors border shadow-inner",
                                 isCloseToPodium
-                                    ? "bg-slate-800 text-slate-300 border-slate-600/50 group-hover:bg-slate-700 group-hover:text-white"
+                                    ? "bg-slate-800 text-foreground/80 border-slate-600/50 group-hover:bg-slate-700 group-hover:text-foreground"
                                     : "bg-ocean-deep text-lagoon-100/50 border-white/5 group-hover:bg-lagoon/20 group-hover:text-lagoon-100 group-hover:border-lagoon/30"
                             )}>
                                 {rank}
                             </span>
                             <div>
-                                <span className="font-bold text-white group-hover:text-lagoon-100 transition-colors block drop-shadow-sm">
+                                <span className="font-bold text-foreground group-hover:text-lagoon-100 transition-colors block drop-shadow-sm">
                                     {team.name}
                                 </span>
                                 <span className="text-[10px] uppercase text-tapa font-bold tracking-[0.2em] opacity-60 group-hover:opacity-100 transition-opacity">Team</span>
                             </div>
                         </div>
-                        <span className="relative z-10 font-mono font-black text-white text-lg bg-ocean-deep/80 border border-white/10 px-3 py-1 rounded-md min-w-[60px] text-center group-hover:bg-lagoon/20 group-hover:border-lagoon/40 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] group-hover:shadow-[0_0_10px_rgba(28,114,147,0.2)]">
+                        <span className="relative z-10 font-mono font-black text-foreground text-lg bg-ocean-deep/80 border border-white/10 px-3 py-1 rounded-md min-w-[60px] text-center group-hover:bg-lagoon/20 group-hover:border-lagoon/40 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] group-hover:shadow-[0_0_10px_rgba(28,114,147,0.2)]">
                             {team.points}
                         </span>
                     </>

@@ -30,7 +30,7 @@ export default function Loading() {
                 </div>
             </div>
             
-            <h3 className="mt-10 text-xl font-bold font-display text-white tracking-widest uppercase animate-pulse">
+            <h3 className="mt-10 text-xl font-bold font-display text-foreground tracking-widest uppercase animate-pulse">
                 Loading...
             </h3>
             <p className="mt-2 text-lagoon-100/50 text-sm animate-pulse delay-150">

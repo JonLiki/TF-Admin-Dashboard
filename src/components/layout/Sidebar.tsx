@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { logout } from '@/actions/auth-actions';
 import { motion } from 'framer-motion';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 import { TonganNgatu } from '../ui/Patterns';
 import { usePreventBrowserSave } from '@/hooks/useKeyboardShortcut';
@@ -91,9 +92,9 @@ export function Sidebar() {
                 aria-expanded={isMobileMenuOpen}
             >
                 {isMobileMenuOpen ? (
-                    <X className="w-6 h-6 text-white" />
+                    <X className="w-6 h-6 text-foreground" />
                 ) : (
-                    <Menu className="w-6 h-6 text-white" />
+                    <Menu className="w-6 h-6 text-foreground" />
                 )}
             </button>
 
@@ -135,7 +136,7 @@ export function Sidebar() {
                     <TonganNgatu opacity={0.3} />
                 </div>
 
-                <div className="absolute bottom-4 left-4 right-4 text-[10px] text-slate-600 text-center font-mono">
+                <div className="absolute bottom-4 left-4 right-4 text-[10px] text-foreground/40 text-center font-mono">
                     To&apos;a Fatalona &copy; 2026
                 </div>
 
@@ -151,7 +152,7 @@ export function Sidebar() {
                         </div>
                         <div>
                             <h1 className="text-lg font-bold leading-none tracking-tight font-display text-gradient">TO&apos;A FATALONA</h1>
-                            <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Admin Command</p>
+                            <p className="text-[10px] text-foreground/60 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Admin Command</p>
                         </div>
                     </div>
                 </div>
@@ -161,7 +162,7 @@ export function Sidebar() {
                         <div key={section.label} className={cn(sectionIndex > 0 && "mt-4")}>
                             {/* Section Divider Label */}
                             <div className="flex items-center gap-2 px-4 mb-2">
-                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">{section.label}</span>
+                                <span className="text-[9px] font-bold text-foreground/50 uppercase tracking-[0.2em]">{section.label}</span>
                                 <div className="flex-1 h-px bg-gradient-to-r from-white/5 to-transparent" />
                             </div>
 
@@ -176,8 +177,8 @@ export function Sidebar() {
                                             className={cn(
                                                 "group relative flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-out overflow-hidden my-0.5",
                                                 isActive
-                                                    ? "text-white"
-                                                    : "text-tapa-cream/70 hover:bg-ocean-light/10 hover:text-white"
+                                                    ? "text-foreground"
+                                                    : "text-tapa-cream/70 hover:bg-ocean-light/10 hover:text-foreground"
                                             )}
                                         >
                                             {/* Active State Background Animation */}
@@ -211,17 +212,17 @@ export function Sidebar() {
                                                     <item.icon
                                                         className={cn(
                                                             "mr-3 h-5 w-5 transition-colors duration-200 block",
-                                                            isActive ? "text-tongan drop-shadow-[0_0_8px_rgba(200,16,46,0.6)]" : "text-slate-400 group-hover:text-lagoon-100"
+                                                            isActive ? "text-tongan drop-shadow-[0_0_8px_rgba(200,16,46,0.6)]" : "text-foreground/60 group-hover:text-lagoon-100"
                                                         )}
                                                     />
                                                 </motion.div>
                                                 <div className="flex flex-col">
-                                                    <span className={cn("text-xs font-bold tracking-wide", isActive ? "text-white" : "text-offwhite/80 group-hover:text-lagoon-100")}>
+                                                    <span className={cn("text-xs font-bold tracking-wide", isActive ? "text-foreground" : "text-offwhite/80 group-hover:text-lagoon-100")}>
                                                         {item.name}
                                                     </span>
                                                     <span className={cn(
                                                         "text-micro tracking-wider uppercase transition-colors font-medium",
-                                                        isActive ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"
+                                                        isActive ? "text-foreground/80" : "text-foreground/50 group-hover:text-foreground/60"
                                                     )}>
                                                         {item.subtitle}
                                                     </span>
@@ -252,10 +253,11 @@ export function Sidebar() {
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
+                        <ThemeToggle />
                         <form action={logout}>
                             <button
                                 type="submit"
-                                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-white/5 transition-colors"
+                                className="p-2 rounded-lg text-foreground/60 hover:text-red-400 hover:bg-white/5 transition-colors"
                                 aria-label="Sign Out"
                             >
                                 <LogOut className="w-5 h-5" />

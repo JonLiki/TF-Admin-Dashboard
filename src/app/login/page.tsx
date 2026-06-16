@@ -54,7 +54,7 @@ export default function LoginPage() {
                                     <LockKeyhole className="w-3.5 h-3.5" />
                                     <p className="text-xs font-bold uppercase tracking-[0.25em]">Command Access</p>
                                 </div>
-                                <p className="text-slate-400 mt-2">Enter your credentials to access the To&apos;a Fatalona dashboard.</p>
+                                <p className="text-foreground/60 mt-2">Enter your credentials to access the To&apos;a Fatalona dashboard.</p>
 
                                 {/* Decorative Divider */}
                                 <div className="flex items-center justify-center gap-3 mt-6 mb-2">
@@ -69,14 +69,14 @@ export default function LoginPage() {
                                 {/* Email Input */}
                                 <div className="space-y-2">
                                     <label
-                                        className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1"
+                                        className="block text-[10px] font-bold uppercase tracking-wider text-foreground/60 ml-1"
                                         htmlFor="email"
                                     >
                                         Official Email
                                     </label>
                                     <div className="relative group/input">
                                         <input
-                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-slate-600 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep"
+                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-foreground focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-foreground/40 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep"
                                             id="email"
                                             type="email"
                                             name="email"
@@ -90,14 +90,14 @@ export default function LoginPage() {
                                 {/* Password Input */}
                                 <div className="space-y-2">
                                     <label
-                                        className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1"
+                                        className="block text-[10px] font-bold uppercase tracking-wider text-foreground/60 ml-1"
                                         htmlFor="password"
                                     >
                                         Passcode
                                     </label>
                                     <div className="relative group/input">
                                         <input
-                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-slate-600 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep"
+                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-foreground focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-foreground/40 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep"
                                             id="password"
                                             type="password"
                                             name="password"
@@ -141,10 +141,10 @@ export default function LoginPage() {
 
                 {/* Footer */}
                 <div className="mt-8 text-center space-y-2">
-                    <p className="text-[11px] text-slate-400 font-medium tracking-wide">
+                    <p className="text-[11px] text-foreground/60 font-medium tracking-wide">
                         Authorized Personnel Only
                     </p>
-                    <p className="text-slate-500 text-xs text-center mt-8">
+                    <p className="text-foreground/50 text-xs text-center mt-8">
                         &copy; 2026 To&apos;a Fatalona. All rights reserved.
                     </p>
                 </div>

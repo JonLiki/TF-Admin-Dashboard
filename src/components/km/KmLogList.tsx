@@ -46,7 +46,7 @@ export function KmLogList({ members, weekId }: KmLogListProps) {
                         <div className="p-2 bg-lagoon/10 rounded-lg">
                             <Activity className="w-5 h-5 text-lagoon-100" />
                         </div>
-                        <h2 className="text-lg font-bold text-white">KM Access Logger</h2>
+                        <h2 className="text-lg font-bold text-foreground">KM Access Logger</h2>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ function KmRow({ member, weekId }: { member: Member, weekId: string }) {
                     {member.firstName[0]}{member.lastName[0]}
                 </div>
                 <div>
-                    <div className="font-bold text-white text-lg group-hover:text-lagoon-100 transition-colors">
+                    <div className="font-bold text-foreground text-lg group-hover:text-lagoon-100 transition-colors">
                         {member.firstName} {member.lastName}
                     </div>
                     <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
@@ -149,9 +149,10 @@ function KmRow({ member, weekId }: { member: Member, weekId: string }) {
                             pattern="[0-9]*\.?[0-9]*"
                             step="0.01"
                             placeholder="0.00"
+                            aria-label={`Kilometres for ${member.firstName} ${member.lastName}`}
                             className={cn(
                                 "w-24 h-12 md:h-10 pl-3 pr-8 text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
                                 "group-hover/input:border-lagoon/50 group-hover/input:bg-ocean-deep",
                                 "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
                             )}
@@ -159,8 +160,9 @@ function KmRow({ member, weekId }: { member: Member, weekId: string }) {
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-lagoon-100/50 pointer-events-none uppercase">km</span>
                     </div>
-                    <SubmitIconButton 
-                        icon={<Save className="w-4 h-4" />} 
+                    <SubmitIconButton
+                        icon={<Save className="w-4 h-4" />}
+                        aria-label={`Save kilometres for ${member.firstName} ${member.lastName}`}
                         className="bg-lagoon/10 text-lagoon-100 hover:bg-lagoon/20 border-lagoon/20 hover:scale-105"
                     />
                 </form>

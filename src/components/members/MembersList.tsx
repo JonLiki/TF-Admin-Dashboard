@@ -155,7 +155,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                         {hasFilters && (
                             <button
                                 onClick={handleClearFilters}
-                                className="text-sm text-lagoon-100/60 hover:text-white transition-colors underline decoration-tapa/50 hover:decoration-tapa"
+                                className="text-sm text-lagoon-100/60 hover:text-foreground transition-colors underline decoration-tapa/50 hover:decoration-tapa"
                             >
                                 Clear all
                             </button>
@@ -165,8 +165,8 @@ export function MembersList({ members, teams }: MembersListProps) {
                     {/* Results Count */}
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-lagoon-100/60">
-                            Showing <span className="text-white font-medium">{paginatedMembers.length}</span> of{' '}
-                            <span className="text-white font-medium">{filteredMembers.length}</span> members
+                            Showing <span className="text-foreground font-medium">{paginatedMembers.length}</span> of{' '}
+                            <span className="text-foreground font-medium">{filteredMembers.length}</span> members
                             {activeFilterCount > 0 && (
                                 <span className="ml-2 text-xs text-tapa">
                                     ({activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active)
@@ -202,7 +202,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                 <div className={cn(
                                     "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border shadow-inner",
                                     member.team
-                                        ? "bg-ocean text-white border-ocean-light ring-2 ring-ocean-deep ring-offset-2 ring-offset-transparent"
+                                        ? "bg-ocean text-foreground border-ocean-light ring-2 ring-ocean-deep ring-offset-2 ring-offset-transparent"
                                         : "bg-ocean-deep text-lagoon-100/50 border-white/5"
                                 )}>
                                     {member.firstName[0]}{member.lastName[0]}
@@ -210,7 +210,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                 <div>
                                     <Link
                                         href={`/members/${member.id}`}
-                                        className="font-bold text-white text-lg hover:text-lagoon-100 transition-colors"
+                                        className="font-bold text-foreground text-lg hover:text-lagoon-100 transition-colors"
                                     >
                                         {member.firstName} {member.lastName}
                                     </Link>
@@ -224,7 +224,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                     <div className={cn("w-2 h-2 rounded-full", member.team ? "bg-tongan-red shadow-[0_0_8px_rgba(200,16,46,0.5)]" : "bg-slate-600")} />
                                     <span className={cn(
                                         "text-sm font-medium",
-                                        member.team ? "text-white" : "text-lagoon-100/40 italic"
+                                        member.team ? "text-foreground" : "text-lagoon-100/40 italic"
                                     )}>
                                         {member.team?.name || 'Unassigned'}
                                     </span>
@@ -315,7 +315,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                             <div className="w-16 h-16 bg-ocean-deep/50 border border-lagoon/20 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-ocean-deep">
                                 <Filter className="w-8 h-8 text-lagoon-100 opacity-50" />
                             </div>
-                            <h3 className="text-white font-bold text-lg">No members found</h3>
+                            <h3 className="text-foreground font-bold text-lg">No members found</h3>
                             <p className="text-lagoon-100/60 text-sm max-w-xs mt-2">
                                 {hasFilters ? "Try adjusting your search or filters to see more results." : "Get started by adding a new member to the team."}
                             </p>
@@ -346,10 +346,10 @@ export function MembersList({ members, teams }: MembersListProps) {
                     {/* Modal Content */}
                     <div className="relative z-10 w-full min-w-[320px] sm:min-w-[400px] max-w-lg bg-ocean-deep border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
                         <div className="flex items-center justify-between p-5 border-b border-white/5 bg-ocean-deep/50 rounded-t-2xl">
-                            <h3 className="text-xl font-bold text-white tracking-wide">Edit Member</h3>
+                            <h3 className="text-xl font-bold text-foreground tracking-wide">Edit Member</h3>
                             <button 
                                 onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
-                                className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors"
+                                className="text-foreground/60 hover:text-foreground p-1 rounded-md hover:bg-foreground/10 transition-colors"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                             </button>
@@ -381,7 +381,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                     className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 focus:border-lagoon/60 focus:ring-lagoon/20" 
                                 />
                                 <div className="space-y-1.5 mt-4">
-                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Assign Group</label>
+                                    <label className="text-xs font-bold text-foreground/60 uppercase tracking-wide ml-1">Assign Group</label>
                                     <Select
                                         options={[
                                             { value: '', label: 'No Group' },
@@ -398,7 +398,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                         type="button" 
                                         variant="ghost" 
                                         onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
-                                        className="text-slate-400 hover:text-white"
+                                        className="text-foreground/60 hover:text-foreground"
                                     >
                                         Cancel
                                     </Button>

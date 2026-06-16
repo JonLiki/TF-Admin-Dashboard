@@ -114,7 +114,7 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Layers className="w-5 h-5 text-lagoon" />
-                    <span className="text-sm text-white/60">
+                    <span className="text-sm text-foreground/60">
                         {blocks.length} block{blocks.length !== 1 ? 's' : ''} total
                         {activeBlock && (
                             <span className="ml-2 text-emerald-400">
@@ -125,7 +125,7 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                 </div>
                 <Button
                     onClick={() => setShowCreateForm(!showCreateForm)}
-                    className="bg-ocean hover:bg-ocean-deep text-white shadow-lg shadow-ocean/20"
+                    className="bg-ocean hover:bg-ocean-deep text-foreground shadow-lg shadow-ocean/20"
                 >
                     {showCreateForm ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
                     {showCreateForm ? 'Cancel' : 'New Block'}
@@ -143,33 +143,33 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                     >
                         <PremiumCard>
                             <form onSubmit={handleCreate} className="p-6 space-y-5">
-                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                                     <Calendar className="w-5 h-5 text-lagoon" />
                                     Create New Training Block
                                 </h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-xs text-white/50 font-medium mb-1.5 uppercase tracking-wider">Block Name</label>
+                                        <label className="block text-xs text-foreground/50 font-medium mb-1.5 uppercase tracking-wider">Block Name</label>
                                         <input
                                             name="name"
                                             type="text"
                                             required
                                             placeholder="e.g. Block 2 — 2026"
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-foreground text-sm placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs text-white/50 font-medium mb-1.5 uppercase tracking-wider">Start Date (Monday)</label>
+                                        <label className="block text-xs text-foreground/50 font-medium mb-1.5 uppercase tracking-wider">Start Date (Monday)</label>
                                         <input
                                             name="startDate"
                                             type="date"
                                             required
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 [color-scheme:dark]"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 [color-scheme:dark]"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs text-white/50 font-medium mb-1.5 uppercase tracking-wider">Number of Weeks</label>
+                                        <label className="block text-xs text-foreground/50 font-medium mb-1.5 uppercase tracking-wider">Number of Weeks</label>
                                         <input
                                             name="numberOfWeeks"
                                             type="number"
@@ -177,7 +177,7 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                                             min={1}
                                             max={20}
                                             defaultValue={8}
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50"
                                         />
                                     </div>
                                 </div>
@@ -186,7 +186,7 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                                     <Button
                                         type="button"
                                         onClick={() => setShowCreateForm(false)}
-                                        className="bg-white/5 hover:bg-white/10 text-white/70"
+                                        className="bg-white/5 hover:bg-white/10 text-foreground/70"
                                     >
                                         Cancel
                                     </Button>
@@ -209,9 +209,9 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
             {blocks.length === 0 ? (
                 <PremiumCard>
                     <div className="p-12 text-center">
-                        <Calendar className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                        <h3 className="text-lg font-bold text-white/60">No Blocks Yet</h3>
-                        <p className="text-sm text-white/40 mt-1">Create your first training block to get started.</p>
+                        <Calendar className="w-12 h-12 text-foreground/20 mx-auto mb-4" />
+                        <h3 className="text-lg font-bold text-foreground/60">No Blocks Yet</h3>
+                        <p className="text-sm text-foreground/40 mt-1">Create your first training block to get started.</p>
                     </div>
                 </PremiumCard>
             ) : (
@@ -232,23 +232,23 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                                                 "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border",
                                                 block.isActive
                                                     ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
-                                                    : "bg-white/5 border-white/10 text-white/40"
+                                                    : "bg-white/5 border-white/10 text-foreground/40"
                                             )}>
                                                 <Calendar className="w-6 h-6" />
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <h3 className="text-base font-bold text-white truncate">{block.name}</h3>
+                                                    <h3 className="text-base font-bold text-foreground truncate">{block.name}</h3>
                                                     {block.isActive && (
                                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                                                             <Zap className="w-3 h-3" /> Active
                                                         </span>
                                                     )}
                                                 </div>
-                                                <p className="text-sm text-white/50 mt-0.5">
+                                                <p className="text-sm text-foreground/50 mt-0.5">
                                                     {format(new Date(block.startDate), 'MMM d, yyyy')} — {format(new Date(block.endDate), 'MMM d, yyyy')}
                                                 </p>
-                                                <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
+                                                <div className="flex items-center gap-4 mt-2 text-xs text-foreground/40">
                                                     <span>{block._count.weeks} weeks</span>
                                                     <span>·</span>
                                                     <span>{block._count.sessions} sessions</span>
@@ -280,7 +280,7 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                                                             </Button>
                                                             <Button
                                                                 onClick={() => setConfirmActivate(null)}
-                                                                className="bg-white/5 hover:bg-white/10 text-white/50 text-xs"
+                                                                className="bg-white/5 hover:bg-white/10 text-foreground/50 text-xs"
                                                             >
                                                                 Cancel
                                                             </Button>
@@ -307,7 +307,7 @@ export function BlocksClientView({ blocks }: BlocksClientViewProps) {
                                                             </Button>
                                                             <Button
                                                                 onClick={() => setConfirmDelete(null)}
-                                                                className="bg-white/5 hover:bg-white/10 text-white/50 text-xs"
+                                                                className="bg-white/5 hover:bg-white/10 text-foreground/50 text-xs"
                                                             >
                                                                 Cancel
                                                             </Button>

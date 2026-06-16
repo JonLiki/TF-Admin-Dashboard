@@ -49,7 +49,7 @@ export function BenchmarkLogList({ members, weekId, dateStr }: BenchmarkLogListP
                         <div className="p-2 bg-lagoon/10 rounded-lg">
                             <Dumbbell className="w-5 h-5 text-lagoon-100" />
                         </div>
-                        <h2 className="text-lg font-bold text-white">Benchmark Logger</h2>
+                        <h2 className="text-lg font-bold text-foreground">Benchmark Logger</h2>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                     {member.firstName[0]}{member.lastName[0]}
                 </div>
                 <div className="min-w-0">
-                    <div className="font-bold text-white text-base truncate group-hover:text-lagoon-100 transition-colors">
+                    <div className="font-bold text-foreground text-base truncate group-hover:text-lagoon-100 transition-colors">
                         {member.firstName} {member.lastName}
                     </div>
                 </div>
@@ -145,9 +145,10 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                                 type="number"
                                 inputMode="numeric"
                                 placeholder="0"
+                                aria-label={`Squats for ${member.firstName} ${member.lastName}`}
                                 className={cn(
                                     "w-16 h-10 md:h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                    "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                    "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
                                     "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
                                 )}
                                 defaultValue={log?.squats || ""}
@@ -162,9 +163,10 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                                 type="number"
                                 inputMode="numeric"
                                 placeholder="0"
+                                aria-label={`Pushups for ${member.firstName} ${member.lastName}`}
                                 className={cn(
                                     "w-16 h-10 md:h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                    "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                    "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
                                     "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
                                 )}
                                 defaultValue={log?.pushups || ""}
@@ -179,9 +181,10 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                                 type="number"
                                 inputMode="numeric"
                                 placeholder="0"
+                                aria-label={`Burpees for ${member.firstName} ${member.lastName}`}
                                 className={cn(
                                     "w-16 h-10 md:h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                    "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                    "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
                                     "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
                                 )}
                                 defaultValue={log?.burpees || ""}
@@ -191,8 +194,9 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                         </div>
                     </div>
 
-                    <SubmitIconButton 
-                        icon={<Save className="w-4 h-4" />} 
+                    <SubmitIconButton
+                        icon={<Save className="w-4 h-4" />}
+                        aria-label={`Save benchmarks for ${member.firstName} ${member.lastName}`}
                         className="bg-lagoon/10 text-lagoon-100 hover:bg-lagoon/20 border-lagoon/20 hover:scale-105 ml-2"
                     />
                 </form>

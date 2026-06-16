@@ -24,9 +24,9 @@ interface BenchmarkCategoryChartProps {
 }
 
 const categories = [
-    { key: 'squats' as const, title: 'Squats', color: '#66FCF1', gradientTo: '#45A29E', icon: '🦵', bg: 'from-[#66FCF1]/10 to-transparent', border: 'border-[#66FCF1]/20' },
-    { key: 'pushups' as const, title: 'Push-ups', color: '#C8102E', gradientTo: '#8B0000', icon: '💪', bg: 'from-[#C8102E]/10 to-transparent', border: 'border-[#C8102E]/20' },
-    { key: 'burpees' as const, title: 'Burpees', color: '#E2E8F0', gradientTo: '#94A3B8', icon: '🔥', bg: 'from-[#E2E8F0]/10 to-transparent', border: 'border-[#E2E8F0]/20' },
+    { key: 'squats' as const, title: 'Squats', color: 'var(--color-lagoon)', gradientTo: 'var(--color-cyan-dim)', icon: '🦵', bg: 'from-lagoon/10 to-transparent', border: 'border-lagoon/20' },
+    { key: 'pushups' as const, title: 'Push-ups', color: 'var(--color-tongan)', gradientTo: 'var(--color-tongan-dark)', icon: '💪', bg: 'from-tongan/10 to-transparent', border: 'border-tongan/20' },
+    { key: 'burpees' as const, title: 'Burpees', color: 'var(--color-steel)', gradientTo: 'var(--color-steel)', icon: '🔥', bg: 'from-steel/10 to-transparent', border: 'border-steel/20' },
 ];
 
 interface CustomTooltipProps {
@@ -39,8 +39,8 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-ocean-deep/95 border border-lagoon/20 rounded-xl px-4 py-2.5 shadow-xl backdrop-blur-md">
-                <p className="text-xs text-slate-400 font-medium mb-1">{label}</p>
-                <p className="text-lg font-black font-mono text-white">{payload[0].value} <span className="text-xs font-normal text-slate-400">reps</span></p>
+                <p className="text-xs text-foreground/60 font-medium mb-1">{label}</p>
+                <p className="text-lg font-black font-mono text-foreground">{payload[0].value} <span className="text-xs font-normal text-foreground/60">reps</span></p>
             </div>
         );
     }
@@ -63,8 +63,8 @@ function CategoryChart({ title, icon, color, gradientTo, bg, border, data }: {
             <div className={cn('px-5 py-4 border-b border-white/5 bg-gradient-to-r', bg)}>
                 <div className="flex items-center gap-2">
                     <span className="text-lg">{icon}</span>
-                    <h4 className="text-sm font-bold text-white tracking-wide">{title}</h4>
-                    <span className="text-[10px] text-slate-500 font-medium ml-auto uppercase tracking-wider">Top 5</span>
+                    <h4 className="text-sm font-bold text-foreground tracking-wide">{title}</h4>
+                    <span className="text-[10px] text-foreground/50 font-medium ml-auto uppercase tracking-wider">Top 5</span>
                 </div>
             </div>
             <div className="px-2 py-3">
@@ -83,7 +83,7 @@ function CategoryChart({ title, icon, color, gradientTo, bg, border, data }: {
                                 dataKey="name"
                                 type="category"
                                 width={90}
-                                tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
+                                tick={{ fill: 'var(--color-text-secondary)', fontSize: 11, fontWeight: 600 }}
                                 tickLine={false}
                                 axisLine={false}
                             />

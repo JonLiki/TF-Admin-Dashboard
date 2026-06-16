@@ -77,7 +77,7 @@ export function WinnerCard({ teamName, category, weekNumber, className }: Winner
 
             <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                 <div className="flex items-start justify-between">
-                    <div className={cn("p-3 rounded-lg border border-white/5 shadow-inner", config.bg)}>
+                    <div className={cn("p-3 rounded-lg border border-border/30 dark:border-white/5 shadow-inner", config.bg)}>
                         <Icon className={cn("w-6 h-6", config.color)} />
                     </div>
                     <div className="flex flex-col items-end">
@@ -87,8 +87,8 @@ export function WinnerCard({ teamName, category, weekNumber, className }: Winner
                 </div>
 
                 <div>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-1">{config.label}</h3>
-                    <p className="text-2xl font-black text-white leading-none tracking-tight break-words">{teamName}</p>
+                    <h3 className="text-sm font-medium text-foreground/60 uppercase tracking-wide mb-1">{config.label}</h3>
+                    <p className="text-2xl font-black text-foreground leading-none tracking-tight break-words">{teamName}</p>
                 </div>
             </div>
 

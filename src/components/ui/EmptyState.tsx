@@ -43,10 +43,10 @@ export function EmptyState({
             </div>
 
             {/* Text Content */}
-            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
+            <h3 className="text-xl font-bold text-foreground mb-2 tracking-tight">
                 {title}
             </h3>
-            <p className="text-slate-400 max-w-md mb-6 text-sm leading-relaxed">
+            <p className="text-foreground/60 max-w-md mb-6 text-sm leading-relaxed">
                 {description}
             </p>
 

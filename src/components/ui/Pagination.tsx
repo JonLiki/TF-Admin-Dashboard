@@ -20,7 +20,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
             <button
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg text-lagoon-100/60 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                className="p-2 rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
                 aria-label="Previous page"
             >
                 <ChevronLeft className="w-4 h-4" />
@@ -38,8 +38,8 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                         className={cn(
                             "min-w-[36px] h-9 px-2 rounded-lg text-sm font-medium transition-all duration-200",
                             currentPage === page
-                                ? "bg-lagoon/20 text-white border border-lagoon/40 shadow-[0_0_10px_-4px_rgba(28,114,147,0.4)]"
-                                : "text-lagoon-100/60 hover:text-white hover:bg-white/5"
+                                ? "bg-lagoon/20 text-foreground border border-lagoon/40 shadow-[0_0_10px_-4px_rgba(28,114,147,0.4)]"
+                                : "text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5"
                         )}
                     >
                         {page}
@@ -50,7 +50,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
             <button
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg text-lagoon-100/60 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                className="p-2 rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
                 aria-label="Next page"
             >
                 <ChevronRight className="w-4 h-4" />

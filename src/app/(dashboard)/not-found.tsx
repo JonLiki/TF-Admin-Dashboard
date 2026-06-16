@@ -8,8 +8,8 @@ export default function NotFound() {
             <div className="rounded-full bg-ocean/10 p-4">
                 <FileQuestion className="h-10 w-10 text-lagoon" />
             </div>
-            <h2 className="text-xl font-bold text-white">Page Not Found</h2>
-            <p className="text-slate-400 max-w-md">
+            <h2 className="text-xl font-bold text-foreground">Page Not Found</h2>
+            <p className="text-foreground/60 max-w-md">
                 Could not find the requested resource. The page you are looking for might have been removed or renamed.
             </p>
             <div className="pt-4">

@@ -12,7 +12,7 @@ import {
     Legend
 } from 'recharts';
 import { Team, TeamWeekMetric } from '@prisma/client';
-import { CHART_COLORS } from '@/lib/theme';
+import { CHART_SERIES } from '@/lib/theme';
 
 interface ExtendedMetric extends TeamWeekMetric {
     teamId: string;
@@ -110,12 +110,12 @@ export function TeamHealthRadar({ teams, metrics, className }: TeamHealthRadarPr
     }, [teams, metrics]);
 
     // Colors for different teams - Tongan Marvel Palette
-    const colors = CHART_COLORS.series.slice(0, 3);
+    const colors = CHART_SERIES.slice(0, 3);
 
     if (!teams || teams.length === 0) {
         return (
             <div className={`flex items-center justify-center ${className} h-full`}>
-                <p className="text-slate-500 text-sm">No teams available</p>
+                <p className="text-foreground/50 text-sm">No teams available</p>
             </div>
         );
     }
@@ -124,7 +124,7 @@ export function TeamHealthRadar({ teams, metrics, className }: TeamHealthRadarPr
         return (
             <div className={`flex flex-col items-center justify-center ${className} h-full`}>
                 <Radar className="w-12 h-12 text-slate-700 mb-2 opacity-20" />
-                <p className="text-slate-500 text-sm">No metrics recorded yet</p>
+                <p className="text-foreground/50 text-sm">No metrics recorded yet</p>
             </div>
         );
     }
@@ -141,8 +141,8 @@ export function TeamHealthRadar({ teams, metrics, className }: TeamHealthRadarPr
                             </linearGradient>
                         ))}
                     </defs>
-                    <PolarGrid stroke="#66FCF120" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#C5C6C7', fontSize: 12, fontWeight: 'bold' }} />
+                    <PolarGrid stroke="var(--border)" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--color-text-secondary)', fontSize: 12, fontWeight: 'bold' }} />
                     <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
 
                     {topTeams.map((teamName, index) => (
@@ -168,7 +168,7 @@ export function TeamHealthRadar({ teams, metrics, className }: TeamHealthRadarPr
                                             <div key={p.name} className="flex items-center gap-3 text-sm text-steel mb-1 last:mb-0">
                                                 <span className="w-3 h-3 rounded-full border border-white/10 shadow-[0_0_8px_currentColor]" style={{ backgroundColor: p.color, color: p.color }} />
                                                 <span className="flex-1 font-semibold">{p.name}:</span>
-                                                <span className="font-mono text-white font-bold">
+                                                <span className="font-mono text-foreground font-bold">
                                                     {p.value}%
                                                 </span>
                                             </div>

@@ -16,9 +16,9 @@ export default async function SummaryPage() {
 
     if (!data) {
         return (
-            <div className="p-10 text-center text-white">
+            <div className="p-10 text-center text-foreground">
                 <h2 className="text-2xl font-bold">No Active Block Found</h2>
-                <p className="text-white/60">Please activate a block to view the summary.</p>
+                <p className="text-foreground/60">Please activate a block to view the summary.</p>
             </div>
         );
     }

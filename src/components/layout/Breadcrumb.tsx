@@ -40,7 +40,7 @@ export function Breadcrumb({ className }: { className?: string }) {
             className
         )}>
             <Icon className="w-4 h-4 text-lagoon-100/70" />
-            <span className="text-sm font-bold text-white tracking-tight">{route.label}</span>
+            <span className="text-sm font-bold text-foreground tracking-tight">{route.label}</span>
             {/* Bottom gradient accent */}
             <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-lagoon/20 to-transparent" />
         </div>

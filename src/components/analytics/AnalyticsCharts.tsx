@@ -23,7 +23,7 @@ export function AnalyticsCharts({ activeMetric, chartData, attendanceData }: Ana
                     <MetricAreaChart
                         data={chartData}
                         title="Cumulative Weight Loss"
-                        color="#C8102E" // Tongan Red
+                        color="var(--color-tongan)" // Tongan Red
                         unit="kg"
                     />
                 )}
@@ -31,7 +31,7 @@ export function AnalyticsCharts({ activeMetric, chartData, attendanceData }: Ana
                     <MetricBarChart
                         data={chartData}
                         title="Total Lifestyle Posts"
-                        color="#2A9D8F" // Teal-ish for lifestyle
+                        color="var(--color-cyan-dim)" // Teal-ish for lifestyle
                         unit="posts"
                     />
                 )}
@@ -39,7 +39,7 @@ export function AnalyticsCharts({ activeMetric, chartData, attendanceData }: Ana
                     <MetricBarChart
                         data={chartData}
                         title="Total Distance"
-                        color="#0B3C5D" // Ocean
+                        color="var(--color-ocean-light)" // Ocean
                         unit="km"
                     />
                 )}

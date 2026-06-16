@@ -20,16 +20,16 @@ interface BenchmarkLeaderboardProps {
 
 const rankStyles = [
     { badge: '🥇', ring: 'ring-yellow-400/40', bg: 'bg-gradient-to-r from-yellow-500/20 to-yellow-600/5', border: 'border-yellow-500/30', text: 'text-yellow-300' },
-    { badge: '🥈', ring: 'ring-slate-300/30', bg: 'bg-gradient-to-r from-slate-400/15 to-slate-500/5', border: 'border-slate-400/25', text: 'text-slate-300' },
+    { badge: '🥈', ring: 'ring-slate-300/30', bg: 'bg-gradient-to-r from-slate-400/15 to-slate-500/5', border: 'border-slate-400/25', text: 'text-foreground/80 dark:text-slate-300' },
     { badge: '🥉', ring: 'ring-amber-600/30', bg: 'bg-gradient-to-r from-amber-700/15 to-amber-800/5', border: 'border-amber-600/25', text: 'text-amber-400' },
-    { badge: '4', ring: 'ring-white/5', bg: 'bg-ocean/20', border: 'border-white/5', text: 'text-slate-400' },
-    { badge: '5', ring: 'ring-white/5', bg: 'bg-ocean/20', border: 'border-white/5', text: 'text-slate-400' },
+    { badge: '4', ring: 'ring-border/30 dark:ring-white/5', bg: 'bg-ocean/20', border: 'border-border/30 dark:border-white/5', text: 'text-foreground/60 dark:text-slate-400' },
+    { badge: '5', ring: 'ring-border/30 dark:ring-white/5', bg: 'bg-ocean/20', border: 'border-border/30 dark:border-white/5', text: 'text-foreground/60 dark:text-slate-400' },
 ];
 
 const exerciseColors = {
-    squats: { bar: 'bg-[#66FCF1]', label: 'SQ', dot: 'bg-[#66FCF1]' },
-    pushups: { bar: 'bg-[#C8102E]', label: 'PU', dot: 'bg-[#C8102E]' },
-    burpees: { bar: 'bg-[#E2E8F0]', label: 'BP', dot: 'bg-[#E2E8F0]' },
+    squats: { bar: 'bg-lagoon', label: 'SQ', dot: 'bg-lagoon' },
+    pushups: { bar: 'bg-tongan', label: 'PU', dot: 'bg-tongan' },
+    burpees: { bar: 'bg-steel', label: 'BP', dot: 'bg-steel' },
 };
 
 export function BenchmarkLeaderboard({ entries }: BenchmarkLeaderboardProps) {
@@ -46,8 +46,8 @@ export function BenchmarkLeaderboard({ entries }: BenchmarkLeaderboardProps) {
                         <Trophy className="w-5 h-5 text-yellow-400" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-white tracking-tight">Top Performers</h3>
-                        <p className="text-xs text-slate-400 font-medium mt-0.5">Cumulative reps across all weeks</p>
+                        <h3 className="text-lg font-bold text-foreground tracking-tight">Top Performers</h3>
+                        <p className="text-xs text-foreground/60 font-medium mt-0.5">Cumulative reps across all weeks</p>
                     </div>
                 </div>
                 {/* Legend */}
@@ -55,7 +55,7 @@ export function BenchmarkLeaderboard({ entries }: BenchmarkLeaderboardProps) {
                     {Object.entries(exerciseColors).map(([key, val]) => (
                         <div key={key} className="flex items-center gap-1.5">
                             <div className={cn('w-2.5 h-2.5 rounded-full', val.dot)} />
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{key}</span>
+                            <span className="text-[10px] font-bold text-foreground/60 uppercase tracking-wider">{key}</span>
                         </div>
                     ))}
                 </div>
@@ -103,15 +103,15 @@ export function BenchmarkLeaderboard({ entries }: BenchmarkLeaderboardProps) {
                                     {entry.initials}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-sm font-bold text-white truncate">{entry.name}</p>
-                                    <p className="text-[10px] text-slate-500 font-medium truncate">{entry.teamName}</p>
+                                    <p className="text-sm font-bold text-foreground truncate">{entry.name}</p>
+                                    <p className="text-[10px] text-foreground/50 font-medium truncate">{entry.teamName}</p>
                                 </div>
                             </div>
-
+ 
                             {/* Stacked Progress Bar */}
                             <div className="flex-1 min-w-0">
                                 <div
-                                    className="flex h-7 rounded-lg overflow-hidden shadow-inner bg-ocean-deep/60 border border-white/5 transition-all duration-700"
+                                    className="flex h-7 rounded-lg overflow-hidden shadow-inner bg-ocean-deep/60 border border-border/30 dark:border-white/5 transition-all duration-700"
                                     style={{ width: `${barWidthPercent}%` }}
                                 >
                                     <div
@@ -135,16 +135,16 @@ export function BenchmarkLeaderboard({ entries }: BenchmarkLeaderboardProps) {
                             {/* Reps Breakdown */}
                             <div className="flex items-center gap-3 shrink-0">
                                 <div className="hidden lg:flex items-center gap-2 text-[11px] font-mono">
-                                    <span className="text-[#66FCF1]">{entry.squats}</span>
-                                    <span className="text-white/20">/</span>
-                                    <span className="text-[#C8102E]">{entry.pushups}</span>
-                                    <span className="text-white/20">/</span>
-                                    <span className="text-slate-300">{entry.burpees}</span>
+                                    <span className="text-lagoon">{entry.squats}</span>
+                                    <span className="text-foreground/20">/</span>
+                                    <span className="text-tongan">{entry.pushups}</span>
+                                    <span className="text-foreground/20">/</span>
+                                    <span className="text-foreground/80 dark:text-slate-300">{entry.burpees}</span>
                                 </div>
                                 <div className={cn(
                                     'px-3 py-1.5 rounded-lg text-sm font-black font-mono',
-                                    'bg-ocean-deep/80 border border-white/10',
-                                    index === 0 ? 'text-yellow-300 shadow-[0_0_10px_rgba(234,179,8,0.15)]' : 'text-white'
+                                    'bg-ocean-deep/80 border border-border/30 dark:border-white/10',
+                                    index === 0 ? 'text-yellow-300 dark:text-yellow-300 shadow-[0_0_10px_rgba(234,179,8,0.15)]' : 'text-foreground'
                                 )}>
                                     {entry.totalReps.toLocaleString()}
                                 </div>

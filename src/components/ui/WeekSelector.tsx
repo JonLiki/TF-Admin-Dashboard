@@ -30,7 +30,7 @@ export function WeekSelector({ weeks, selectedWeekId, basePath }: WeekSelectorPr
                 className={cn(
                     "flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm",
                     "bg-ocean-deep/80 backdrop-blur-sm border border-white/10",
-                    "text-white hover:bg-ocean-deep hover:border-lagoon/30",
+                    "text-foreground hover:bg-ocean-deep hover:border-lagoon/30",
                     "transition-all duration-200 shadow-[var(--shadow-md)]",
                     "hover:shadow-[var(--shadow-lg)] active:scale-[0.98]",
                     isOpen && "bg-ocean-deep border-lagoon/30"
@@ -39,7 +39,7 @@ export function WeekSelector({ weeks, selectedWeekId, basePath }: WeekSelectorPr
                 <Calendar className="w-4 h-4 text-lagoon-100" />
                 <span className="font-mono font-semibold">{selectedWeek.label}</span>
                 <ChevronDown className={cn(
-                    "w-4 h-4 text-slate-400 transition-transform duration-200",
+                    "w-4 h-4 text-foreground/60 transition-transform duration-200",
                     isOpen && "rotate-180"
                 )} />
             </button>
@@ -75,9 +75,9 @@ export function WeekSelector({ weeks, selectedWeekId, basePath }: WeekSelectorPr
                                             className={cn(
                                                 "block px-4 py-2.5 text-sm font-medium transition-all duration-150",
                                                 "hover:bg-lagoon/10 relative group",
-                                                isActive && "bg-tongan/20 text-white font-bold",
+                                                isActive && "bg-tongan/20 text-foreground font-bold",
                                                 !isActive && isPast && "text-lagoon-100",
-                                                !isActive && !isPast && "text-slate-400"
+                                                !isActive && !isPast && "text-foreground/60"
                                             )}
                                         >
                                             <div className="flex items-center justify-between">

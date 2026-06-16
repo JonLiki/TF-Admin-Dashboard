@@ -42,8 +42,8 @@ export function TeamComparisonChart({ data, title, subtitle }: ChartProps) {
     return (
         <PremiumCard className="p-6">
             <div className="mb-6">
-                <h3 className="text-lg font-bold text-white">{title}</h3>
-                {subtitle && <p className="text-sm text-slate-400">{subtitle}</p>}
+                <h3 className="text-lg font-bold text-foreground">{title}</h3>
+                {subtitle && <p className="text-sm text-foreground/60">{subtitle}</p>}
             </div>
             <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
@@ -53,7 +53,7 @@ export function TeamComparisonChart({ data, title, subtitle }: ChartProps) {
                                 <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--color-tongan)" floodOpacity="0.4" />
                             </filter>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                         <XAxis
                             dataKey="date"
                             tickFormatter={(value) => {
@@ -75,7 +75,7 @@ export function TeamComparisonChart({ data, title, subtitle }: ChartProps) {
                                 backgroundColor: 'var(--color-ocean-deep)',
                                 border: '1px solid var(--color-lagoon)',
                                 borderRadius: '8px',
-                                color: '#f8fafc',
+                                color: 'var(--foreground)',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                             }}
                             itemStyle={{ color: 'var(--color-text-secondary)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
@@ -88,8 +88,8 @@ export function TeamComparisonChart({ data, title, subtitle }: ChartProps) {
                             name="Attendance %"
                             stroke="var(--color-tongan)"
                             strokeWidth={3}
-                            dot={{ fill: 'var(--color-tongan)', strokeWidth: 2, r: 4, stroke: '#fff' }}
-                            activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
+                            dot={{ fill: 'var(--color-tongan)', strokeWidth: 2, r: 4, stroke: 'var(--foreground)' }}
+                            activeDot={{ r: 6, stroke: 'var(--foreground)', strokeWidth: 2 }}
                             filter="url(#teamComparisonGlow)"
                         />
                     </LineChart>
@@ -103,8 +103,8 @@ export function TotalProgressChart({ data, title, subtitle }: ChartProps) {
     return (
         <PremiumCard className="p-6">
             <div className="mb-6">
-                <h3 className="text-lg font-bold text-white">{title}</h3>
-                {subtitle && <p className="text-sm text-slate-400">{subtitle}</p>}
+                <h3 className="text-lg font-bold text-foreground">{title}</h3>
+                {subtitle && <p className="text-sm text-foreground/60">{subtitle}</p>}
             </div>
             <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
@@ -119,7 +119,7 @@ export function TotalProgressChart({ data, title, subtitle }: ChartProps) {
                                 <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--color-tongan)" floodOpacity="0.4" />
                             </filter>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                         <XAxis
                             dataKey="name"
                             stroke="var(--color-text-muted)"
@@ -137,10 +137,10 @@ export function TotalProgressChart({ data, title, subtitle }: ChartProps) {
                                 backgroundColor: 'var(--color-ocean-deep)',
                                 border: '1px solid var(--color-lagoon)',
                                 borderRadius: '8px',
-                                color: '#f8fafc',
+                                color: 'var(--foreground)',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                             }}
-                            itemStyle={{ color: '#E2E8F0', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
+                            itemStyle={{ color: 'var(--foreground)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
                             labelStyle={{ color: 'var(--color-text-muted)', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                             formatter={(value: number | undefined) => [`${value || 0} kg`, title]}
                         />
@@ -164,7 +164,7 @@ export function TotalProgressChart({ data, title, subtitle }: ChartProps) {
 
 export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }) {
     if (!data || data.length === 0) return (
-        <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+        <div className="h-full flex items-center justify-center text-foreground/50 text-sm">
             No attendance data available yet.
         </div>
     );
@@ -194,10 +194,10 @@ export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }
                                 <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="var(--color-lagoon)" floodOpacity="0.4" />
                             </filter>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                         <XAxis
                             dataKey="displayDate"
-                            stroke="#64748b"
+                            stroke="var(--color-text-secondary)"
                             fontSize={12}
                             tickLine={false}
                             axisLine={false}
@@ -205,7 +205,7 @@ export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }
                             fontFamily="var(--font-mono)"
                         />
                         <YAxis
-                            stroke="#64748b"
+                            stroke="var(--color-text-secondary)"
                             fontSize={12}
                             tickLine={false}
                             axisLine={false}
@@ -220,11 +220,11 @@ export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }
                                 borderRadius: '12px',
                                 border: '1px solid var(--color-lagoon)',
                                 boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)',
-                                color: '#f8fafc',
+                                color: 'var(--foreground)',
                                 padding: '12px'
                             }}
-                            itemStyle={{ color: '#bae6fd', fontFamily: 'var(--font-mono)', fontWeight: 600 }}
-                            labelStyle={{ color: '#94a3b8', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                            itemStyle={{ color: 'var(--foreground)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}
+                            labelStyle={{ color: 'var(--color-text-secondary)', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                             formatter={(value: number | undefined) => [`${value}%`, 'Attendance']}
                             labelFormatter={(label, payload) => {
                                 if (payload && payload.length > 0) {
@@ -240,7 +240,7 @@ export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#colorAttendance)"
-                            activeDot={{ r: 6, strokeWidth: 4, stroke: "var(--color-ocean-deep)", fill: '#fff' }}
+                            activeDot={{ r: 6, strokeWidth: 4, stroke: "var(--color-ocean-deep)", fill: 'var(--foreground)' }}
                             filter="url(#attendanceGlow)"
                         />
                     </AreaChart>
@@ -269,10 +269,10 @@ export function MetricAreaChart({ data, color = "var(--color-lagoon)", unit = ""
                                 <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor={color} floodOpacity="0.4" />
                             </filter>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                         <XAxis
                             dataKey="name"
-                            stroke="#64748b"
+                            stroke="var(--color-text-secondary)"
                             fontSize={11}
                             tickLine={false}
                             axisLine={false}
@@ -280,7 +280,7 @@ export function MetricAreaChart({ data, color = "var(--color-lagoon)", unit = ""
                             fontFamily="var(--font-mono)"
                         />
                         <YAxis
-                            stroke="#64748b"
+                            stroke="var(--color-text-secondary)"
                             fontSize={11}
                             tickLine={false}
                             axisLine={false}
@@ -294,11 +294,11 @@ export function MetricAreaChart({ data, color = "var(--color-lagoon)", unit = ""
                                 borderRadius: '12px',
                                 border: '1px solid var(--color-lagoon)',
                                 boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)',
-                                color: '#f8fafc',
+                                color: 'var(--foreground)',
                                 padding: '12px'
                             }}
-                            itemStyle={{ color: '#E2E8F0', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
-                            labelStyle={{ color: '#94a3b8', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                            itemStyle={{ color: 'var(--foreground)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
+                            labelStyle={{ color: 'var(--color-text-secondary)', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                             formatter={(value: number | undefined) => [`${value}${unit}`, title || 'Value']}
                             cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: '4 4' }}
                         />
@@ -332,7 +332,7 @@ export function MetricBarChart({ data, color = "var(--color-primary)", unit = ""
                                 <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor={color} floodOpacity="0.35" />
                             </filter>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                         <XAxis
                             dataKey="name"
                             stroke="var(--color-text-muted)"
@@ -345,15 +345,15 @@ export function MetricBarChart({ data, color = "var(--color-primary)", unit = ""
                             tickLine={{ stroke: 'var(--color-text-muted)' }}
                         />
                         <Tooltip
-                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                            cursor={{ fill: 'var(--border)' }}
                             contentStyle={{
                                 backgroundColor: 'var(--color-ocean-deep)',
                                 border: '1px solid var(--color-lagoon)',
                                 borderRadius: '8px',
-                                color: '#f8fafc',
+                                color: 'var(--foreground)',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                             }}
-                            itemStyle={{ color: '#E2E8F0', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
+                            itemStyle={{ color: 'var(--foreground)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}
                             labelStyle={{ color: 'var(--color-text-muted)', marginBottom: '8px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                             formatter={(value: number | undefined) => [`${value || 0} ${unit}`, title]}
                         />

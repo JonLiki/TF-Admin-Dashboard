@@ -145,7 +145,7 @@ export function Select({
                 disabled={disabled}
                 className={cn(
                     "flex h-11 items-center justify-between w-full px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300",
-                    "bg-surface-ocean/30 border border-white/10 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)] backdrop-blur-md",
+                    "bg-surface-ocean/30 border border-white/10 text-foreground shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)] backdrop-blur-md",
                     "hover:bg-surface-ocean/55 hover:border-white/20",
                     "focus:outline-none focus:ring-4 focus:ring-lagoon/15 focus:border-lagoon/50 focus:shadow-[0_0_20px_rgba(102,252,241,0.15)]",
                     disabled && "opacity-50 cursor-not-allowed",
@@ -157,13 +157,13 @@ export function Select({
             >
                 <span className={cn(
                     "truncate",
-                    !selectedOption && "text-slate-400"
+                    !selectedOption && "text-foreground/60"
                 )}>
                     {selectedOption?.label || placeholder}
                 </span>
                 <ChevronDown
                     className={cn(
-                        "w-4 h-4 ml-2 transition-transform duration-200 text-slate-400",
+                        "w-4 h-4 ml-2 transition-transform duration-200 text-foreground/60",
                         isOpen && "transform rotate-180"
                     )}
                 />
@@ -175,7 +175,7 @@ export function Select({
                     ref={dropdownRef}
                     className={cn(
                         "absolute z-50 w-full mt-2 py-1 rounded-xl",
-                        "bg-obsidian/90 border border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl",
+                        "bg-obsidian/90 border border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.3)] backdrop-blur-xl",
                         "max-h-[300px] overflow-auto",
                         "custom-scrollbar",
                         "animate-in fade-in-0 zoom-in-95 duration-200"
@@ -191,10 +191,10 @@ export function Select({
                             disabled={option.disabled}
                             className={cn(
                                 "w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors duration-150",
-                                "text-white hover:bg-lagoon/20 hover:text-lagoon-100",
+                                "text-foreground hover:bg-lagoon/20 hover:text-lagoon-100",
                                 option.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent",
                                 focusedIndex === index && "bg-lagoon/25 text-lagoon-100",
-                                currentValue === option.value && "bg-lagoon/35 text-white font-bold"
+                                currentValue === option.value && "bg-lagoon/35 text-foreground font-bold"
                             )}
                             role="option"
                             aria-selected={currentValue === option.value}

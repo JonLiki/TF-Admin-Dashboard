@@ -126,7 +126,7 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                                 <PremiumTrophy className="w-10 h-10 group-hover:scale-110 transition-transform duration-500" variant="tongan" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-black uppercase tracking-widest text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Overall Standings</h2>
+                                <h2 className="text-2xl font-black uppercase tracking-widest text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Overall Standings</h2>
                                 <p className="text-tongan-light text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-80">Block Leaderboard</p>
                             </div>
                         </div>
@@ -155,7 +155,7 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                             <div className="p-2 bg-tongan/10 rounded-lg border border-tongan/20">
                                 <Trophy className="w-5 h-5 text-tongan" />
                             </div>
-                            <h2 className="text-xl font-bold text-white tracking-wide">
+                            <h2 className="text-xl font-bold text-foreground tracking-wide">
                                 Week {selectedWeek.weekNumber} Winners
                             </h2>
                         </div>

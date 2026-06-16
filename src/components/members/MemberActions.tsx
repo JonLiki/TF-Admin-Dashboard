@@ -60,7 +60,7 @@ export function MemberActions({ memberId, isActive }: MemberActionsProps) {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isPending}
-                className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+                className="p-2 rounded-lg hover:bg-white/5 text-foreground/60 hover:text-foreground transition-colors"
                 title="Manage Member"
             >
                 <MoreHorizontal className="w-5 h-5" />

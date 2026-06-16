@@ -46,7 +46,7 @@ export function LifestyleLogList({ members, weekId }: LifestyleLogListProps) {
                         <div className="p-2 bg-pink-500/10 rounded-lg">
                             <Heart className="w-5 h-5 text-pink-400" />
                         </div>
-                        <h2 className="text-lg font-bold text-white">Lifestyle Tracker</h2>
+                        <h2 className="text-lg font-bold text-foreground">Lifestyle Tracker</h2>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
                     {member.firstName[0]}{member.lastName[0]}
                 </div>
                 <div>
-                    <div className="font-bold text-white text-lg group-hover:text-pink-400 transition-colors">
+                    <div className="font-bold text-foreground text-lg group-hover:text-pink-400 transition-colors">
                         {member.firstName} {member.lastName}
                     </div>
                     <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
@@ -148,17 +148,19 @@ function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
                             inputMode="numeric"
                             pattern="[0-9]*"
                             placeholder="0"
+                            aria-label={`Lifestyle posts for ${member.firstName} ${member.lastName}`}
                             className={cn(
                                 "w-24 h-12 md:h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
                                 "group-hover/input:border-pink-500/50 group-hover/input:bg-ocean-deep",
                                 "focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500/50"
                             )}
                             defaultValue={currentPosts}
                         />
                     </div>
-                    <SubmitIconButton 
-                        icon={<Save className="w-4 h-4" />} 
+                    <SubmitIconButton
+                        icon={<Save className="w-4 h-4" />}
+                        aria-label={`Save lifestyle posts for ${member.firstName} ${member.lastName}`}
                         className="bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border-pink-500/20 hover:scale-105"
                     />
                 </form>

@@ -39,7 +39,7 @@ export function ExportButton({ data, className }: ExportButtonProps) {
                 disabled={isExporting}
                 className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200",
-                    "bg-ocean text-white hover:bg-ocean-light",
+                    "bg-ocean text-foreground hover:bg-ocean-light",
                     "border border-white/10 shadow-sm",
                     "disabled:opacity-50 disabled:cursor-not-allowed",
                     "focus:outline-none focus:ring-2 focus:ring-lagoon/50"
@@ -74,13 +74,13 @@ export function ExportButton({ data, className }: ExportButtonProps) {
                             onClick={() => handleExport('pdf')}
                             className={cn(
                                 "w-full px-4 py-2.5 text-left flex items-center gap-3",
-                                "text-white hover:bg-ocean transition-colors duration-150"
+                                "text-foreground hover:bg-ocean transition-colors duration-150"
                             )}
                         >
                             <FileText className="w-4 h-4 text-lagoon-100" />
                             <div>
                                 <div className="text-sm font-medium">Download PDF</div>
-                                <div className="text-xs text-slate-400">Formatted report</div>
+                                <div className="text-xs text-foreground/60">Formatted report</div>
                             </div>
                         </button>
 
@@ -88,13 +88,13 @@ export function ExportButton({ data, className }: ExportButtonProps) {
                             onClick={() => handleExport('csv')}
                             className={cn(
                                 "w-full px-4 py-2.5 text-left flex items-center gap-3",
-                                "text-white hover:bg-ocean transition-colors duration-150"
+                                "text-foreground hover:bg-ocean transition-colors duration-150"
                             )}
                         >
                             <Table className="w-4 h-4 text-lagoon-100" />
                             <div>
                                 <div className="text-sm font-medium">Download CSV</div>
-                                <div className="text-xs text-slate-400">Raw data</div>
+                                <div className="text-xs text-foreground/60">Raw data</div>
                             </div>
                         </button>
                     </div>

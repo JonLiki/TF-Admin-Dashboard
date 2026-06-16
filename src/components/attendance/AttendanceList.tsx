@@ -51,13 +51,13 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                             <CalendarCheck className="w-5 h-5 text-lagoon-100" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-white">{session.type} Session</h2>
+                            <h2 className="text-lg font-bold text-foreground">{session.type} Session</h2>
                             <p className="text-xs text-lagoon-100/60 font-medium uppercase tracking-wider">{format(session.date, 'MMMM d, yyyy')}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 w-full md:w-auto">
                         <div className="hidden md:block text-right mr-2">
-                            <div className="text-2xl font-black text-white leading-none">{presentCount}</div>
+                            <div className="text-2xl font-black text-foreground leading-none">{presentCount}</div>
                             <div className="text-[10px] uppercase font-bold text-lagoon-100/60">Present</div>
                         </div>
                         <ImportButton type="attendance" />
@@ -110,7 +110,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                                 <div>
                                     <div className={cn(
                                         "font-bold text-lg transition-colors",
-                                        isPresent ? "text-white group-hover:text-green-400" : "text-white group-hover:text-lagoon-100"
+                                        isPresent ? "text-foreground group-hover:text-green-400" : "text-foreground group-hover:text-lagoon-100"
                                     )}>
                                         {member.firstName} {member.lastName}
                                     </div>
@@ -155,7 +155,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                                             "h-10 px-4 rounded-lg transition-all font-bold uppercase tracking-wider text-xs border duration-300",
                                             isPresent
                                                 ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30"
-                                                : "bg-ocean-deep text-lagoon-100/60 border-white/5 hover:bg-lagoon/10 hover:text-white hover:border-lagoon/30"
+                                                : "bg-ocean-deep text-lagoon-100/60 border-white/5 hover:bg-lagoon/10 hover:text-foreground hover:border-lagoon/30"
                                         )}
                                     >
                                         {isPresent ? (

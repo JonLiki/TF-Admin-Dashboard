@@ -69,7 +69,7 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                             <CalendarCheck className="w-5 h-5 text-lagoon-100" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white">{weekLabel}</h2>
+                            <h2 className="text-xl font-bold text-foreground">{weekLabel}</h2>
                             <p className="text-xs text-lagoon-100/60 font-medium uppercase tracking-wider">{sessions.length} Sessions Logged</p>
                         </div>
                     </div>
@@ -99,7 +99,7 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                             {sessions.map(session => (
                                 <th key={session.id} className="p-4 text-center text-xs font-bold text-lagoon-100 uppercase tracking-widest min-w-[120px]">
                                     <div className="flex flex-col items-center">
-                                        <span className="text-white font-extrabold">{session.type}</span>
+                                        <span className="text-foreground font-extrabold">{session.type}</span>
                                         <span className="text-[10px] text-lagoon-100/50">{format(new Date(session.date), 'MMM d')}</span>
                                     </div>
                                 </th>
@@ -115,7 +115,7 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                                             {member.firstName[0]}{member.lastName[0]}
                                         </div>
                                         <div>
-                                            <div className="font-bold text-sm text-white group-hover:text-lagoon-100 transition-colors">
+                                            <div className="font-bold text-sm text-foreground group-hover:text-lagoon-100 transition-colors">
                                                 {member.firstName} {member.lastName}
                                             </div>
                                         </div>

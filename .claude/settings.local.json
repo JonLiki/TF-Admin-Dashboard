@@ -1,3 +1,13 @@
 {
+  "permissions": {
+    "allow": [
+      "PowerShell(npm run test -- --run 2>$null)",
+      "PowerShell($env:AUTH_SECRET='build-check-secret'; npm run build 2>$null | Select-Object -Last 15)",
+      "PowerShell(node scripts/fix-date-integrity.mjs > $env:TEMP\\\\date-fix-dryrun.txt 2>&1; \"exit=$LASTEXITCODE\"; Get-Content $env:TEMP\\\\date-fix-dryrun.txt | Measure-Object -Line | Select-Object -ExpandProperty Lines; Get-Content $env:TEMP\\\\date-fix-dryrun.txt -Tail 8)",
+      "Skill(code-review)",
+      "Skill(code-review:*)",
+      "PowerShell(git diff main...HEAD -- src/components src/app/globals.css \"src/app/\\(dashboard\\)/summary/SummaryReportView.tsx\" | Out-File $env:TEMP\\\\ui-diff.txt -Encoding utf8; \\(Get-Content $env:TEMP\\\\ui-diff.txt | Measure-Object -Line\\).Lines)"
+    ]
+  },
   "enabledPlugins": {}
 }

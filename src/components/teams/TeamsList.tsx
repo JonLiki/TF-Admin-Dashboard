@@ -78,7 +78,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                     {/* Results Count */}
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-lagoon-100/60">
-                            Showing <span className="text-white font-medium">{paginatedTeams.length}</span> of <span className="text-white font-medium">{filteredTeams.length}</span> groups
+                            Showing <span className="text-foreground font-medium">{paginatedTeams.length}</span> of <span className="text-foreground font-medium">{filteredTeams.length}</span> groups
                         </span>
                     </div>
                 </div>
@@ -125,14 +125,14 @@ export function TeamsList({ teams }: TeamsListProps) {
                                                     type="text" 
                                                     name="name" 
                                                     defaultValue={team.name} 
-                                                    className="w-full bg-ocean-deep/50 border border-lagoon/30 rounded-md py-1 px-2 text-white focus:border-tongan/50 focus:outline-none focus:ring-1 focus:ring-tongan/30"
+                                                    className="w-full bg-ocean-deep/50 border border-lagoon/30 rounded-md py-1 px-2 text-foreground focus:border-tongan/50 focus:outline-none focus:ring-1 focus:ring-tongan/30"
                                                 />
                                                 <Button type="submit" size="sm" className="bg-tongan hover:bg-tongan-red shrink-0 px-3">Save</Button>
                                                 <Button type="button" variant="ghost" size="sm" onClick={() => setEditingTeamId(null)} className="shrink-0">Cancel</Button>
                                             </form>
                                         ) : (
                                             <>
-                                                <h3 className="font-bold text-white text-lg group-hover:text-lagoon-100 transition-colors">
+                                                <h3 className="font-bold text-foreground text-lg group-hover:text-lagoon-100 transition-colors">
                                                     {team.name}
                                                 </h3>
                                                 <p className="text-[10px] uppercase tracking-wider text-tapa font-semibold opacity-80">Group</p>
@@ -160,7 +160,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                                                 e.stopPropagation();
                                                 setEditingTeamId(team.id);
                                             }}
-                                            className="text-lagoon-100/60 hover:text-white hover:bg-white/10 transition-colors duration-300"
+                                            className="text-lagoon-100/60 hover:text-foreground hover:bg-foreground/10 transition-colors duration-300"
                                             title="Edit Group"
                                         >
                                             Edit
@@ -206,7 +206,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                                                     <div className="flex flex-col">
                                                         <span className={cn(
                                                             "text-sm font-medium",
-                                                            member.isActive ? "text-white" : "text-white/40 line-through"
+                                                            member.isActive ? "text-foreground" : "text-foreground/40 line-through"
                                                         )}>
                                                             {member.firstName} {member.lastName}
                                                         </span>
@@ -238,7 +238,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                         <div className="w-16 h-16 bg-ocean-deep/50 border border-lagoon/20 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-ocean-deep">
                             <Users className="w-8 h-8 text-lagoon-100 opacity-50" />
                         </div>
-                        <h3 className="text-white font-bold text-lg">No groups found</h3>
+                        <h3 className="text-foreground font-bold text-lg">No groups found</h3>
                         <p className="text-lagoon-100/60 text-sm max-w-xs mt-2">
                             Try adjusting your search term
                         </p>

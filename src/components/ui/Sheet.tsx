@@ -48,10 +48,10 @@ export function Sheet({ isOpen, onClose, children, title }: SheetProps) {
                 <div className="flex flex-col h-full max-h-[90vh] sm:max-h-screen">
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-white/5">
-                        <h2 className="text-lg font-bold text-white">{title}</h2>
+                        <h2 className="text-lg font-bold text-foreground">{title}</h2>
                         <button
                             onClick={onClose}
-                            className="p-2 -mr-2 text-slate-400 hover:text-white transition-colors"
+                            className="p-2 -mr-2 text-foreground/60 hover:text-foreground transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>

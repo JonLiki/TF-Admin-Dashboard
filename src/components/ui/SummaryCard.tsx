@@ -42,14 +42,14 @@ export function SummaryCard({
                             <Icon className={cn("w-6 h-6", iconColor)} />
                         </div>
                     </div>
-                    <p className="text-sm font-bold uppercase text-tapa-cream tracking-wider">
+                    <p className="text-sm font-bold uppercase text-foreground/70 tracking-wider">
                         {label}
                     </p>
                 </div>
 
                 {/* Value Row */}
                 <div className="flex items-baseline gap-3">
-                    <p className="text-4xl font-black text-offwhite font-mono tracking-tight">
+                    <p className="text-4xl font-black text-foreground font-mono tracking-tight">
                         {value}
                     </p>
                     {trend && (
@@ -57,7 +57,7 @@ export function SummaryCard({
                             "inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold border",
                             trend === "up" && "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
                             trend === "down" && "text-red-400 bg-red-500/10 border-red-500/20",
-                            trend === "neutral" && "text-slate-400 bg-slate-500/10 border-slate-500/20"
+                            trend === "neutral" && "text-foreground/60 bg-slate-500/10 border-slate-500/20"
                         )}>
                             {trend === "up" && "↑"}
                             {trend === "down" && "↓"}

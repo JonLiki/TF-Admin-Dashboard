@@ -14,14 +14,14 @@ export default function UserLayout({
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-tongan to-tongan-dark text-white font-black flex items-center justify-center uppercase shadow-lg shadow-tongan/20">
                         TF
                     </div>
-                    <span className="font-bold text-lg text-white tracking-widest uppercase">Challenge</span>
+                    <span className="font-bold text-lg text-foreground tracking-widest uppercase">Challenge</span>
                 </div>
                 
                 <form action={async () => {
                     'use server';
                     await signOut({ redirectTo: '/login' });
                 }}>
-                    <button type="submit" className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-tapa hover:text-white bg-ocean/20 hover:bg-ocean/40 rounded-lg transition-colors border border-white/5">
+                    <button type="submit" className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-tapa hover:text-foreground bg-ocean/20 hover:bg-ocean/40 rounded-lg transition-colors border border-white/5">
                         <LogOut className="w-4 h-4" />
                         <span className="hidden sm:inline">Sign Out</span>
                     </button>

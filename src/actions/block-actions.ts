@@ -270,3 +270,11 @@ export async function unfinalizeWeek(blockWeekId: string) {
         return { success: false, message: 'Failed to unfinalize week.' };
     }
 }
+
+// --- FETCH WEEK DATA COMPLETENESS (Server Action wrapper) ---
+
+export async function fetchWeekDataCompleteness(blockWeekId: string) {
+    const { getWeekDataCompleteness } = await import('@/lib/queries');
+    return await getWeekDataCompleteness(blockWeekId);
+}
+

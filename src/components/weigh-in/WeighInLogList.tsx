@@ -45,7 +45,7 @@ export function WeighInLogList({ members, dateStr }: WeighInLogListProps) {
                         <div className="p-2 bg-tongan/10 rounded-lg">
                             <Scale className="w-5 h-5 text-tongan-red" />
                         </div>
-                        <h2 className="text-lg font-bold text-white">Daily Weigh-In</h2>
+                        <h2 className="text-lg font-bold text-foreground">Daily Weigh-In</h2>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ function WeighInRow({ member, dateStr }: { member: Member, dateStr: string }) {
                     {member.firstName[0]}{member.lastName[0]}
                 </div>
                 <div>
-                    <div className="font-bold text-white text-lg group-hover:text-tongan-red transition-colors">
+                    <div className="font-bold text-foreground text-lg group-hover:text-tongan-red transition-colors">
                         {member.firstName} {member.lastName}
                     </div>
                     <div className="flex items-center text-[10px] uppercase tracking-wider text-lagoon-100/50 font-semibold mt-0.5">
@@ -150,9 +150,10 @@ function WeighInRow({ member, dateStr }: { member: Member, dateStr: string }) {
                             step="0.1"
                             min="0"
                             placeholder="0.0"
+                            aria-label={`Weight in kg for ${member.firstName} ${member.lastName}`}
                             className={cn(
                                 "w-24 h-12 md:h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                "bg-ocean-deep/50 border border-lagoon/20 text-white placeholder:text-lagoon-100/30",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
                                 "group-hover/input:border-tongan/50 group-hover/input:bg-ocean-deep",
                                 "focus:outline-none focus:ring-2 focus:ring-tongan/40 focus:border-tongan/50"
                             )}
@@ -160,8 +161,9 @@ function WeighInRow({ member, dateStr }: { member: Member, dateStr: string }) {
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-lagoon-100/50 pointer-events-none uppercase">kg</span>
                     </div>
-                    <SubmitIconButton 
-                        icon={<Save className="w-4 h-4" />} 
+                    <SubmitIconButton
+                        icon={<Save className="w-4 h-4" />}
+                        aria-label={`Save weigh-in for ${member.firstName} ${member.lastName}`}
                         className="bg-tongan/10 text-tongan-red hover:bg-tongan/20 border-tongan/20 hover:scale-105"
                     />
                 </form>

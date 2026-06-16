@@ -127,20 +127,20 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
 
     return (
         <PremiumCard className="p-0 overflow-hidden">
-            <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-ocean-deep">
+            <div className="p-6 border-b border-border/30 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-ocean-deep">
                 <div className="flex items-center gap-4">
                     <div>
-                        <h3 className="text-xl font-semibold text-white tracking-tight">{title}</h3>
-                        <p className="text-xs font-normal text-slate-400 mt-1">Weekly Metrics Breakdown</p>
+                        <h3 className="text-xl font-semibold text-foreground tracking-tight">{title}</h3>
+                        <p className="text-xs font-normal text-foreground/60 mt-1">Weekly Metrics Breakdown</p>
                     </div>
 
                     {/* View Toggle */}
-                    <div className="flex bg-ocean/20 rounded-lg p-0.5 border border-white/5 ml-4">
+                    <div className="flex bg-ocean/20 rounded-lg p-0.5 border border-border/30 dark:border-white/5 ml-4">
                         <button
                             onClick={() => setViewMode('charts')}
                             className={cn(
                                 "px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all",
-                                viewMode === 'charts' ? "bg-lagoon text-white shadow-sm" : "text-slate-400 hover:text-white"
+                                viewMode === 'charts' ? "bg-lagoon text-white shadow-sm" : "text-foreground/60 hover:text-foreground dark:text-slate-400 dark:hover:text-white"
                             )}
                         >
                             Trends
@@ -149,7 +149,7 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
                             onClick={() => setViewMode('radar')}
                             className={cn(
                                 "px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all",
-                                viewMode === 'radar' ? "bg-tongan text-white shadow-sm" : "text-slate-400 hover:text-white"
+                                viewMode === 'radar' ? "bg-tongan text-white shadow-sm" : "text-foreground/60 hover:text-foreground dark:text-slate-400 dark:hover:text-white"
                             )}
                         >
                             Radar
@@ -172,7 +172,7 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
                 ) : (
                     <div className="h-[400px] w-full mb-8 flex flex-col">
                         <TeamHealthRadar teams={teams} metrics={metrics} className="flex-1 w-full min-h-0" />
-                        <p className="text-center text-xs text-slate-500 mt-2">
+                        <p className="text-center text-xs text-foreground/50 mt-2">
                             Visualizes team balance across all 4 metrics. Higher values indicate better performance relative to other teams.
                         </p>
                     </div>
