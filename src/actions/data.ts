@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { WeighInSchema, KmLogSchema, LifestyleLogSchema, BenchmarkLogSchema } from '@/lib/schemas';
 import { requireAdmin } from '@/lib/auth-guard';
+import { writeAuditLog } from '@/lib/audit';
 import { toUtcDateOnly } from '@/lib/dates';
 
 // --- WEIGH-INS ---
@@ -40,7 +41,7 @@ export async function submitWeighIn(prevState: unknown, formData: FormData) {
     const dateObj = toUtcDateOnly(validated.data.date);
 
     try {
-        await prisma.weighIn.upsert({
+        const weighIn = await prisma.weighIn.upsert({
             where: {
                 memberId_date: {
                     memberId: validated.data.memberId,
@@ -53,6 +54,12 @@ export async function submitWeighIn(prevState: unknown, formData: FormData) {
                 date: dateObj,
                 weight: validated.data.weight
             }
+        });
+        await writeAuditLog({
+            action: "LOG_WEIGH_IN",
+            details: `Logged weigh-in of ${validated.data.weight}kg for member ${validated.data.memberId} on ${validated.data.date}.`,
+            entityType: "WeighIn",
+            entityId: weighIn.id
         });
         revalidatePath('/weigh-in');
         revalidateTag('dashboard-stats', 'max');
@@ -103,9 +110,14 @@ export async function submitWeighInsBulk(prevState: unknown, formData: FormData)
                 }),
             ),
         );
+        const suffix = invalid > 0 ? ` (${invalid} skipped)` : '';
+        await writeAuditLog({
+            action: "LOG_WEIGH_INS_BULK",
+            details: `Bulk-saved ${ops.length} weigh-in${ops.length === 1 ? '' : 's'} for ${dateRaw}${suffix}.`,
+            entityType: "WeighIn"
+        });
         revalidatePath('/weigh-in');
         revalidateTag('dashboard-stats', 'max');
-        const suffix = invalid > 0 ? ` (${invalid} skipped)` : '';
         return { success: true, message: `Saved ${ops.length} weigh-in${ops.length === 1 ? '' : 's'}${suffix}` };
     } catch (error) {
         console.error("Database error saving weigh-ins (bulk):", error);
@@ -144,7 +156,7 @@ export async function submitKmLog(prevState: unknown, formData: FormData) {
             return { success: false, message: "This week has been finalized. Unfinalize to edit." };
         }
 
-        await prisma.kmLog.upsert({
+        const kmLog = await prisma.kmLog.upsert({
             where: {
                 memberId_blockWeekId: {
                     memberId: validated.data.memberId,
@@ -157,6 +169,12 @@ export async function submitKmLog(prevState: unknown, formData: FormData) {
                 blockWeekId: validated.data.blockWeekId,
                 totalKm: validated.data.totalKm
             }
+        });
+        await writeAuditLog({
+            action: "LOG_KM",
+            details: `Logged ${validated.data.totalKm}km for member ${validated.data.memberId} (week ${validated.data.blockWeekId}).`,
+            entityType: "KmLog",
+            entityId: kmLog.id
         });
         revalidatePath('/km');
         revalidateTag('dashboard-stats', 'max');
@@ -198,7 +216,7 @@ export async function submitLifestyleLog(prevState: unknown, formData: FormData)
             return { success: false, message: "This week has been finalized. Unfinalize to edit." };
         }
 
-        await prisma.lifestyleLog.upsert({
+        const lifestyleLog = await prisma.lifestyleLog.upsert({
             where: {
                 memberId_blockWeekId: {
                     memberId: validated.data.memberId,
@@ -211,6 +229,12 @@ export async function submitLifestyleLog(prevState: unknown, formData: FormData)
                 blockWeekId: validated.data.blockWeekId,
                 postCount: validated.data.postCount
             }
+        });
+        await writeAuditLog({
+            action: "LOG_LIFESTYLE",
+            details: `Logged ${validated.data.postCount} lifestyle post${validated.data.postCount === 1 ? '' : 's'} for member ${validated.data.memberId} (week ${validated.data.blockWeekId}).`,
+            entityType: "LifestyleLog",
+            entityId: lifestyleLog.id
         });
         revalidatePath('/lifestyle');
         revalidateTag('dashboard-stats', 'max');
@@ -262,14 +286,14 @@ export async function submitBenchmarkLog(prevState: unknown, formData: FormData)
             return { success: false, message: "This week has been finalized. Unfinalize to edit." };
         }
 
-        await prisma.benchmarkLog.upsert({
+        const benchmarkLog = await prisma.benchmarkLog.upsert({
             where: {
                 memberId_blockWeekId: {
                     memberId: validated.data.memberId,
                     blockWeekId: validated.data.blockWeekId
                 }
             },
-            update: { 
+            update: {
                 squats: validated.data.squats,
                 pushups: validated.data.pushups,
                 burpees: validated.data.burpees,
@@ -282,6 +306,12 @@ export async function submitBenchmarkLog(prevState: unknown, formData: FormData)
                 pushups: validated.data.pushups,
                 burpees: validated.data.burpees,
             }
+        });
+        await writeAuditLog({
+            action: "LOG_BENCHMARK",
+            details: `Logged benchmark for member ${validated.data.memberId} (week ${validated.data.blockWeekId}): squats ${validated.data.squats}, pushups ${validated.data.pushups}, burpees ${validated.data.burpees}.`,
+            entityType: "BenchmarkLog",
+            entityId: benchmarkLog.id
         });
         revalidatePath('/benchmarks');
         return { success: true };
@@ -311,7 +341,7 @@ export async function toggleAttendance(sessionId: string, memberId: string, isPr
         }
     }
 
-    await prisma.attendance.upsert({
+    const attendance = await prisma.attendance.upsert({
         where: {
             sessionId_memberId: {
                 sessionId,
@@ -324,6 +354,12 @@ export async function toggleAttendance(sessionId: string, memberId: string, isPr
             memberId,
             isPresent
         }
+    });
+    await writeAuditLog({
+        action: "TOGGLE_ATTENDANCE",
+        details: `Marked member ${memberId} ${isPresent ? 'present' : 'absent'} for session ${sessionId}.`,
+        entityType: "Attendance",
+        entityId: attendance.id
     });
     revalidatePath('/attendance');
     revalidateTag('dashboard-stats', 'max');

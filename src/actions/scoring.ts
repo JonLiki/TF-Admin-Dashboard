@@ -9,6 +9,7 @@ import {
     ScorableTeam
 } from '@/lib/scoring-logic';
 import { requireAdmin } from '@/lib/auth-guard';
+import { writeAuditLog } from '@/lib/audit';
 
 export async function calculateWeekResults(
     blockWeekId: string,
@@ -157,6 +158,13 @@ export async function calculateWeekResults(
                 data: { isFinalized: true }
             });
         }
+    });
+
+    await writeAuditLog({
+        action: options?.lockWeek ? "FINALIZE_SCORES" : "CALCULATE_WEEK_RESULTS",
+        details: `${options?.lockWeek ? 'Finalized' : 'Recalculated'} week ${blockWeek.weekNumber} scores for block ${blockWeek.blockId} (${finalAwards.length} award${finalAwards.length === 1 ? '' : 's'}).`,
+        entityType: "BlockWeek",
+        entityId: blockWeekId
     });
 
     revalidatePath('/scoreboard');
