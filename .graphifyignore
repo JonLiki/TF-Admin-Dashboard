@@ -1,0 +1,45 @@
+# .graphifyignore
+
+# Dependencies & build output
+node_modules/
+.next/
+dist/
+build/
+out/
+coverage/
+
+# Generated files
+*.generated.py
+src/generated/
+*.tsbuildinfo
+
+# AI tool configs
+.claude/
+.gemini/
+graphify-out/
+
+# Environment & secrets
+.env*
+*.pem
+
+# Python
+.venv/
+
+# Version control
+.git/
+
+# Misc
+.DS_Store
+public/
+
+# Only index src/, prisma schema, and root config files
+*
+!src/
+!src/**
+!prisma/
+!prisma/**
+!middleware.ts
+!next.config.ts
+!package.json
+!tsconfig.json
+!eslint.config.mjs

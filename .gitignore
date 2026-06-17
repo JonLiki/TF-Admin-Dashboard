@@ -42,12 +42,21 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+schema.prisma.timestamp-*
 
 # Logs
 lint_output.txt
 lint.log
 eslint_report.txt
 
-# Project instructions
+# AI tool configs & instructions
+.claude/
+.gemini/
 GEMINI.md
+CLAUDE.md
 
+# Graphify output
+graphify-out/
+
+# Python virtual environment
+.venv/
