@@ -9,8 +9,9 @@ export async function authenticate(
 ) {
     try {
         await signIn('credentials', {
-            ...Object.fromEntries(formData),
-            redirect: true,
+            email: formData.get('email'),
+            password: formData.get('password'),
+            redirectTo: '/',
         });
     } catch (error) {
         if (error instanceof AuthError) {
