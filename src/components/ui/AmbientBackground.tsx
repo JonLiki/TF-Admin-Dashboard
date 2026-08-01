@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useTheme } from 'next-themes';
 import { TonganNgatu } from './Patterns';
+import { useMounted } from '@/hooks/useMounted';
 
 const darkParticles = [
   { size: 3, top: '15%', left: '10%', delay: '0s', duration: '12s' },
@@ -15,11 +16,7 @@ const darkParticles = [
 
 export function AmbientBackground() {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   // Avoid hydration mismatch: useTheme() returns undefined on the server,
   // so we defer rendering until after the client has mounted.

@@ -119,6 +119,7 @@ model WeighIn {
   updatedAt DateTime @updatedAt
 
   @@unique([memberId, date])
+  @@index([date])
 }
 
 model KmLog {
@@ -223,6 +224,7 @@ model PointLedger {
 
   @@index([teamId])
   @@index([blockId])
+  @@index([teamId, blockId])
 }
 
 model Account {
