@@ -40,10 +40,9 @@ jobs:
 
       - run: npx prisma generate
 
-      # Schema has no real migration history yet (see roadmap item #4) — db push
-      # stands the schema up for build-time prerendering. Swap for
-      # `prisma migrate deploy` once a baseline migration exists.
-      - run: npx prisma db push
+      # Applies the tracked migration history to stand up the schema for
+      # build-time prerendering (next build queries the DB directly).
+      - run: npx prisma migrate deploy
 
       - run: npm run lint
 
