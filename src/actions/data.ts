@@ -185,6 +185,64 @@ export async function submitKmLog(prevState: unknown, formData: FormData) {
     }
 }
 
+// Bulk save for KM logs: one transaction for every `km_<memberId>` field with a value.
+export async function submitKmLogsBulk(prevState: unknown, formData: FormData) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
+
+    const blockWeekId = formData.get('blockWeekId');
+    if (typeof blockWeekId !== 'string' || !blockWeekId) {
+        return { success: false, message: "Missing week ID" };
+    }
+
+    const blockWeek = await prisma.blockWeek.findUnique({ where: { id: blockWeekId } });
+    if (blockWeek?.isFinalized) {
+        return { success: false, message: "This week has been finalized. Unfinalize to edit." };
+    }
+
+    const ops: { memberId: string; totalKm: number }[] = [];
+    let invalid = 0;
+
+    for (const [key, value] of formData.entries()) {
+        if (!key.startsWith('km_')) continue;
+        const raw = typeof value === 'string' ? value.trim() : '';
+        if (raw === '') continue;
+        const totalKm = parseFloat(raw);
+        const memberId = key.slice('km_'.length);
+        const validated = KmLogSchema.safeParse({ memberId, blockWeekId, totalKm });
+        if (!validated.success || Number.isNaN(totalKm)) { invalid++; continue; }
+        ops.push({ memberId: validated.data.memberId, totalKm: validated.data.totalKm });
+    }
+
+    if (ops.length === 0) {
+        return { success: false, message: invalid > 0 ? "No valid KM values to save" : "No KM values entered" };
+    }
+
+    try {
+        await prisma.$transaction(
+            ops.map((o) =>
+                prisma.kmLog.upsert({
+                    where: { memberId_blockWeekId: { memberId: o.memberId, blockWeekId } },
+                    update: { totalKm: o.totalKm },
+                    create: { memberId: o.memberId, blockWeekId, totalKm: o.totalKm },
+                }),
+            ),
+        );
+        const suffix = invalid > 0 ? ` (${invalid} skipped)` : '';
+        await writeAuditLog({
+            action: "LOG_KM_BULK",
+            details: `Bulk-saved ${ops.length} KM log${ops.length === 1 ? '' : 's'} for week ${blockWeekId}${suffix}.`,
+            entityType: "KmLog"
+        });
+        revalidatePath('/km');
+        revalidateTag('dashboard-stats', 'max');
+        return { success: true, message: `Saved ${ops.length} KM log${ops.length === 1 ? '' : 's'}${suffix}` };
+    } catch (error) {
+        console.error("Database error saving KM logs (bulk):", error);
+        return { success: false, message: "Failed to save KM logs" };
+    }
+}
+
 // --- LIFESTYLE LOGS ---
 export async function submitLifestyleLog(prevState: unknown, formData: FormData) {
     const guard = await requireAdmin();
