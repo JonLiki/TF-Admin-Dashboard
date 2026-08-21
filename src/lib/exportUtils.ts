@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { format } from 'date-fns';
 
 // --- Scoreboard Export Utilities (Existing) ---
@@ -222,37 +222,25 @@ export const exportToCSV = (data: ExportData, filename: string) => {
     saveAs(blob, `${filename}.csv`);
 };
 
-export const exportToExcel = (data: ExportData, filename: string) => {
-    // Create a new workbook
-    const wb = XLSX.utils.book_new();
+export const exportToExcel = async (data: ExportData, filename: string) => {
+    // Create a new workbook and worksheet
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("Report");
 
-    // Prepare data array for sheet
-    const wsData: (string | number | null)[][] = [
-        [data.title],
-        Array(data.headers.length).fill(""), // Empty row for spacing
-        data.headers,
-        ...data.rows
-    ];
-
-    if (data.footers) {
-        data.footers.forEach(f => wsData.push(f));
-    }
-
-    // Create worksheet
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    // Prepare rows: title, blank spacer, headers, data, footers
+    ws.addRow([data.title]);
+    ws.addRow(Array(data.headers.length).fill(""));
+    ws.addRow(data.headers);
+    data.rows.forEach(row => ws.addRow(row));
+    data.footers?.forEach(f => ws.addRow(f));
 
     // Merge title cells
     if (data.headers.length > 1) {
-        ws['!merges'] = [
-            { s: { r: 0, c: 0 }, e: { r: 0, c: data.headers.length - 1 } }
-        ];
+        ws.mergeCells(1, 1, 1, data.headers.length);
     }
 
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(wb, ws, "Report");
-
     // Write file
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const excelBuffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, `${filename}.xlsx`);
 };

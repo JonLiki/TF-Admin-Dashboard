@@ -247,7 +247,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
         { id: 'attendance', label: 'Attendance', icon: CalendarCheck },
     ];
 
-    const handleExport = (type: 'pdf' | 'csv' | 'excel') => {
+    const handleExport = async (type: 'pdf' | 'csv' | 'excel') => {
         const headers = ['Member'];
         if (activeTab === 'weight') {
             headers.push('Initial');
@@ -387,7 +387,7 @@ export default function SummaryReportView({ block, members, sessions }: SummaryR
 
         if (type === 'pdf') exportToPDF(exportData, `summary_${activeTab}`);
         if (type === 'csv') exportToCSV(exportData, `summary_${activeTab}`);
-        if (type === 'excel') exportToExcel(exportData, `summary_${activeTab}`);
+        if (type === 'excel') await exportToExcel(exportData, `summary_${activeTab}`);
     };
 
     return (
