@@ -42,8 +42,11 @@ import {
     submitWeighIn,
     submitWeighInsBulk,
     submitKmLog,
+    submitKmLogsBulk,
     submitLifestyleLog,
+    submitLifestyleLogsBulk,
     submitBenchmarkLog,
+    submitBenchmarkLogsBulk,
     toggleAttendance
 } from '@/actions/data';
 import { calculateWeekResults } from '@/actions/scoring';
@@ -114,16 +117,40 @@ describe('gated data-entry actions write an audit entry on success', () => {
         expectAudit('LOG_KM');
     });
 
+    it('submitKmLogsBulk → LOG_KM_BULK', async () => {
+        await submitKmLogsBulk(undefined, form({ blockWeekId: BLOCK_WEEK_ID, [`km_${MEMBER_ID}`]: '12' }));
+        expect(prismaMock.auditLog.create).toHaveBeenCalledTimes(1);
+        expectAudit('LOG_KM_BULK');
+    });
+
     it('submitLifestyleLog → LOG_LIFESTYLE', async () => {
         await submitLifestyleLog(undefined, form({ memberId: MEMBER_ID, blockWeekId: BLOCK_WEEK_ID, postCount: '3' }));
         expect(prismaMock.auditLog.create).toHaveBeenCalledTimes(1);
         expectAudit('LOG_LIFESTYLE');
     });
 
+    it('submitLifestyleLogsBulk → LOG_LIFESTYLE_BULK', async () => {
+        await submitLifestyleLogsBulk(undefined, form({ blockWeekId: BLOCK_WEEK_ID, [`post_${MEMBER_ID}`]: '3' }));
+        expect(prismaMock.auditLog.create).toHaveBeenCalledTimes(1);
+        expectAudit('LOG_LIFESTYLE_BULK');
+    });
+
     it('submitBenchmarkLog → LOG_BENCHMARK', async () => {
         await submitBenchmarkLog(undefined, form({ memberId: MEMBER_ID, blockWeekId: BLOCK_WEEK_ID, date: '2026-01-20', squats: '40', pushups: '30', burpees: '20' }));
         expect(prismaMock.auditLog.create).toHaveBeenCalledTimes(1);
         expectAudit('LOG_BENCHMARK');
+    });
+
+    it('submitBenchmarkLogsBulk → LOG_BENCHMARK_BULK', async () => {
+        await submitBenchmarkLogsBulk(undefined, form({
+            blockWeekId: BLOCK_WEEK_ID,
+            date: '2026-01-20',
+            [`squats_${MEMBER_ID}`]: '40',
+            [`pushups_${MEMBER_ID}`]: '30',
+            [`burpees_${MEMBER_ID}`]: '20'
+        }));
+        expect(prismaMock.auditLog.create).toHaveBeenCalledTimes(1);
+        expectAudit('LOG_BENCHMARK_BULK');
     });
 
     it('toggleAttendance → TOGGLE_ATTENDANCE', async () => {

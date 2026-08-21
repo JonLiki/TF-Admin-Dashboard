@@ -1,14 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useActionState, useEffect } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Dumbbell, Save, Filter } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Dumbbell, Save, Filter, Loader2 } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
-import { submitBenchmarkLog } from "@/actions/data";
-
-import { SubmitIconButton } from "@/components/ui/SubmitIconButton";
-import { useActionState, useEffect } from "react";
+import { submitBenchmarkLogsBulk } from "@/actions/data";
 import { toast } from "sonner";
 
 interface Member {
@@ -33,6 +31,14 @@ interface BenchmarkLogListProps {
 
 export function BenchmarkLogList({ members, weekId, dateStr }: BenchmarkLogListProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [state, formAction, isPending] = useActionState(submitBenchmarkLogsBulk, null);
+
+    useEffect(() => {
+        if (state?.message) {
+            if (state.success) toast.success(state.message);
+            else toast.error(state.message);
+        }
+    }, [state]);
 
     const filteredMembers = members.filter(member =>
         `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -40,62 +46,76 @@ export function BenchmarkLogList({ members, weekId, dateStr }: BenchmarkLogListP
     );
 
     const hasResults = filteredMembers.length > 0;
+    const recordedCount = members.filter(m => {
+        const log = m.benchmarkLogs[0];
+        return log !== undefined && (log.squats > 0 || log.pushups > 0 || log.burpees > 0);
+    }).length;
 
     return (
-        <PremiumCard className="overflow-hidden p-0 border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm">
-            <div className="p-6 border-b border-lagoon/20 space-y-4 bg-ocean/20 backdrop-blur-md">
-                <div className="flex flex-col md:flex-row justify-between gap-4 md:items-center">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-lagoon/10 rounded-lg">
-                            <Dumbbell className="w-5 h-5 text-lagoon-100" />
+        <form action={formAction} className="space-y-4">
+            <input type="hidden" name="blockWeekId" value={weekId} />
+            <input type="hidden" name="date" value={dateStr} />
+
+            <PremiumCard className="overflow-hidden p-0 border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm">
+                <div className="p-6 border-b border-lagoon/20 space-y-4 bg-ocean/20 backdrop-blur-md">
+                    <div className="flex flex-col md:flex-row justify-between gap-4 md:items-center">
+                        <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-lagoon/10 rounded-lg">
+                                <Dumbbell className="w-5 h-5 text-lagoon-100" />
+                            </div>
+                            <h2 className="text-lg font-bold text-foreground">Benchmark Logger</h2>
                         </div>
-                        <h2 className="text-lg font-bold text-foreground">Benchmark Logger</h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <SearchInput
+                            value={searchTerm}
+                            onChange={setSearchTerm}
+                            placeholder="Search members..."
+                            className="w-full md:w-64 bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 placeholder:text-lagoon-100/50 focus:border-lagoon/60 focus:ring-lagoon/20"
+                        />
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <SearchInput
-                        value={searchTerm}
-                        onChange={setSearchTerm}
-                        placeholder="Search members..."
-                        className="w-full md:w-64 bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 placeholder:text-lagoon-100/50 focus:border-lagoon/60 focus:ring-lagoon/20"
-                    />
-                </div>
-            </div>
 
-            <div className="p-4 space-y-3 bg-ocean-deep/30 min-h-[400px]">
-                {/* Headers */}
-                <div className="hidden md:flex px-6 py-2 text-xs font-bold text-lagoon-100/50 uppercase tracking-widest opacity-80">
-                    <div className="w-1/4">Member</div>
-                    <div className="w-1/6">Group</div>
-                    <div className="w-1/2 text-center">Max Scores (Squats, Pushups, Burpees)</div>
-                    <div className="ml-auto">Status</div>
-                </div>
-
-                {filteredMembers.map((member) => (
-                    <BenchmarkRow key={member.id} member={member} weekId={weekId} dateStr={dateStr} />
-                ))}
-
-                {!hasResults && (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-lagoon-100/40">
-                        <Filter className="w-8 h-8 opacity-20 mb-2" />
-                        <p>No members found</p>
+                <div className="p-4 space-y-3 bg-ocean-deep/30 min-h-[400px]">
+                    {/* Headers */}
+                    <div className="hidden md:flex px-6 py-2 text-xs font-bold text-lagoon-100/50 uppercase tracking-widest opacity-80">
+                        <div className="w-1/4">Member</div>
+                        <div className="w-1/6">Group</div>
+                        <div className="w-1/2 text-center">Max Scores (Squats, Pushups, Burpees)</div>
+                        <div className="ml-auto">Status</div>
                     </div>
-                )}
+
+                    {filteredMembers.map((member) => (
+                        <BenchmarkRow key={member.id} member={member} />
+                    ))}
+
+                    {!hasResults && (
+                        <div className="flex flex-col items-center justify-center py-12 text-center text-lagoon-100/40">
+                            <Filter className="w-8 h-8 opacity-20 mb-2" />
+                            <p>No members found</p>
+                        </div>
+                    )}
+                </div>
+            </PremiumCard>
+
+            {/* Floating save bar — sticks to the bottom of the page scroll area */}
+            <div className="sticky bottom-4 z-30 flex items-center justify-between gap-4 px-5 py-3 rounded-xl border border-lagoon/30 bg-ocean-deep/90 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                <span className="text-xs font-semibold text-lagoon-100/70">
+                    {recordedCount} of {members.length} recorded
+                </span>
+                <Button type="submit" isLoading={isPending} className="min-w-[150px]">
+                    {isPending ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…</>
+                    ) : (
+                        <><Save className="w-4 h-4 mr-2" /> Save all</>
+                    )}
+                </Button>
             </div>
-        </PremiumCard>
+        </form>
     );
 }
 
-function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: string, dateStr: string }) {
-    const [state, formAction] = useActionState(submitBenchmarkLog, null);
-
-    useEffect(() => {
-        if (state?.message) {
-            if (state.success) toast.success("Benchmarks saved!");
-            else toast.error(state.message);
-        }
-    }, [state]);
-
+function BenchmarkRow({ member }: { member: Member }) {
     const log = member.benchmarkLogs[0];
     const hasLog = log !== undefined && (log.squats > 0 || log.pushups > 0 || log.burpees > 0);
 
@@ -131,75 +151,66 @@ function BenchmarkRow({ member, weekId, dateStr }: { member: Member, weekId: str
                 </span>
             </div>
 
-            {/* Input Actions */}
-            <div className="w-full md:w-something z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                <form action={formAction} className="flex items-center space-x-2 flex-wrap">
-                    <input type="hidden" name="memberId" value={member.id} />
-                    <input type="hidden" name="blockWeekId" value={weekId} />
-                    <input type="hidden" name="date" value={dateStr} />
-                    
-                    <div className="flex space-x-2">
-                        <div className="relative group/input flex justify-center items-center">
-                            <input
-                                name="squats"
-                                type="number"
-                                inputMode="numeric"
-                                placeholder="0"
-                                aria-label={`Squats for ${member.firstName} ${member.lastName}`}
-                                className={cn(
-                                    "w-16 h-10 md:h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                    "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
-                                    "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
-                                )}
-                                defaultValue={log?.squats || ""}
-                                title="Squats"
-                            />
-                            <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">SQ</span>
-                        </div>
-
-                        <div className="relative group/input flex justify-center items-center">
-                            <input
-                                name="pushups"
-                                type="number"
-                                inputMode="numeric"
-                                placeholder="0"
-                                aria-label={`Pushups for ${member.firstName} ${member.lastName}`}
-                                className={cn(
-                                    "w-16 h-10 md:h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                    "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
-                                    "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
-                                )}
-                                defaultValue={log?.pushups || ""}
-                                title="Pushups"
-                            />
-                            <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">PU</span>
-                        </div>
-
-                        <div className="relative group/input flex justify-center items-center">
-                            <input
-                                name="burpees"
-                                type="number"
-                                inputMode="numeric"
-                                placeholder="0"
-                                aria-label={`Burpees for ${member.firstName} ${member.lastName}`}
-                                className={cn(
-                                    "w-16 h-10 md:h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                    "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
-                                    "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
-                                )}
-                                defaultValue={log?.burpees || ""}
-                                title="Burpees"
-                            />
-                            <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">BP</span>
-                        </div>
+            {/* Score Inputs */}
+            <div className="w-full md:w-1/2 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
+                <div className="flex space-x-2">
+                    <div className="relative group/input flex justify-center items-center">
+                        <input
+                            name={`squats_${member.id}`}
+                            type="number"
+                            inputMode="numeric"
+                            min="0"
+                            placeholder="0"
+                            aria-label={`Squats for ${member.firstName} ${member.lastName}`}
+                            className={cn(
+                                "w-16 h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
+                                "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
+                            )}
+                            defaultValue={log?.squats || ""}
+                            title="Squats"
+                        />
+                        <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">SQ</span>
                     </div>
 
-                    <SubmitIconButton
-                        icon={<Save className="w-4 h-4" />}
-                        aria-label={`Save benchmarks for ${member.firstName} ${member.lastName}`}
-                        className="bg-lagoon/10 text-lagoon-100 hover:bg-lagoon/20 border-lagoon/20 hover:scale-105 ml-2"
-                    />
-                </form>
+                    <div className="relative group/input flex justify-center items-center">
+                        <input
+                            name={`pushups_${member.id}`}
+                            type="number"
+                            inputMode="numeric"
+                            min="0"
+                            placeholder="0"
+                            aria-label={`Pushups for ${member.firstName} ${member.lastName}`}
+                            className={cn(
+                                "w-16 h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
+                                "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
+                            )}
+                            defaultValue={log?.pushups || ""}
+                            title="Pushups"
+                        />
+                        <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">PU</span>
+                    </div>
+
+                    <div className="relative group/input flex justify-center items-center">
+                        <input
+                            name={`burpees_${member.id}`}
+                            type="number"
+                            inputMode="numeric"
+                            min="0"
+                            placeholder="0"
+                            aria-label={`Burpees for ${member.firstName} ${member.lastName}`}
+                            className={cn(
+                                "w-16 h-10 pl-3 pr-2 text-center text-sm rounded-lg font-mono font-bold transition-all duration-200",
+                                "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
+                                "focus:outline-none focus:ring-2 focus:ring-lagoon/40 focus:border-lagoon/50"
+                            )}
+                            defaultValue={log?.burpees || ""}
+                            title="Burpees"
+                        />
+                        <span className="text-micro ml-1 uppercase text-lagoon-100/50 font-bold hidden md:inline">BP</span>
+                    </div>
+                </div>
             </div>
 
             {/* Status Indicator */}

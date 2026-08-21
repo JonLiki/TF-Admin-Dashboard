@@ -1,14 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useActionState, useEffect } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Heart, Save, Filter, Camera } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Heart, Save, Filter, Camera, Loader2 } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
-import { submitLifestyleLog } from "@/actions/data";
+import { submitLifestyleLogsBulk } from "@/actions/data";
 import { ImportButton } from "@/components/ui/ImportButton";
-import { SubmitIconButton } from "@/components/ui/SubmitIconButton";
-import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 
 interface Member {
@@ -30,62 +29,7 @@ interface LifestyleLogListProps {
 
 export function LifestyleLogList({ members, weekId }: LifestyleLogListProps) {
     const [searchTerm, setSearchTerm] = useState('');
-
-    const filteredMembers = members.filter(member =>
-        `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (member.team?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const hasResults = filteredMembers.length > 0;
-
-    return (
-        <PremiumCard className="overflow-hidden p-0 border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm">
-            <div className="p-6 border-b border-lagoon/20 space-y-4 bg-ocean/20 backdrop-blur-md">
-                <div className="flex flex-col md:flex-row justify-between gap-4 md:items-center">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-pink-500/10 rounded-lg">
-                            <Heart className="w-5 h-5 text-pink-400" />
-                        </div>
-                        <h2 className="text-lg font-bold text-foreground">Lifestyle Tracker</h2>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <ImportButton type="lifestyle" />
-                    <SearchInput
-                        value={searchTerm}
-                        onChange={setSearchTerm}
-                        placeholder="Search members..."
-                        className="w-full md:w-64 bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 placeholder:text-lagoon-100/50 focus:border-lagoon/60 focus:ring-lagoon/20"
-                    />
-                </div>
-            </div>
-
-            <div className="p-4 space-y-3 bg-ocean-deep/30 min-h-[400px]">
-                {/* Headers */}
-                <div className="hidden md:flex px-6 py-2 text-xs font-bold text-lagoon-100/50 uppercase tracking-widest opacity-80">
-                    <div className="w-1/3">Member</div>
-                    <div className="w-1/4">Group</div>
-                    <div className="w-1/4">Post Count</div>
-                    <div className="ml-auto">Status</div>
-                </div>
-
-                {filteredMembers.map((member) => (
-                    <LifestyleRow key={member.id} member={member} weekId={weekId} />
-                ))}
-
-                {!hasResults && (
-                    <div className="flex flex-col items-center justify-center py-12 text-center text-lagoon-100/40">
-                        <Filter className="w-8 h-8 opacity-20 mb-2" />
-                        <p>No members found</p>
-                    </div>
-                )}
-            </div>
-        </PremiumCard>
-    );
-}
-
-function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
-    const [state, formAction] = useActionState(submitLifestyleLog, null);
+    const [state, formAction, isPending] = useActionState(submitLifestyleLogsBulk, null);
 
     useEffect(() => {
         if (state?.message) {
@@ -94,6 +38,79 @@ function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
         }
     }, [state]);
 
+    const filteredMembers = members.filter(member =>
+        `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (member.team?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const hasResults = filteredMembers.length > 0;
+    const recordedCount = members.filter(m => (m.lifestyleLogs[0]?.postCount ?? 0) > 0).length;
+
+    return (
+        <form action={formAction} className="space-y-4">
+            <input type="hidden" name="blockWeekId" value={weekId} />
+
+            <PremiumCard className="overflow-hidden p-0 border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm">
+                <div className="p-6 border-b border-lagoon/20 space-y-4 bg-ocean/20 backdrop-blur-md">
+                    <div className="flex flex-col md:flex-row justify-between gap-4 md:items-center">
+                        <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-pink-500/10 rounded-lg">
+                                <Heart className="w-5 h-5 text-pink-400" />
+                            </div>
+                            <h2 className="text-lg font-bold text-foreground">Lifestyle Tracker</h2>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <ImportButton type="lifestyle" />
+                        <SearchInput
+                            value={searchTerm}
+                            onChange={setSearchTerm}
+                            placeholder="Search members..."
+                            className="w-full md:w-64 bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 placeholder:text-lagoon-100/50 focus:border-lagoon/60 focus:ring-lagoon/20"
+                        />
+                    </div>
+                </div>
+
+                <div className="p-4 space-y-3 bg-ocean-deep/30 min-h-[400px]">
+                    {/* Headers */}
+                    <div className="hidden md:flex px-6 py-2 text-xs font-bold text-lagoon-100/50 uppercase tracking-widest opacity-80">
+                        <div className="w-1/3">Member</div>
+                        <div className="w-1/4">Group</div>
+                        <div className="w-1/4">Post Count</div>
+                        <div className="ml-auto">Status</div>
+                    </div>
+
+                    {filteredMembers.map((member) => (
+                        <LifestyleRow key={`${member.id}-${member.lifestyleLogs[0]?.postCount ?? 'none'}`} member={member} />
+                    ))}
+
+                    {!hasResults && (
+                        <div className="flex flex-col items-center justify-center py-12 text-center text-lagoon-100/40">
+                            <Filter className="w-8 h-8 opacity-20 mb-2" />
+                            <p>No members found</p>
+                        </div>
+                    )}
+                </div>
+            </PremiumCard>
+
+            {/* Floating save bar — sticks to the bottom of the page scroll area */}
+            <div className="sticky bottom-4 z-30 flex items-center justify-between gap-4 px-5 py-3 rounded-xl border border-lagoon/30 bg-ocean-deep/90 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                <span className="text-xs font-semibold text-lagoon-100/70">
+                    {recordedCount} of {members.length} recorded
+                </span>
+                <Button type="submit" isLoading={isPending} className="min-w-[150px]">
+                    {isPending ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…</>
+                    ) : (
+                        <><Save className="w-4 h-4 mr-2" /> Save all</>
+                    )}
+                </Button>
+            </div>
+        </form>
+    );
+}
+
+function LifestyleRow({ member }: { member: Member }) {
     const currentPosts = member.lifestyleLogs[0]?.postCount;
     const hasLog = currentPosts !== undefined && currentPosts > 0;
 
@@ -136,34 +153,26 @@ function LifestyleRow({ member, weekId }: { member: Member, weekId: string }) {
                 </span>
             </div>
 
-            {/* Input Actions */}
+            {/* Post Count Input */}
             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
-                <form action={formAction} className="flex items-center space-x-2">
-                    <input type="hidden" name="memberId" value={member.id} />
-                    <input type="hidden" name="blockWeekId" value={weekId} />
-                    <div className="relative group/input">
-                        <input
-                            name="postCount"
-                            type="number"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            placeholder="0"
-                            aria-label={`Lifestyle posts for ${member.firstName} ${member.lastName}`}
-                            className={cn(
-                                "w-24 h-12 md:h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
-                                "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
-                                "group-hover/input:border-pink-500/50 group-hover/input:bg-ocean-deep",
-                                "focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500/50"
-                            )}
-                            defaultValue={currentPosts}
-                        />
-                    </div>
-                    <SubmitIconButton
-                        icon={<Save className="w-4 h-4" />}
-                        aria-label={`Save lifestyle posts for ${member.firstName} ${member.lastName}`}
-                        className="bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border-pink-500/20 hover:scale-105"
+                <div className="relative group/input inline-block">
+                    <input
+                        name={`post_${member.id}`}
+                        type="number"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        min="0"
+                        placeholder="0"
+                        aria-label={`Lifestyle posts for ${member.firstName} ${member.lastName}`}
+                        className={cn(
+                            "w-24 h-12 md:h-10 pl-3 pr-2 text-sm rounded-lg font-mono font-bold transition-all duration-200",
+                            "bg-ocean-deep/50 border border-lagoon/20 text-foreground placeholder:text-lagoon-100/30",
+                            "group-hover/input:border-pink-500/50 group-hover/input:bg-ocean-deep",
+                            "focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500/50"
+                        )}
+                        defaultValue={currentPosts}
                     />
-                </form>
+                </div>
             </div>
 
             {/* Status Indicator */}

@@ -303,6 +303,64 @@ export async function submitLifestyleLog(prevState: unknown, formData: FormData)
     }
 }
 
+// Bulk save for lifestyle logs: one transaction for every `post_<memberId>` field with a value.
+export async function submitLifestyleLogsBulk(prevState: unknown, formData: FormData) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
+
+    const blockWeekId = formData.get('blockWeekId');
+    if (typeof blockWeekId !== 'string' || !blockWeekId) {
+        return { success: false, message: "Missing week ID" };
+    }
+
+    const blockWeek = await prisma.blockWeek.findUnique({ where: { id: blockWeekId } });
+    if (blockWeek?.isFinalized) {
+        return { success: false, message: "This week has been finalized. Unfinalize to edit." };
+    }
+
+    const ops: { memberId: string; postCount: number }[] = [];
+    let invalid = 0;
+
+    for (const [key, value] of formData.entries()) {
+        if (!key.startsWith('post_')) continue;
+        const raw = typeof value === 'string' ? value.trim() : '';
+        if (raw === '') continue;
+        const postCount = parseInt(raw, 10);
+        const memberId = key.slice('post_'.length);
+        const validated = LifestyleLogSchema.safeParse({ memberId, blockWeekId, postCount });
+        if (!validated.success || Number.isNaN(postCount)) { invalid++; continue; }
+        ops.push({ memberId: validated.data.memberId, postCount: validated.data.postCount });
+    }
+
+    if (ops.length === 0) {
+        return { success: false, message: invalid > 0 ? "No valid post counts to save" : "No post counts entered" };
+    }
+
+    try {
+        await prisma.$transaction(
+            ops.map((o) =>
+                prisma.lifestyleLog.upsert({
+                    where: { memberId_blockWeekId: { memberId: o.memberId, blockWeekId } },
+                    update: { postCount: o.postCount },
+                    create: { memberId: o.memberId, blockWeekId, postCount: o.postCount },
+                }),
+            ),
+        );
+        const suffix = invalid > 0 ? ` (${invalid} skipped)` : '';
+        await writeAuditLog({
+            action: "LOG_LIFESTYLE_BULK",
+            details: `Bulk-saved ${ops.length} lifestyle log${ops.length === 1 ? '' : 's'} for week ${blockWeekId}${suffix}.`,
+            entityType: "LifestyleLog"
+        });
+        revalidatePath('/lifestyle');
+        revalidateTag('dashboard-stats', 'max');
+        return { success: true, message: `Saved ${ops.length} lifestyle log${ops.length === 1 ? '' : 's'}${suffix}` };
+    } catch (error) {
+        console.error("Database error saving lifestyle logs (bulk):", error);
+        return { success: false, message: "Failed to save lifestyle logs" };
+    }
+}
+
 // --- BENCHMARK LOGS ---
 export async function submitBenchmarkLog(prevState: unknown, formData: FormData) {
     const guard = await requireAdmin();
@@ -376,6 +434,89 @@ export async function submitBenchmarkLog(prevState: unknown, formData: FormData)
     } catch (error) {
         console.error("Error saving Benchmark Log:", error);
         return { success: false, message: "Failed to save" };
+    }
+}
+
+// Bulk save for benchmark logs: one transaction for every squats_/pushups_/burpees_<memberId> row touched.
+export async function submitBenchmarkLogsBulk(prevState: unknown, formData: FormData) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false, message: guard.message };
+
+    const blockWeekId = formData.get('blockWeekId');
+    const dateRaw = formData.get('date');
+    if (typeof blockWeekId !== 'string' || !blockWeekId) {
+        return { success: false, message: "Missing week ID" };
+    }
+    if (typeof dateRaw !== 'string' || !dateRaw) {
+        return { success: false, message: "Missing benchmark date" };
+    }
+
+    const blockWeek = await prisma.blockWeek.findUnique({ where: { id: blockWeekId } });
+    if (!blockWeek) {
+        return { success: false, message: "Invalid week" };
+    }
+    if (blockWeek.weekNumber !== 1 && blockWeek.weekNumber !== 8) {
+        return { success: false, message: "Benchmarks can only be logged for Week 1 and Week 8." };
+    }
+    if (blockWeek.isFinalized) {
+        return { success: false, message: "This week has been finalized. Unfinalize to edit." };
+    }
+
+    const dateObj = toUtcDateOnly(dateRaw);
+
+    const touched = new Map<string, { squats: string; pushups: string; burpees: string }>();
+    for (const [key, value] of formData.entries()) {
+        const raw = typeof value === 'string' ? value.trim() : '';
+        for (const field of ['squats', 'pushups', 'burpees'] as const) {
+            const prefix = `${field}_`;
+            if (!key.startsWith(prefix)) continue;
+            const memberId = key.slice(prefix.length);
+            const entry = touched.get(memberId) ?? { squats: '', pushups: '', burpees: '' };
+            entry[field] = raw;
+            touched.set(memberId, entry);
+        }
+    }
+
+    const ops: { memberId: string; squats: number; pushups: number; burpees: number }[] = [];
+    let invalid = 0;
+
+    for (const [memberId, fields] of touched) {
+        if (fields.squats === '' && fields.pushups === '' && fields.burpees === '') continue; // untouched row
+
+        const squats = fields.squats === '' ? 0 : parseInt(fields.squats, 10);
+        const pushups = fields.pushups === '' ? 0 : parseInt(fields.pushups, 10);
+        const burpees = fields.burpees === '' ? 0 : parseInt(fields.burpees, 10);
+
+        const validated = BenchmarkLogSchema.safeParse({ memberId, blockWeekId, date: dateRaw, squats, pushups, burpees });
+        if (!validated.success) { invalid++; continue; }
+        ops.push(validated.data);
+    }
+
+    if (ops.length === 0) {
+        return { success: false, message: invalid > 0 ? "No valid benchmark entries to save" : "No benchmarks entered" };
+    }
+
+    try {
+        await prisma.$transaction(
+            ops.map((o) =>
+                prisma.benchmarkLog.upsert({
+                    where: { memberId_blockWeekId: { memberId: o.memberId, blockWeekId } },
+                    update: { squats: o.squats, pushups: o.pushups, burpees: o.burpees },
+                    create: { memberId: o.memberId, blockWeekId, date: dateObj, squats: o.squats, pushups: o.pushups, burpees: o.burpees },
+                }),
+            ),
+        );
+        const suffix = invalid > 0 ? ` (${invalid} skipped)` : '';
+        await writeAuditLog({
+            action: "LOG_BENCHMARK_BULK",
+            details: `Bulk-saved ${ops.length} benchmark log${ops.length === 1 ? '' : 's'} for week ${blockWeekId}${suffix}.`,
+            entityType: "BenchmarkLog"
+        });
+        revalidatePath('/benchmarks');
+        return { success: true, message: `Saved ${ops.length} benchmark log${ops.length === 1 ? '' : 's'}${suffix}` };
+    } catch (error) {
+        console.error("Database error saving benchmark logs (bulk):", error);
+        return { success: false, message: "Failed to save benchmark logs" };
     }
 }
 
