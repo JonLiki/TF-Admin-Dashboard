@@ -16,15 +16,15 @@ export async function calculateWeekResults(
     options?: { lockWeek?: boolean }
 ) {
     const guard = await requireAdmin();
-    if (!guard.success) throw new Error(guard.message);
+    if (!guard.success) return { success: false as const, message: guard.message };
 
     const blockWeek = await prisma.blockWeek.findUnique({
         where: { id: blockWeekId },
         include: { block: { include: { weeks: { orderBy: { weekNumber: 'asc' } } } } }
     });
-    if (!blockWeek) throw new Error("Week not found");
+    if (!blockWeek) return { success: false as const, message: "Week not found" };
     if (blockWeek.isFinalized) {
-        throw new Error("Week is already finalized. Unfinalize it before recalculating.");
+        return { success: false as const, message: "Week is already finalized. Unfinalize it before recalculating." };
     }
 
     // 1. Fetch Data for Current Week (KM, Lifestyle, Attendance, WeighIns)
@@ -169,4 +169,5 @@ export async function calculateWeekResults(
 
     revalidatePath('/scoreboard');
     revalidateTag('dashboard-stats', 'max');
+    return { success: true as const };
 }

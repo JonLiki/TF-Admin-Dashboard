@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { toggleAttendance } from "@/actions/data";
 import { format } from "date-fns";
 import { ImportButton } from "@/components/ui/ImportButton";
+import { toast } from 'sonner';
 
 interface Member {
     id: string;
@@ -145,7 +146,8 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                             {/* Actions */}
                             <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
                                 <form action={async () => {
-                                    await toggleAttendance(session.id, member.id, !isPresent);
+                                    const res = await toggleAttendance(session.id, member.id, !isPresent);
+                                    if (!res.success) toast.error(res.message);
                                 }}>
                                     <Button
                                         size="sm"

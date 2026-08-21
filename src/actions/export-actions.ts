@@ -17,9 +17,12 @@ function csvRow(fields: string[]): string {
     return fields.map(csvEscape).join(',');
 }
 
-export async function exportBlockData(blockId: string, type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in' | 'benchmarks') {
+export async function exportBlockData(
+    blockId: string,
+    type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in' | 'benchmarks'
+): Promise<{ success: true; data: string } | { success: false; message: string }> {
     const guard = await requireAdmin();
-    if (!guard.success) throw new Error(guard.message);
+    if (!guard.success) return { success: false, message: guard.message };
 
     const block = await prisma.block.findUnique({
         where: { id: blockId },
@@ -30,7 +33,7 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
     });
 
     if (!block) {
-        throw new Error('Block not found');
+        return { success: false, message: 'Block not found' };
     }
 
     const members = await prisma.member.findMany({
@@ -391,5 +394,5 @@ export async function exportBlockData(blockId: string, type: 'attendance' | 'km'
         });
     }
 
-    return csvContent;
+    return { success: true, data: csvContent };
 }

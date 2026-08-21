@@ -57,7 +57,10 @@ describe('calculateWeekResults', () => {
     it('refuses to recalculate an already-finalized week', async () => {
         prismaMock.blockWeek.findUnique.mockResolvedValue(week({ isFinalized: true }));
 
-        await expect(calculateWeekResults('w1')).rejects.toThrow(/finalized/i);
+        const result = await calculateWeekResults('w1');
+
+        expect(result.success).toBe(false);
+        expect((result as { message: string }).message).toMatch(/finalized/i);
         expect(prismaMock.$transaction).not.toHaveBeenCalled();
     });
 

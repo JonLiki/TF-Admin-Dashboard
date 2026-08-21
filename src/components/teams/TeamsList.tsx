@@ -9,6 +9,7 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { deleteTeam, updateTeam } from "@/actions";
 import { cn } from "@/lib/utils";
 import { Pagination } from "@/components/ui/Pagination";
+import { toast } from 'sonner';
 
 interface Team {
     id: string;
@@ -167,7 +168,11 @@ export function TeamsList({ teams }: TeamsListProps) {
                                         </Button>
                                     )}
                                     <form action={async () => {
-                                        if (confirm('Are you sure you want to delete this group? All members will be unassigned.')) await deleteTeam(team.id);
+                                        if (confirm('Are you sure you want to delete this group? All members will be unassigned.')) {
+                                            const res = await deleteTeam(team.id);
+                                            if (res.success) toast.success(res.message);
+                                            else toast.error(res.message);
+                                        }
                                     }}>
                                         <Button
                                             variant="ghost"

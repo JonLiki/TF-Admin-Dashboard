@@ -8,6 +8,7 @@ import { toggleAttendance } from "@/actions/data";
 import { format } from "date-fns";
 import { ImportButton } from "@/components/ui/ImportButton";
 import { CalendarCheck, Filter, Loader2, Check } from "lucide-react";
+import { toast } from 'sonner';
 
 interface Member {
     id: string;
@@ -56,7 +57,9 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
 
     const handleToggle = (sessionId: string, memberId: string, currentlyPresent: boolean) => {
         startTransition(() => {
-            toggleAttendance(sessionId, memberId, !currentlyPresent);
+            toggleAttendance(sessionId, memberId, !currentlyPresent).then(res => {
+                if (!res.success) toast.error(res.message);
+            });
         });
     };
 

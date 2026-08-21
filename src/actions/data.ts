@@ -382,7 +382,7 @@ export async function submitBenchmarkLog(prevState: unknown, formData: FormData)
 // --- ATTENDANCE ---
 export async function toggleAttendance(sessionId: string, memberId: string, isPresent: boolean) {
     const guard = await requireAdmin();
-    if (!guard.success) throw new Error(guard.message);
+    if (!guard.success) return { success: false, message: guard.message };
 
     // Guard: check if the session's week is finalized
     const sessionRecord = await prisma.session.findUnique({
@@ -395,30 +395,35 @@ export async function toggleAttendance(sessionId: string, memberId: string, isPr
             w => sessionDate >= w.startDate && sessionDate <= w.endDate
         );
         if (parentWeek?.isFinalized) {
-            throw new Error("This week has been finalized. Unfinalize to edit.");
+            return { success: false, message: "This week has been finalized. Unfinalize to edit." };
         }
     }
 
-    const attendance = await prisma.attendance.upsert({
-        where: {
-            sessionId_memberId: {
+    try {
+        const attendance = await prisma.attendance.upsert({
+            where: {
+                sessionId_memberId: {
+                    sessionId,
+                    memberId
+                }
+            },
+            update: { isPresent },
+            create: {
                 sessionId,
-                memberId
+                memberId,
+                isPresent
             }
-        },
-        update: { isPresent },
-        create: {
-            sessionId,
-            memberId,
-            isPresent
-        }
-    });
-    await writeAuditLog({
-        action: "TOGGLE_ATTENDANCE",
-        details: `Marked member ${memberId} ${isPresent ? 'present' : 'absent'} for session ${sessionId}.`,
-        entityType: "Attendance",
-        entityId: attendance.id
-    });
-    revalidatePath('/attendance');
-    revalidateTag('dashboard-stats', 'max');
+        });
+        await writeAuditLog({
+            action: "TOGGLE_ATTENDANCE",
+            details: `Marked member ${memberId} ${isPresent ? 'present' : 'absent'} for session ${sessionId}.`,
+            entityType: "Attendance",
+            entityId: attendance.id
+        });
+        revalidatePath('/attendance');
+        revalidateTag('dashboard-stats', 'max');
+        return { success: true, message: `Marked ${isPresent ? 'present' : 'absent'}` };
+    } catch {
+        return { success: false, message: 'Failed to update attendance' };
+    }
 }

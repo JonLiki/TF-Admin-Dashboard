@@ -222,7 +222,8 @@ export async function finalizeWeek(blockWeekId: string) {
 
         // Calculate and persist all week results (metrics, awards, points) and
         // lock the week in the same transaction.
-        await calculateWeekResults(blockWeekId, { lockWeek: true });
+        const scoringResult = await calculateWeekResults(blockWeekId, { lockWeek: true });
+        if (!scoringResult.success) return scoringResult;
 
         await writeAuditLog({
             action: "FINALIZE_WEEK",

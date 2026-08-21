@@ -35,7 +35,7 @@ const fileForm = () => {
     return fd;
 };
 
-/** Actions returning { success: false, message } on rejection */
+/** Every mutating action returns { success: false, message } on rejection */
 const resultStyleActions: [string, () => Promise<{ success?: boolean; message?: string } | undefined | void>][] = [
     ['createTeam', () => memberTeamActions.createTeam(emptyForm())],
     ['updateTeam', () => memberTeamActions.updateTeam('t1', emptyForm())],
@@ -43,6 +43,7 @@ const resultStyleActions: [string, () => Promise<{ success?: boolean; message?: 
     ['updateMember', () => memberTeamActions.updateMember('m1', emptyForm())],
     ['toggleMemberActive', () => memberTeamActions.toggleMemberActive('m1', true)],
     ['deleteMember', () => memberTeamActions.deleteMember('m1')],
+    ['deleteTeam', () => memberTeamActions.deleteTeam('t1')],
     ['createBlock', () => blockActions.createBlock(emptyForm())],
     ['activateBlock', () => blockActions.activateBlock('b1')],
     ['deactivateBlock', () => blockActions.deactivateBlock('b1')],
@@ -53,18 +54,13 @@ const resultStyleActions: [string, () => Promise<{ success?: boolean; message?: 
     ['submitKmLog', () => dataActions.submitKmLog(undefined, emptyForm())],
     ['submitLifestyleLog', () => dataActions.submitLifestyleLog(undefined, emptyForm())],
     ['submitBenchmarkLog', () => dataActions.submitBenchmarkLog(undefined, emptyForm())],
+    ['toggleAttendance', () => dataActions.toggleAttendance('s1', 'm1', true)],
     ['importAttendance', () => importActions.importAttendance(fileForm())],
     ['importKm', () => importActions.importKm(fileForm())],
     ['importLifestyle', () => importActions.importLifestyle(fileForm())],
     ['importWeighIn', () => importActions.importWeighIn(fileForm())],
-];
-
-/** Actions that throw on rejection */
-const throwStyleActions: [string, () => Promise<unknown>][] = [
-    ['deleteTeam', () => memberTeamActions.deleteTeam('t1')],
-    ['toggleAttendance', () => dataActions.toggleAttendance('s1', 'm1', true)],
-    ['calculateWeekResults', () => scoringActions.calculateWeekResults('w1')],
     ['exportBlockData', () => exportActions.exportBlockData('b1', 'km')],
+    ['calculateWeekResults', () => scoringActions.calculateWeekResults('w1')],
 ];
 
 beforeEach(() => {
@@ -72,47 +68,25 @@ beforeEach(() => {
 });
 
 describe('actions reject logged-in PARTICIPANT users', () => {
-    describe('result-style actions', () => {
-        for (const [name, invoke] of resultStyleActions) {
-            it(`${name} rejects participants`, async () => {
-                mockAuth.mockResolvedValue(participantSession);
-                const result = await invoke();
-                expect(result).toBeDefined();
-                expect(result!.success).toBe(false);
-                expect(result!.message).toMatch(/unauthorized|admin/i);
-            });
-        }
-    });
-
-    describe('throw-style actions', () => {
-        for (const [name, invoke] of throwStyleActions) {
-            it(`${name} rejects participants`, async () => {
-                mockAuth.mockResolvedValue(participantSession);
-                await expect(invoke()).rejects.toThrow(/unauthorized|admin/i);
-            });
-        }
-    });
+    for (const [name, invoke] of resultStyleActions) {
+        it(`${name} rejects participants`, async () => {
+            mockAuth.mockResolvedValue(participantSession);
+            const result = await invoke();
+            expect(result).toBeDefined();
+            expect(result!.success).toBe(false);
+            expect(result!.message).toMatch(/unauthorized|admin/i);
+        });
+    }
 });
 
 describe('actions reject unauthenticated callers', () => {
-    describe('result-style actions', () => {
-        for (const [name, invoke] of resultStyleActions) {
-            it(`${name} rejects anonymous`, async () => {
-                mockAuth.mockResolvedValue(null);
-                const result = await invoke();
-                expect(result).toBeDefined();
-                expect(result!.success).toBe(false);
-                expect(result!.message).toMatch(/unauthorized|admin/i);
-            });
-        }
-    });
-
-    describe('throw-style actions', () => {
-        for (const [name, invoke] of throwStyleActions) {
-            it(`${name} rejects anonymous`, async () => {
-                mockAuth.mockResolvedValue(null);
-                await expect(invoke()).rejects.toThrow(/unauthorized|admin/i);
-            });
-        }
-    });
+    for (const [name, invoke] of resultStyleActions) {
+        it(`${name} rejects anonymous`, async () => {
+            mockAuth.mockResolvedValue(null);
+            const result = await invoke();
+            expect(result).toBeDefined();
+            expect(result!.success).toBe(false);
+            expect(result!.message).toMatch(/unauthorized|admin/i);
+        });
+    }
 });

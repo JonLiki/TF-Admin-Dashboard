@@ -18,10 +18,14 @@ export function BlockExportButton({ blockId, type, className }: BlockExportButto
     const handleExport = async () => {
         try {
             setIsLoading(true);
-            const csvData = await exportBlockData(blockId, type);
+            const result = await exportBlockData(blockId, type);
+            if (!result.success) {
+                toast.error(result.message);
+                return;
+            }
 
             // Create a blob and download it
-            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;

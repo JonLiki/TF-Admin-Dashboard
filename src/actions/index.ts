@@ -71,40 +71,45 @@ export async function updateTeam(id: string, formData: FormData) {
 
 export async function deleteTeam(id: string) {
     const guard = await requireAdmin();
-    if (!guard.success) throw new Error(guard.message);
+    if (!guard.success) return { success: false, message: guard.message };
 
-    const team = await prisma.team.findUnique({ where: { id } });
-    if (!team) throw new Error("Team not found");
+    try {
+        const team = await prisma.team.findUnique({ where: { id } });
+        if (!team) return { success: false, message: "Team not found" };
 
-    await prisma.$transaction(async (tx) => {
-        // 1. Clean up dependencies
-        // PointLedger
-        await tx.pointLedger.deleteMany({ where: { teamId: id } });
+        await prisma.$transaction(async (tx) => {
+            // 1. Clean up dependencies
+            // PointLedger
+            await tx.pointLedger.deleteMany({ where: { teamId: id } });
 
-        // TeamWeekAward
-        await tx.teamWeekAward.deleteMany({ where: { teamId: id } });
+            // TeamWeekAward
+            await tx.teamWeekAward.deleteMany({ where: { teamId: id } });
 
-        // TeamWeekMetric
-        await tx.teamWeekMetric.deleteMany({ where: { teamId: id } });
+            // TeamWeekMetric
+            await tx.teamWeekMetric.deleteMany({ where: { teamId: id } });
 
-        // 2. Unassign members
-        await tx.member.updateMany({
-            where: { teamId: id },
-            data: { teamId: null }
+            // 2. Unassign members
+            await tx.member.updateMany({
+                where: { teamId: id },
+                data: { teamId: null }
+            });
+
+            // 3. Delete Team
+            await tx.team.delete({ where: { id } });
         });
 
-        // 3. Delete Team
-        await tx.team.delete({ where: { id } });
-    });
+        await writeAuditLog({
+            action: "DELETE_TEAM",
+            details: `Deleted team "${team.name}" (ID: ${id}).`,
+            entityType: "Team",
+            entityId: id
+        });
 
-    await writeAuditLog({
-        action: "DELETE_TEAM",
-        details: `Deleted team "${team.name}" (ID: ${id}).`,
-        entityType: "Team",
-        entityId: id
-    });
-
-    revalidatePath('/teams');
+        revalidatePath('/teams');
+        return { success: true, message: 'Team deleted successfully' };
+    } catch {
+        return { success: false, message: 'Failed to delete team' };
+    }
 }
 
 // --- MEMBERS ---
