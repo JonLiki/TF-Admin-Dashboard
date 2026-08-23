@@ -251,6 +251,12 @@ export function AttendanceSessionChart({ data }: { data: AttendanceDataPoint[] }
 }
 
 export function MetricAreaChart({ data, color = "var(--color-lagoon)", unit = "", title }: { data: MetricDataPoint[], color?: string, unit?: string, title?: string }) {
+    if (!data || data.length === 0) return (
+        <div className="h-[350px] flex items-center justify-center text-foreground/50 text-sm">
+            No data logged yet this block.
+        </div>
+    );
+
     return (
         <PremiumCard className="p-0 border-none shadow-none bg-transparent">
             <div className="h-[350px] w-full p-4 relative">
@@ -322,6 +328,12 @@ export function MetricAreaChart({ data, color = "var(--color-lagoon)", unit = ""
 }
 
 export function MetricBarChart({ data, color = "var(--color-primary)", unit = "", title }: { data: MetricDataPoint[], color?: string, unit?: string, title?: string }) {
+    if (!data || data.length === 0) return (
+        <div className="h-[350px] flex items-center justify-center text-foreground/50 text-sm">
+            No data logged yet this block.
+        </div>
+    );
+
     return (
         <PremiumCard className="p-0 border-none shadow-none bg-transparent">
             <div className="h-[350px] w-full p-4 relative">
