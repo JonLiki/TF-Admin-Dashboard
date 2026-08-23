@@ -124,15 +124,14 @@ export function Sidebar() {
                 {/* 1. Translucent Obsidian Base with Glass effect */}
                 <div className="absolute inset-0 bg-obsidian/45 backdrop-blur-xl z-0" />
 
-                {/* 2. Atmospheric Glows (Bioluminescence & Volcanic) */}
-                <div className="absolute top-[-10%] left-[-20%] w-[150%] h-[50%] bg-[radial-gradient(circle,rgba(102,252,241,0.15)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
-                <div className="absolute bottom-[-10%] right-[-20%] w-[120%] h-[60%] bg-[radial-gradient(circle,rgba(197,0,0,0.1)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
+                {/* 2. Atmospheric Glow (Volcanic — Tongan red, the identity color) */}
+                <div className="absolute bottom-[-10%] right-[-20%] w-[120%] h-[60%] bg-[radial-gradient(circle,rgba(197,0,0,0.08)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
 
                 {/* 3. Warrior Silhouette Concept (Central Shadow) */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 z-0 pointer-events-none" />
 
                 {/* 4. Tapa Pattern Overlay */}
-                <div className="absolute inset-0 z-0 pointer-events-none mix-blend-overlay opacity-20">
+                <div className="absolute inset-0 z-0 pointer-events-none mix-blend-overlay opacity-40">
                     <TonganNgatu opacity={0.3} />
                 </div>
 
@@ -152,7 +151,7 @@ export function Sidebar() {
                         </div>
                         <div>
                             <h1 className="text-lg font-bold leading-none tracking-tight font-display text-gradient">TO&apos;A FATALONA</h1>
-                            <p className="text-micro text-foreground/60 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Admin Command</p>
+                            <p className="text-micro text-foreground/60 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Team Admin</p>
                         </div>
                     </div>
                 </div>

@@ -49,11 +49,11 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
             animate="show"
             variants={container}
         >
-            {/* Mission Control Welcome Banner */}
+            {/* Welcome Banner */}
             <motion.div variants={item} className="flex items-center gap-4">
                 <div>
                     <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-gradient">
-                        Mission Control
+                        Team Overview
                     </h2>
                     <p className="text-xs md:text-sm text-foreground/60 font-medium mt-1 tracking-wide">
                         Block Overview &mdash; Week {stats.currentWeekNumber} Active

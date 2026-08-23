@@ -10,8 +10,8 @@ export default function LoginFeedback() {
 
     useEffect(() => {
         if (searchParams.get("verified") === "true") {
-            toast.success("Access Granted", {
-                description: "Welcome back to the Command Center.",
+            toast.success("Signed in", {
+                description: "Welcome back.",
                 duration: 4000,
             });
 

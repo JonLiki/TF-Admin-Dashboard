@@ -241,7 +241,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                                     <cat.icon className="w-3.5 h-3.5" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[11px] font-bold text-foreground/90 group-hover:text-foreground transition-colors">
+                                                    <span className="text-sm font-bold text-foreground/90 group-hover:text-foreground transition-colors">
                                                         {cat.label}
                                                     </span>
                                                     <span className="text-micro text-foreground/50 uppercase tracking-widest font-semibold mt-0.5 leading-none">

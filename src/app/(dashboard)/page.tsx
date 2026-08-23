@@ -89,7 +89,7 @@ async function DashboardContent() {
 export default function Home() {
   return (
     <div className="min-h-full pb-10">
-      <PageHeader title="Dashboard" subtitle="Command Center" />
+      <PageHeader title="Dashboard" subtitle="Weekly team overview" />
       
       {/* Login Feedback handles its own Suspense internally or is client-driven, 
           but adding Suspense wrapper is good practice */}

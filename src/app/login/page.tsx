@@ -27,7 +27,7 @@ export default function LoginPage() {
                     <div className="absolute -inset-1 bg-gradient-to-r from-tongan via-lagoon to-tongan rounded-3xl opacity-20 blur-md group-hover:opacity-30 transition-opacity duration-500" />
 
                     {/* Glass Card */}
-                    <div className="relative w-full bg-ocean-deep/90 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden scanline">
+                    <div className="relative w-full bg-ocean-deep/90 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
                         {/* Top Accent Line */}
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-lagoon to-transparent" />
 
@@ -52,7 +52,7 @@ export default function LoginPage() {
                                 {/* Subtitle */}
                                 <div className="flex items-center justify-center gap-2 text-lagoon-100/70">
                                     <LockKeyhole className="w-3.5 h-3.5" />
-                                    <p className="text-xs font-bold uppercase tracking-[0.25em]">Command Access</p>
+                                    <p className="text-xs font-bold uppercase tracking-[0.25em]">Admin Sign In</p>
                                 </div>
                                 <p className="text-foreground/60 mt-2">Enter your credentials to access the To&apos;a Fatalona dashboard.</p>
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
                                         className="block text-micro font-bold uppercase tracking-wider text-foreground/60 ml-1"
                                         htmlFor="email"
                                     >
-                                        Official Email
+                                        Email
                                     </label>
                                     <div className="relative group/input">
                                         <input
@@ -93,7 +93,7 @@ export default function LoginPage() {
                                         className="block text-micro font-bold uppercase tracking-wider text-foreground/60 ml-1"
                                         htmlFor="password"
                                     >
-                                        Passcode
+                                        Password
                                     </label>
                                     <div className="relative group/input">
                                         <input
@@ -126,7 +126,7 @@ export default function LoginPage() {
                                         <Loader2 className="w-5 h-5 animate-spin" />
                                     ) : (
                                         <span className="flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
-                                            Authenticate
+                                            Sign In
                                             <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                                         </span>
                                     )}
@@ -142,7 +142,7 @@ export default function LoginPage() {
                 {/* Footer */}
                 <div className="mt-8 text-center space-y-2">
                     <p className="text-[11px] text-foreground/60 font-medium tracking-wide">
-                        Authorized Personnel Only
+                        For team administrators
                     </p>
                     <p className="text-foreground/50 text-xs text-center mt-8">
                         &copy; 2026 To&apos;a Fatalona. All rights reserved.
