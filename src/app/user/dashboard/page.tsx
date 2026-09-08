@@ -75,14 +75,13 @@ export default async function UserDashboardPage() {
     }));
 
     const allTeams = await prisma.team.findMany();
-    const overallLeaderboard = getLeaderboardStandings(allTeams, teamPoints);
-
 
     const allBlockMetrics = await prisma.teamWeekMetric.findMany({
         where: { blockWeek: { blockId: block.id } },
         include: { team: true, blockWeek: true },
         orderBy: { blockWeek: { weekNumber: 'asc' } }
     });
+    const overallLeaderboard = getLeaderboardStandings(allTeams, teamPoints, allBlockMetrics);
     const trendData = getTrendData(allBlockMetrics);
     const topTeamsForTrend = overallLeaderboard.map(t => t.name);
 

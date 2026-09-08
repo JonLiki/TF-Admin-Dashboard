@@ -51,15 +51,16 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
     }));
 
     const allTeams = await prisma.team.findMany();
-    const overallLeaderboard = getLeaderboardStandings(allTeams, teamPoints);
     const sortedMetrics = sortMetrics(metrics);
 
-    // Trend Data
+    // Block-wide metrics, used both for the trend chart and to break
+    // overall-standings points ties by average category rank.
     const allBlockMetrics = await prisma.teamWeekMetric.findMany({
         where: { blockWeek: { blockId: block.id } },
         include: { team: true, blockWeek: true },
         orderBy: { blockWeek: { weekNumber: 'asc' } }
     });
+    const overallLeaderboard = getLeaderboardStandings(allTeams, teamPoints, allBlockMetrics);
     const trendData = getTrendData(allBlockMetrics);
     const topTeamsForTrend = overallLeaderboard.map(t => t.name);
 

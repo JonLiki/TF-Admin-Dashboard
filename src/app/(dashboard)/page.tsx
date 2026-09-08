@@ -47,7 +47,7 @@ export async function getStats() {
 
   // Execute remaining composable queries in parallel
   const [leaderboard, weeklyTotals, attendanceData, dataCompleteness] = await Promise.all([
-    getLeaderboard(activeBlock.id, teamsList),
+    getLeaderboard(activeBlock.id, teamsList, allMetrics),
     getWeeklyTotals(activeBlock.id, weeks),
     getAttendanceData(activeBlock.id, memberCount),
     getCurrentWeekCompleteness(currentWeek, memberCount)

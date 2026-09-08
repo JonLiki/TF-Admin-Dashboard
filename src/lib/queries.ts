@@ -9,6 +9,8 @@
 
 import prisma from '@/lib/prisma';
 import { utcDayRange } from '@/lib/dates';
+import { getLeaderboardStandings } from '@/lib/transformers/scoreboard';
+import { TeamWeekMetric } from '@prisma/client';
 
 // ─── Block Queries ──────────────────────────────────────────────────────────
 
@@ -251,23 +253,23 @@ export async function getFullBlockSummary() {
 
 // ─── Dashboard Stats Helpers ────────────────────────────────────────────────
 
-export async function getLeaderboard(blockId: string, teamsList: { id: string; name: string }[]) {
+export async function getLeaderboard(
+    blockId: string,
+    teamsList: { id: string; name: string }[],
+    blockMetrics: TeamWeekMetric[] = []
+) {
     const pointTotals = await prisma.pointLedger.groupBy({
         by: ['teamId'],
         where: { blockId },
         _sum: { amount: true }
     });
 
-    const teamPointsMap = new Map<string, number>();
-    pointTotals.forEach(pt => {
-        teamPointsMap.set(pt.teamId, pt._sum?.amount || 0);
-    });
+    const teamPoints = pointTotals.map(pt => ({
+        teamId: pt.teamId,
+        points: pt._sum?.amount || 0
+    }));
 
-    return teamsList.map(t => ({
-        name: t.name,
-        points: teamPointsMap.get(t.id) || 0,
-        id: t.id
-    })).sort((a, b) => b.points - a.points).slice(0, 3);
+    return getLeaderboardStandings(teamsList, teamPoints, blockMetrics).slice(0, 3);
 }
 
 export async function getWeeklyTotals(blockId: string, weeks: { id: string; weekNumber: number }[]) {
