@@ -109,7 +109,7 @@ export function getLeaderboardStandings(
             b.totalWins - a.totalWins ||
             a.name.localeCompare(b.name)
         )
-        .map(({ avgRank, totalWins, ...item }, index) => ({ ...item, rank: index + 1 }));
+        .map(({ id, name, points }, index) => ({ id, name, points, rank: index + 1 }));
 }
 
 export function sortMetrics(metrics: (TeamWeekMetric & { team: Team })[]) {

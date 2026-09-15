@@ -37,6 +37,10 @@ export function parseCSV(csvText: string): string[][] {
         }
     }
 
+    if (insideQuotes) {
+        throw new Error('Invalid CSV: unterminated quoted field');
+    }
+
     // Add last row if exists
     if (currentCell || currentRow.length > 0) {
         currentRow.push(currentCell.trim());

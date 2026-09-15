@@ -663,3 +663,15 @@ html {
 }
 
 /* --- Pacific Cultural Patterns (Managed via Component/SVG) --- */
+/* Quiet, readable controls for repeated data entry. */
+.entry-form input { font-size: 1rem; }
+.entry-form .sticky { flex-wrap: wrap; }
+.entry-form input:disabled { opacity: 0.7; cursor: wait; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

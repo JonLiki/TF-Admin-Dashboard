@@ -28,7 +28,6 @@ export const viewport = {
   themeColor: "#051A24", // Ocean Deep
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export const metadata: Metadata = {

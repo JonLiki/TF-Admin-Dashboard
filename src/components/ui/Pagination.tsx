@@ -16,8 +16,9 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
     const pages = getPageNumbers(currentPage, totalPages);
 
     return (
-        <div className={cn("flex items-center justify-center gap-1.5 py-4", className)}>
+        <nav aria-label="Pagination" className={cn("flex items-center justify-center gap-1.5 py-4", className)}>
             <button
+                type="button"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="p-2 rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
@@ -33,7 +34,10 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                     </span>
                 ) : (
                     <button
+                        type="button"
                         key={page}
+                        aria-label={`Page ${page}`}
+                        aria-current={currentPage === page ? 'page' : undefined}
                         onClick={() => onPageChange(page as number)}
                         className={cn(
                             "min-w-[36px] h-9 px-2 rounded-lg text-sm font-medium transition-all duration-200",
@@ -48,6 +52,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
             )}
 
             <button
+                type="button"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className="p-2 rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
@@ -55,7 +60,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
             >
                 <ChevronRight className="w-4 h-4" />
             </button>
-        </div>
+        </nav>
     );
 }
 

@@ -2,6 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { parseCSV } from './csvParser';
 
 describe('parseCSV', () => {
+  it('rejects unfinished quoted fields instead of merging subsequent rows', () => {
+    expect(() => parseCSV('First,Last\n"John,Doe\nJane,Smith'))
+      .toThrow('Invalid CSV: unterminated quoted field');
+  });
+
+  it('rejects an escaped quote without a closing field quote', () => {
+    expect(() => parseCSV('Name\n"John ""Danger""'))
+      .toThrow('Invalid CSV: unterminated quoted field');
+  });
+
   it('should parse simple CSV data', () => {
     const csv = 'First,Last,Role\nJohn,Doe,Participant\nJane,Smith,Admin';
     const parsed = parseCSV(csv);

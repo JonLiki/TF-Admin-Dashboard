@@ -12,10 +12,14 @@ import {
     CalendarCheck,
     Trophy,
     FileText,
+    Calendar,
+    Dumbbell,
     LucideIcon
 } from 'lucide-react';
 
 const routeMap: Record<string, { label: string; icon: LucideIcon }> = {
+    '/blocks': { label: 'Blocks', icon: Calendar },
+    '/benchmarks': { label: 'Benchmarks', icon: Dumbbell },
     '/': { label: 'Dashboard', icon: LayoutDashboard },
     '/teams': { label: 'Teams', icon: Users },
     '/members': { label: 'Members', icon: UserPlus },
@@ -29,12 +33,13 @@ const routeMap: Record<string, { label: string; icon: LucideIcon }> = {
 
 export function Breadcrumb({ className }: { className?: string }) {
     const pathname = usePathname();
-    const route = routeMap[pathname] ?? { label: 'Page', icon: LayoutDashboard };
+    const parent = Object.keys(routeMap).find(path => path !== '/' && pathname.startsWith(`${path}/`));
+    const route = routeMap[pathname] ?? (parent ? { ...routeMap[parent], label: `${routeMap[parent].label} / ${parent === '/members' ? 'Member details' : 'Team details'}` } : { label: 'Dashboard', icon: LayoutDashboard });
     const Icon = route.icon;
 
     return (
         <div className={cn(
-            "lg:hidden relative flex items-center gap-2.5 px-4 py-3 pl-16",
+            "lg:hidden relative flex items-center gap-2.5 min-h-16 px-4 py-3 pl-16",
             "bg-surface-deep/80 backdrop-blur-md border-b border-white/5",
             "sticky top-0 z-30",
             className

@@ -130,7 +130,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                 <div className="flex items-center justify-between mb-5 border-b border-white/5 pb-3">
                     <div className="flex items-center gap-2">
                         {allComplete ? (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.4)] animate-pulse-slow" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.4)]" />
                         ) : (
                             <AlertCircle className="w-4 h-4 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
                         )}
@@ -138,7 +138,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                             Week {currentWeekNumber} Status
                         </h3>
                     </div>
-                    <span className={cn("text-micro font-black uppercase tracking-widest px-2 py-0.5 rounded border shadow-inner transition-colors duration-300", getBgColor(avgPercentage))}>
+                    <span className={cn("text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded border shadow-inner transition-colors duration-300", getBgColor(avgPercentage))}>
                         {allComplete ? 'Ready' : `${avgPercentage}%`}
                     </span>
                 </div>
@@ -146,7 +146,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                 {/* Concentric rings & Legend grid */}
                 <div className="flex flex-col sm:flex-row items-center gap-6 justify-center">
                     {/* SVG Progress Rings */}
-                    <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
+                    <div className="relative w-36 h-36 shrink-0 hidden md:flex items-center justify-center">
                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 170 170">
                             <defs>
                                 <filter id="glow-effect" x="-10%" y="-10%" width="120%" height="120%">
@@ -191,6 +191,8 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                             className="transition-all duration-300 cursor-pointer"
                                             onMouseEnter={() => setHoveredCategory(cat.key)}
                                             onMouseLeave={() => setHoveredCategory(null)}
+                                    onFocus={() => setHoveredCategory(cat.key)}
+                                    onBlur={() => setHoveredCategory(null)}
                                         />
                                     </g>
                                 );
@@ -211,7 +213,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                 key={centerLabel}
                                 initial={{ opacity: 0, y: 3 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-micro font-bold uppercase tracking-widest text-foreground/50 mt-0.5"
+                                className="text-xs font-bold uppercase tracking-widest text-foreground/70 mt-0.5"
                             >
                                 {centerLabel}
                             </motion.span>
@@ -219,7 +221,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                     </div>
 
                     {/* Legend Rows */}
-                    <div className="flex-1 w-full space-y-2.5">
+                    <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                         {categoriesList.map(cat => {
                             const isHovered = hoveredCategory === cat.key;
                             const isAnyHovered = hoveredCategory !== null;
@@ -229,6 +231,8 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                     key={cat.key}
                                     onMouseEnter={() => setHoveredCategory(cat.key)}
                                     onMouseLeave={() => setHoveredCategory(null)}
+                                    onFocus={() => setHoveredCategory(cat.key)}
+                                    onBlur={() => setHoveredCategory(null)}
                                     className={cn(
                                         "transition-all duration-300",
                                         isAnyHovered && !isHovered ? "opacity-35" : "opacity-100"
@@ -244,7 +248,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
                                                     <span className="text-sm font-bold text-foreground/90 group-hover:text-foreground transition-colors">
                                                         {cat.label}
                                                     </span>
-                                                    <span className="text-micro text-foreground/50 uppercase tracking-widest font-semibold mt-0.5 leading-none">
+                                                    <span className="text-xs text-foreground/70 uppercase tracking-widest font-semibold mt-0.5 leading-none">
                                                         {cat.value}
                                                     </span>
                                                 </div>

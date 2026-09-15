@@ -13,7 +13,7 @@ A production-quality fitness team management system for administering "TO'A FATA
 - **Scoreboard**: Automated calculation of weekly awards and points across all four scoring categories.
 - **Scoring Engine**: Implements rules for KM Avg, Weight Loss Total, Lifestyle Avg, and Attendance Avg (+1 point per category winner; ties award all tied teams).
 - **Member Progress Dashboard**: Participant-facing view at `/user` showing personal stats, benchmark trends, and attendance history.
-- **PDF/Excel Export**: Export table data and summaries via jsPDF and XLSX.
+- **PDF/Excel Export**: Export table data and summaries via jsPDF and ExcelJS.
 - **Interactive Analytics**: Premium trend charts (Recharts) and dynamic dashboard animations (Framer Motion, React Spring).
 - **Audit Trail**: All mutations are logged with user, entity type, entity ID, action, and timestamp.
 - **Security**: Role-based authorization (ADMIN / PARTICIPANT), login throttling with lockout, and production-safe seed credentials.
@@ -30,14 +30,14 @@ A production-quality fitness team management system for administering "TO'A FATA
 | Validation | Zod v4 |
 | Testing | Vitest v4 |
 | Data Visualization | Recharts v3, Framer Motion v12, React Spring v10 |
-| Export | jsPDF v4 + jsPDF-AutoTable, XLSX v0.18 |
+| Export | jsPDF v4 + jsPDF-AutoTable, ExcelJS v4 |
 | Utilities | date-fns v4, bcryptjs v3, sonner v2 |
 
 ## Getting Started
 
 ### 1. Prerequisites
 
-- Node.js v18+
+- Node.js v20.9.0 or newer
 - PostgreSQL (local or remote)
 
 ### 2. Environment Setup
@@ -91,11 +91,12 @@ Visit [http://localhost:3000](http://localhost:3000)
 ### 6. Testing & Quality Checks
 
 ```bash
-npm run test   # Vitest unit tests (11 test suites)
-npm run lint   # ESLint v9
+npm test -- --run  # Run all Vitest tests once
+npm run lint      # ESLint v9
+npm run typecheck # TypeScript checks
 ```
 
-> The codebase has been fully audited and cleaned up. It builds and lints with 0 errors and 0 warnings.
+Run these checks before submitting changes. A production build can also be checked with `npm run build`.
 
 ## Folder Structure
 

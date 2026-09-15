@@ -9,9 +9,10 @@ import { importAttendance, importKm, importLifestyle, importWeighIn } from '@/ac
 interface ImportButtonProps {
     type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in';
     className?: string;
+    disabled?: boolean;
 }
 
-export function ImportButton({ type, className }: ImportButtonProps) {
+export function ImportButton({ type, className, disabled }: ImportButtonProps) {
     const [isImporting, setIsImporting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,21 +25,10 @@ export function ImportButton({ type, className }: ImportButtonProps) {
         formData.append('file', file);
 
         try {
-            switch (type) {
-                case 'attendance':
-                    await importAttendance(formData);
-                    break;
-                case 'km':
-                    await importKm(formData);
-                    break;
-                case 'lifestyle':
-                    await importLifestyle(formData);
-                    break;
-                case 'weigh-in':
-                    await importWeighIn(formData);
-                    break;
-            }
-            toast.success('Import successful');
+            const actions = { attendance: importAttendance, km: importKm, lifestyle: importLifestyle, 'weigh-in': importWeighIn };
+            const result = await actions[type](formData);
+            if (result.success) toast.success(result.message);
+            else toast.error(result.message);
         } catch (error) {
             console.error('Import failed:', error);
             toast.error('Import failed');
@@ -60,6 +50,9 @@ export function ImportButton({ type, className }: ImportButtonProps) {
                 style={{ display: 'none' }}
             />
             <Button
+                type="button"
+                disabled={disabled}
+                title={disabled ? "Save your changes before importing" : undefined}
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}

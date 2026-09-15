@@ -3,7 +3,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/Button';
 import { Users, Scale, Activity, ArrowRight, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -44,7 +43,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
 
     return (
         <motion.div
-            className="px-6 md:px-10 space-y-8 mt-6"
+            className="px-4 sm:px-6 md:px-10 space-y-6 my-6"
             initial="hidden"
             animate="show"
             variants={container}
@@ -61,13 +60,25 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                 </div>
             </motion.div>
 
+            <section aria-label="Weekly tasks" className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-lg font-bold">This week?s tasks</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {[['/weigh-in', 'Log weigh-ins'], ['/attendance', 'Take attendance'], ['/km', 'Log KM']].map(([href, label]) => (
+                            <Link key={href} href={href} className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface-ocean px-4 text-sm font-semibold hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-lagoon">{label}</Link>
+                        ))}
+                    </div>
+                </div>
+                <DataCompletenessWidget data={stats.dataCompleteness} currentWeekNumber={stats.currentWeekNumber} />
+            </section>
+
             {/* BENTO GRID LAYOUT - Mobile Optimized */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-min">
 
                 {/* 1. HERO METRIC: Current Week (Top Left) */}
                 <motion.div variants={item} className="col-span-1">
                     <StatCard
-                        label="Current Phase"
+                        label="Current week"
                         value={`Week ${stats.currentWeekNumber}`}
                         icon={Activity}
                         colorClass="bg-lagoon/10 text-lagoon-100"
@@ -111,22 +122,13 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                             teams={stats.teamsList}
                             attendanceData={stats.attendanceData}
                             weeklyTotals={stats.weeklyTotals}
-                            title="Performance Matrix"
+                            title="Team performance"
                         />
                     </ClientOnly>
                 </motion.div>
 
                 {/* 5. LEADERBOARD (Middle Right) - Stack on mobile, 1 col on desktop */}
                 <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-1 md:row-span-2 flex flex-col h-full space-y-4">
-                    {/* Data Completeness Widget */}
-                    <DataCompletenessWidget
-                        data={stats.dataCompleteness}
-                        currentWeekNumber={stats.currentWeekNumber}
-                    />
-
-                    {/* Section separator */}
-                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Crown className="w-5 h-5 text-tongan drop-shadow-[0_0_6px_rgba(197,0,0,0.4)]" />
@@ -178,15 +180,6 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                             );
                         })}
 
-                        {/* Quick Actions */}
-                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                            <Link href="/weigh-in" className="mt-4 block">
-                                <Button className="w-full bg-ocean-deep border border-dashed border-lagoon/30 hover:border-tongan text-lagoon-100/60 hover:text-foreground hover:bg-tongan/10 justify-center h-12 shadow-none transition-all duration-300 group">
-                                    <Scale className="w-4 h-4 mr-2 group-hover:text-tongan transition-colors" />
-                                    <span className="text-xs font-bold uppercase tracking-widest">Log Weigh-in</span>
-                                </Button>
-                            </Link>
-                        </motion.div>
                     </div>
                 </motion.div>
 

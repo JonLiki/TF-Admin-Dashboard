@@ -53,7 +53,7 @@ export function getMemberProgress(
             : null;
 
     const trend = sorted.map((w) => ({
-        date: new Date(w.date).toLocaleDateString('en-NZ', { month: 'short', day: 'numeric' }),
+        date: new Date(w.date).toLocaleDateString('en-NZ', { month: 'short', day: 'numeric', timeZone: 'UTC' }),
         weight: w.weight,
     }));
 
