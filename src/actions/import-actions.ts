@@ -7,7 +7,12 @@ import { format } from 'date-fns';
 import { ImportAttendanceRowSchema, ImportKmRowSchema, ImportLifestyleRowSchema, ImportWeighInRowSchema } from '@/lib/schemas';
 import { writeAuditLog } from '@/lib/audit';
 import { requireAdmin } from '@/lib/auth-guard';
+import { getWeighInLockCheck } from '@/lib/queries';
+import { addUtcDays } from '@/lib/dates';
 import { z } from 'zod';
+
+const lockedNote = (n: number) =>
+    n > 0 ? ` ${n} column${n === 1 ? '' : 's'} skipped (finalized week).` : '';
 
 // Helper to get active block and members map
 async function getImportContext() {
@@ -49,15 +54,19 @@ export async function importAttendance(formData: FormData) {
         const header = rows[0];
         const { block, memberMap } = await getImportContext();
 
-        // 1. Map Columns to Sessions
+        // 1. Map Columns to Sessions (finalized weeks are locked, same as manual entry)
         const sessionColMap = new Map<number, string>();
+        let lockedCols = 0;
         for (let i = 5; i < header.length; i++) {
             const colHeader = header[i];
             const matchedSession = block.sessions.find(s => {
                 const formatted = `${format(s.date, 'MMM d')} (${s.type})`;
                 return formatted === colHeader;
             });
-            if (matchedSession) sessionColMap.set(i, matchedSession.id);
+            if (!matchedSession) continue;
+            const week = block.weeks.find(w => matchedSession.date >= w.startDate && matchedSession.date <= w.endDate);
+            if (week?.isFinalized) { lockedCols++; continue; }
+            sessionColMap.set(i, matchedSession.id);
         }
 
         let successCount = 0;
@@ -153,7 +162,7 @@ export async function importAttendance(formData: FormData) {
         revalidateTag('dashboard-stats', 'max');
         return {
             success: true,
-            message: `Imported ${successCount} records. ${errors.length > 0 ? `(${errors.length} errors)` : ''}`
+            message: `Imported ${successCount} records. ${errors.length > 0 ? `(${errors.length} errors)` : ''}${lockedNote(lockedCols)}`
         };
 
     } catch (e) {
@@ -188,12 +197,14 @@ async function importWeeklyData({
         const { block, memberMap } = await getImportContext();
 
         const weekColMap = new Map<number, string>();
+        let lockedCols = 0;
         for (let i = 4; i < header.length; i++) {
             const colHeader = header[i];
             const match = colHeader.match(/Week (\d+)/);
             if (match) {
                 const weekNum = parseInt(match[1]);
                 const matchedWeek = block.weeks.find(w => w.weekNumber === weekNum);
+                if (matchedWeek?.isFinalized) { lockedCols++; continue; }
                 if (matchedWeek) weekColMap.set(i, matchedWeek.id);
             }
         }
@@ -310,7 +321,7 @@ async function importWeeklyData({
 
         revalidatePath(revalidatePathName);
         revalidateTag('dashboard-stats', 'max');
-        return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}` };
+        return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}${lockedNote(lockedCols)}` };
 
     } catch (e) {
         return { success: false, message: 'Import failed: ' + (e as Error).message };
@@ -364,6 +375,8 @@ export async function importWeighIn(formData: FormData) {
 
         let successCount = 0;
         let errors = 0;
+        let lockedCells = 0;
+        const isLocked = await getWeighInLockCheck(block.startDate, addUtcDays(block.endDate, 1));
 
         await prisma.$transaction(async (tx) => {
             const memberIds = Array.from(memberMap.values());
@@ -415,9 +428,8 @@ export async function importWeighIn(formData: FormData) {
                     }
                     const weight = result.data;
 
-                    const weekStart = new Date(week.startDate);
-                    const weekEnd = new Date(weekStart);
-                    weekEnd.setDate(weekEnd.getDate() + 6);
+                    const weekStart = week.startDate;
+                    const weekEnd = addUtcDays(weekStart, 6);
 
                     // Search in-memory
                     const memberWeighIns = existingMap.get(memberId) || [];
@@ -425,6 +437,11 @@ export async function importWeighIn(formData: FormData) {
                         const d = new Date(w.date);
                         return d >= weekStart && d <= weekEnd;
                     });
+
+                    if (isLocked(existing ? existing.date : weekStart)) {
+                        lockedCells++;
+                        continue;
+                    }
 
                     if (existing) {
                         toUpdate.push({
@@ -469,7 +486,8 @@ export async function importWeighIn(formData: FormData) {
 
         revalidatePath('/weigh-in');
         revalidateTag('dashboard-stats', 'max');
-        return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}` };
+        const lockedMsg = lockedCells > 0 ? ` ${lockedCells} skipped (finalized week).` : '';
+        return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}${lockedMsg}` };
 
     } catch (e) {
         return { success: false, message: 'Import failed: ' + (e as Error).message };

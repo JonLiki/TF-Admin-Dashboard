@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateTeamMetrics, determineWinners, ScorableTeam } from './scoring-logic';
+import { calculateTeamMetrics, determineWinners, weightLossWindow, ScorableTeam } from './scoring-logic';
 
 describe('Scoring Logic', () => {
     describe('calculateTeamMetrics', () => {
@@ -113,5 +113,13 @@ describe('Scoring Logic', () => {
             expect(awards.every(a => a.teamId === 't2')).toBe(true);
             expect(awards).toHaveLength(4); // Wins all 4 categories by default
         });
+    });
+});
+
+describe('weightLossWindow', () => {
+    it('spans the Sunday before through the following Wednesday, in UTC', () => {
+        const { start, end } = weightLossWindow(new Date('2026-01-19T00:00:00.000Z')); // Monday
+        expect(start.toISOString()).toBe('2026-01-18T00:00:00.000Z'); // Sunday
+        expect(end.toISOString()).toBe('2026-01-29T00:00:00.000Z');   // exclusive: through Wed 28th
     });
 });

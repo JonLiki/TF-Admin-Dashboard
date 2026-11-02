@@ -66,10 +66,12 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
     const loadCompleteness = () => {
         setIsOpen(true);
         startTransition(async () => {
-            const data = await fetchWeekDataCompleteness(weekId);
-            if (data) {
-                setCompleteness(data);
-                setIsFinalized(data.isFinalized);
+            const result = await fetchWeekDataCompleteness(weekId);
+            if (result.success) {
+                setCompleteness(result.data);
+                setIsFinalized(result.data.isFinalized);
+            } else {
+                setFeedback({ type: 'error', message: result.message });
             }
         });
     };

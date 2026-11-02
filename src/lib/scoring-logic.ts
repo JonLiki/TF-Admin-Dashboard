@@ -1,3 +1,5 @@
+import { addUtcDays, toUtcDateOnly } from './dates';
+
 
 export interface ScorableMember {
     id: string;
@@ -31,6 +33,25 @@ export interface BlockWeekConfig {
 }
 
 /**
+ * Weigh-ins that count toward a week's weight loss: the Sunday before the week
+ * starts through the Wednesday of the following week, as a half-open UTC range
+ * [weekStart - 1 day, weekStart + 10 days). So a week's loss = (weigh-in at the
+ * start of this week) - (weigh-in at the start of the next week), tolerating
+ * entries logged a day or two off.
+ *
+ * Two intentional consequences of this rule:
+ *  1. Adjacent weeks' windows OVERLAP — a single weigh-in pair can contribute
+ *     to two consecutive weeks if entries are sparse.
+ *  2. Gains are clamped to 0, so the sum of weekly losses does NOT equal a
+ *     member's start-to-end weight change. Weekly numbers reward losing weeks;
+ *     use first-vs-last weigh-in for true block totals.
+ */
+export function weightLossWindow(weekStart: Date | string): { start: Date; end: Date } {
+    const start = addUtcDays(toUtcDateOnly(weekStart), -1);
+    return { start, end: addUtcDays(start, 11) };
+}
+
+/**
  * Pure function to calculate metrics for a list of teams
  */
 export function calculateTeamMetrics(teams: ScorableTeam[], config: BlockWeekConfig): TeamResult[] {
@@ -42,6 +63,7 @@ export function calculateTeamMetrics(teams: ScorableTeam[], config: BlockWeekCon
         let totalLifestyle = 0;
         let totalAttendance = 0;
         let teamWeightLoss = 0;
+        const window = weightLossWindow(config.startDate);
 
         for (const member of team.members) {
             // KM
@@ -55,31 +77,12 @@ export function calculateTeamMetrics(teams: ScorableTeam[], config: BlockWeekCon
             // Attendance
             totalAttendance += member.attendance.length;
 
-            // Weight Loss
-            // Logic: Find the earliest and latest weigh-ins in a window around this week.
-            // Window: [startDate - 1 day, startDate + 9 days]
-            // This covers the previous Sunday through to the Tuesday of the following week,
-            // so a week's loss = (weigh-in at the start of this week) - (weigh-in at the
-            // start of the next week), tolerating entries logged a day or two late.
-            //
-            // Two intentional consequences of this rule:
-            //  1. Adjacent weeks' windows OVERLAP — a single weigh-in pair can contribute
-            //     to two consecutive weeks if entries are sparse.
-            //  2. Gains are clamped to 0 (Math.max below), so the sum of weekly losses
-            //     does NOT equal a member's start-to-end weight change. Weekly numbers
-            //     reward losing weeks; use first-vs-last weigh-in for true block totals.
-            const windowStart = new Date(config.startDate);
-            windowStart.setDate(windowStart.getDate() - 1);
-            windowStart.setHours(0, 0, 0, 0);
-
-            const windowEnd = new Date(config.startDate);
-            windowEnd.setDate(windowEnd.getDate() + 9);
-            windowEnd.setHours(23, 59, 59, 999);
-
+            // Weight Loss: (earliest weigh-in in window) - (latest weigh-in in window).
+            // See weightLossWindow for the window and its intentional quirks.
             const relevantWeighIns = member.weighIns
                 .filter(w => {
                     const d = new Date(w.date);
-                    return d >= windowStart && d <= windowEnd;
+                    return d >= window.start && d < window.end;
                 })
                 .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 

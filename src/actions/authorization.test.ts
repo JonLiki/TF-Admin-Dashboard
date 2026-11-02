@@ -50,6 +50,7 @@ const resultStyleActions: [string, () => Promise<{ success?: boolean; message?: 
     ['deleteBlock', () => blockActions.deleteBlock('b1')],
     ['finalizeWeek', () => blockActions.finalizeWeek('w1')],
     ['unfinalizeWeek', () => blockActions.unfinalizeWeek('w1')],
+    ['fetchWeekDataCompleteness', () => blockActions.fetchWeekDataCompleteness('w1')],
     ['submitWeighIn', () => dataActions.submitWeighIn(undefined, emptyForm())],
     ['submitWeighInsBulk', () => dataActions.submitWeighInsBulk(undefined, emptyForm())],
     ['submitKmLog', () => dataActions.submitKmLog(undefined, emptyForm())],
