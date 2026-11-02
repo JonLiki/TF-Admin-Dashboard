@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { CHART_SERIES } from '@/lib/theme';
-import { animated, useSpring } from 'react-spring';
+import { animated, useSpring } from '@react-spring/web';
 
 import { TrendDataPoint } from '@/lib/transformers/scoreboard';
 

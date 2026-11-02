@@ -20,11 +20,13 @@ export function SearchInput({
     debounceMs = 300
 }: SearchInputProps) {
     const [internalValue, setInternalValue] = useState(value);
+    const [prevValue, setPrevValue] = useState(value);
 
-    // Sync internal value with external value
-    useEffect(() => {
+    // Sync internal value when the external value changes (during render, not in an effect)
+    if (value !== prevValue) {
+        setPrevValue(value);
         setInternalValue(value);
-    }, [value]);
+    }
 
     // Debounce the onChange callback
     useEffect(() => {
