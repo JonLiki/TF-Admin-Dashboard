@@ -88,7 +88,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                 <div className="p-4 space-y-3 bg-ocean-deep/30 min-h-[400px]">
                     {/* Column Headers (Visual Only) */}
                     <div className="hidden md:flex px-6 py-2 text-xs font-bold text-lagoon-100/50 uppercase tracking-widest opacity-80">
-                        <div className="w-1/2">Group Name</div>
+                        <div className="w-1/2">Team Name</div>
                         <div className="w-1/4">Members</div>
                         <div className="ml-auto">Actions</div>
                     </div>
@@ -136,7 +136,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                                                 <h3 className="font-bold text-foreground text-lg group-hover:text-lagoon-100 transition-colors">
                                                     {team.name}
                                                 </h3>
-                                                <p className="text-micro uppercase tracking-wider text-tapa font-semibold opacity-80">Group</p>
+                                                <p className="text-micro uppercase tracking-wider text-tapa font-semibold opacity-80">Team</p>
                                             </>
                                         )}
                                     </div>
@@ -162,13 +162,13 @@ export function TeamsList({ teams }: TeamsListProps) {
                                                 setEditingTeamId(team.id);
                                             }}
                                             className="text-lagoon-100/60 hover:text-foreground hover:bg-foreground/10 transition-colors duration-300"
-                                            title="Edit Group"
+                                            title="Edit Team"
                                         >
                                             Edit
                                         </Button>
                                     )}
                                     <form action={async () => {
-                                        if (confirm('Are you sure you want to delete this group? All members will be unassigned.')) {
+                                        if (confirm(`Delete ${team.name}? All members will be unassigned from this team. This cannot be undone.`)) {
                                             const res = await deleteTeam(team.id);
                                             if (res.success) toast.success(res.message);
                                             else toast.error(res.message);
@@ -180,7 +180,7 @@ export function TeamsList({ teams }: TeamsListProps) {
                                             onClick={(e) => e.stopPropagation()}
                                             type="submit"
                                             className="text-lagoon-100/60 hover:text-tongan-red hover:bg-tongan/10 transition-colors duration-300"
-                                            title="Delete Group"
+                                            title="Delete Team"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
@@ -254,9 +254,9 @@ export function TeamsList({ teams }: TeamsListProps) {
                     <div className="p-8">
                         <EmptyState
                             icon={Users}
-                            title="No Groups Yet"
+                            title="No Teams Yet"
                             description="Create your first group to start organizing your warriors into teams."
-                            actionLabel="Create First Group"
+                            actionLabel="Create First Team"
                             actionHref="#"
                         />
                     </div>

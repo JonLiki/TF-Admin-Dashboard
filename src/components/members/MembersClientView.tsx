@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useActionState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -34,7 +34,7 @@ export function MembersClientView({ members, teams }: MembersPageProps) {
                 <PageHeader title="Members" subtitle="Member Management" />
                 <Button
                     onClick={() => setIsSheetOpen(true)}
-                    className="md:hidden shrink-0 bg-lagoon text-white"
+                    className="lg:hidden shrink-0 bg-lagoon text-white"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Member
@@ -74,28 +74,36 @@ export function MembersClientView({ members, teams }: MembersPageProps) {
 }
 
 function AddMemberForm({ onSuccess, teams }: { onSuccess: () => void, teams: Team[] }) {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [teamId, setTeamId] = useState('');
+    const [state, action, pending] = useActionState(async (_previous: { success: boolean; message: string } | null, data: FormData) => {
+        try {
+            const result = await createMember(data);
+            if (result.success) { setFirstName(''); setLastName(''); setTeamId(''); onSuccess(); }
+            return result;
+        } catch { return { success: false, message: 'Could not add this member. Please try again.' }; }
+    }, null);
     return (
-        <form action={async (formData) => {
-            const res = await createMember(formData);
-            if (res?.success) {
-                onSuccess();
-            }
-        }} className="space-y-4 relative z-10">
-            <Input name="firstName" label="First Name" placeholder="Sione" required className="bg-black/20 border-white/10 focus:border-lagoon/50" />
-            <Input name="lastName" label="Last Name" placeholder="Tui" required className="bg-black/20 border-white/10 focus:border-lagoon/50" />
+        <form action={action} className="space-y-4 relative z-10">
+            <Input disabled={pending} name="firstName" value={firstName} onChange={event => setFirstName(event.target.value)} label="First Name" placeholder="Sione" required className="bg-black/20 border-white/10 focus:border-lagoon/50" />
+            <Input disabled={pending} name="lastName" value={lastName} onChange={event => setLastName(event.target.value)} label="Last Name" placeholder="Tui" required className="bg-black/20 border-white/10 focus:border-lagoon/50" />
             <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/60 uppercase tracking-wide ml-1">Assign Group</label>
+                <p className="text-sm font-medium text-foreground/80 ml-1">Assign team</p>
                 <Select
+                    label="Assign team" value={teamId} onChange={setTeamId}
+                    disabled={pending}
                     options={[
-                        { value: '', label: 'No Group' },
+                        { value: '', label: 'No team' },
                         ...teams.map(t => ({ value: t.id, label: t.name }))
                     ]}
                     name="teamId"
-                    placeholder="Select a group"
+                    placeholder="Select a team"
                     className="bg-black/20 border-white/10 focus:border-lagoon/50"
                 />
             </div>
-            <Button type="submit" className="w-full mt-2 bg-lagoon hover:bg-lagoon-light text-white shadow-lagoon/20" size="md">
+            <p role={state?.success === false ? 'alert' : 'status'} className="text-sm">{state?.message}</p>
+            <Button type="submit" isLoading={pending} className="w-full mt-2 bg-lagoon hover:bg-lagoon-light text-white shadow-lagoon/20" size="md">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add Member
             </Button>

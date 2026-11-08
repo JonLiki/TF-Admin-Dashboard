@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
+import { Select } from "@/components/ui/Select";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
-import { toggleAttendance } from "@/actions/data";
+import { AttendanceToggle } from './AttendanceToggle';
 import { format } from "date-fns";
 import { ImportButton } from "@/components/ui/ImportButton";
-import { CalendarCheck, Filter, Loader2, Check } from "lucide-react";
-import { toast } from 'sonner';
+import { CalendarCheck, Filter } from "lucide-react";
+
 
 interface Member {
     id: string;
@@ -39,7 +40,8 @@ interface WeeklyAttendanceTableProps {
 
 export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAttendanceTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [isPending, startTransition] = useTransition();
+    const [mobileSession, setMobileSession] = useState('');
+    const selectedSession = sessions.some(session => session.id === mobileSession) ? mobileSession : sessions[0]?.id;
 
     const filteredMembers = members.filter(member =>
         `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,16 +57,8 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
         attendanceMaps.set(session.id, presentMembers);
     });
 
-    const handleToggle = (sessionId: string, memberId: string, currentlyPresent: boolean) => {
-        startTransition(() => {
-            toggleAttendance(sessionId, memberId, !currentlyPresent).then(res => {
-                if (!res.success) toast.error(res.message);
-            });
-        });
-    };
-
     return (
-        <PremiumCard className="overflow-hidden p-0 border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm flex flex-col h-[calc(100vh-16rem)]">
+        <PremiumCard className="overflow-hidden p-0 border-lagoon/20 bg-ocean-deep/80 backdrop-blur-sm flex flex-col max-h-[75dvh] min-h-80">
             <div className="p-4 md:p-6 border-b border-lagoon/20 space-y-4 bg-ocean/20 backdrop-blur-md shrink-0">
                 <div className="flex flex-col md:flex-row justify-between gap-4 md:items-center">
                     <div className="flex items-center space-x-3">
@@ -73,7 +67,7 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-foreground">{weekLabel}</h2>
-                            <p className="text-xs text-lagoon-100/60 font-medium uppercase tracking-wider">{sessions.length} Sessions Logged</p>
+                            <p className="text-xs text-lagoon-100/60 font-medium uppercase tracking-wider">{sessions.length} scheduled sessions</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 w-full md:w-auto">
@@ -88,19 +82,18 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                 </div>
             </div>
 
+            <div className="px-4 pb-3 sm:hidden">
+                <Select label="Attendance session" value={selectedSession ?? ''} onChange={setMobileSession}
+                    options={sessions.map(session => ({ value: session.id, label: `${session.type} · ${format(new Date(session.date), 'MMM d')}` }))} />
+            </div>
             <div className="flex-1 overflow-auto bg-ocean-deep/30 relative">
-                {isPending && (
-                    <div className="absolute inset-0 z-50 bg-ocean-deep/40 backdrop-blur-[1px] flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-lagoon-100 animate-spin" />
-                    </div>
-                )}
-                <table className="w-full text-left border-collapse min-w-[600px]">
+                <table aria-label={`Attendance for ${weekLabel}`} className="w-full text-left border-collapse sm:min-w-[600px]">
                     <thead className="sticky top-0 z-20 bg-ocean-deep/95 backdrop-blur-md shadow-md border-b border-lagoon/30">
                         <tr>
                             <th className="sticky left-0 z-30 bg-ocean-deep p-4 text-xs font-bold text-lagoon-100/70 uppercase tracking-widest whitespace-nowrap">Member</th>
-                            <th className="p-4 text-xs font-bold text-lagoon-100/70 uppercase tracking-widest whitespace-nowrap">Group</th>
+                            <th className="hidden sm:table-cell p-4 text-xs font-bold text-lagoon-100/70 uppercase tracking-widest whitespace-nowrap">Team</th>
                             {sessions.map(session => (
-                                <th key={session.id} className="p-4 text-center text-xs font-bold text-lagoon-100 uppercase tracking-widest min-w-[120px]">
+                                <th key={session.id} className={cn("p-3 text-center text-xs font-bold text-lagoon-100 sm:min-w-[120px]", session.id !== selectedSession && "hidden sm:table-cell")}>
                                     <div className="flex flex-col items-center">
                                         <span className="text-foreground font-extrabold">{session.type}</span>
                                         <span className="text-micro text-lagoon-100/50">{format(new Date(session.date), 'MMM d')}</span>
@@ -124,7 +117,7 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                                         </div>
                                     </div>
                                 </td>
-                                <td className="p-4">
+                                <td className="hidden sm:table-cell p-4">
                                     <span className={cn(
                                         "text-xs font-medium",
                                         member.team ? "text-lagoon-100/80" : "text-lagoon-100/40 italic"
@@ -137,20 +130,11 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                                     const isPresent = sessionMap?.has(member.id) ?? false;
 
                                     return (
-                                        <td key={session.id} className="p-4 text-center align-middle">
-                                            <button
-                                                onClick={() => handleToggle(session.id, member.id, isPresent)}
-                                                disabled={isPending}
-                                                className={cn(
-                                                    "inline-flex items-center justify-center w-8 h-8 rounded-md border-2 transition-all duration-200 outline-none focus:ring-2 focus:ring-lagoon-100/50 focus:ring-offset-2 focus:ring-offset-ocean-deep disabled:opacity-50 disabled:cursor-not-allowed",
-                                                    isPresent
-                                                        ? "bg-green-500/20 border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.2)]"
-                                                        : "bg-ocean-deep border-lagoon/30 text-transparent hover:border-lagoon/70 hover:bg-ocean"
-                                                )}
-                                                aria-label={isPresent ? "Mark absent" : "Mark present"}
-                                            >
-                                                <Check className={cn("w-5 h-5 transition-transform", isPresent ? "scale-100" : "scale-0")} strokeWidth={3} />
-                                            </button>
+                                        <td key={session.id} className={cn("p-3 text-center align-middle", session.id !== selectedSession && "hidden sm:table-cell")}>
+                                            <AttendanceToggle sessionId={session.id} memberId={member.id}
+                                                memberName={`${member.firstName} ${member.lastName}`}
+                                                sessionLabel={`${session.type}, ${format(new Date(session.date), 'MMM d')}`}
+                                                isPresent={isPresent} compact />
                                         </td>
                                     );
                                 })}
@@ -163,6 +147,7 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                                     <div className="flex flex-col items-center justify-center">
                                         <Filter className="w-8 h-8 opacity-20 mb-2" />
                                         <p>No members found matching your search</p>
+                                        <button type="button" className="min-h-11 underline" onClick={() => setSearchTerm('')}>Clear search</button>
                                     </div>
                                 </td>
                             </tr>
@@ -171,9 +156,9 @@ export function WeeklyAttendanceTable({ members, sessions, weekLabel }: WeeklyAt
                 </table>
             </div>
 
-            <div className="p-4 border-t border-lagoon/20 bg-ocean-deep/90 text-xs text-lagoon-100/60 flex justify-between items-center shrink-0">
+            <div className="p-4 border-t border-lagoon/20 bg-ocean-deep/90 text-xs text-lagoon-100/60 flex flex-wrap gap-2 justify-between items-center shrink-0">
                 <span>Showing {filteredMembers.length} members</span>
-                <span>Tap checkbox to instantly toggle attendance</span>
+                <span>Changes save immediately. Select again to undo.</span>
             </div>
         </PremiumCard>
     );

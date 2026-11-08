@@ -1,10 +1,8 @@
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getTeams } from "@/lib/queries";
-import { createTeam } from "@/actions";
-import { Plus, Shield } from "lucide-react";
+import { CreateTeamForm } from "@/components/teams/CreateTeamForm";
+import { Shield } from "lucide-react";
 import { TeamsList } from "@/components/teams/TeamsList";
 import { TonganNgatu } from "@/components/ui/Patterns";
 
@@ -18,7 +16,7 @@ export default async function TeamsPage() {
                 <TonganNgatu />
             </div>
 
-            <PageHeader title="Teams" subtitle="Manage Groups" />
+            <PageHeader title="Teams" subtitle="Manage Teams" />
 
             <div className="px-6 md:px-10 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
 
@@ -32,15 +30,9 @@ export default async function TeamsPage() {
                             <div className="p-2.5 bg-gradient-to-br from-[#C8102E] to-[#8B0000] text-white rounded-xl shadow-lg shadow-tongan/20 ring-1 ring-white/10">
                                 <Shield className="w-5 h-5" />
                             </div>
-                            <h3 className="text-lg font-bold text-foreground tracking-tight">Create New Group</h3>
+                            <h3 className="text-lg font-bold text-foreground tracking-tight">Create New Team</h3>
                         </div>
-                        <form action={async (formData: FormData) => { 'use server'; await createTeam(formData); }} className="space-y-4 relative z-10">
-                            <Input name="name" label="Group Name" placeholder="e.g. Group To’a" required className="bg-black/20 border-white/10 focus:border-tongan/50" />
-                            <Button type="submit" className="w-full bg-tongan hover:bg-red-700 shadow-tongan/20" size="md">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Create Group
-                            </Button>
-                        </form>
+                        <CreateTeamForm />
                     </PremiumCard>
                 </div>
 

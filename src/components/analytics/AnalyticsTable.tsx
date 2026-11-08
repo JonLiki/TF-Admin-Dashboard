@@ -27,10 +27,10 @@ const rankBorderColors = [
 export function AnalyticsTable({ data, activeMetric }: AnalyticsTableProps) {
     return (
         <div className="overflow-x-auto rounded-xl border border-white/5 shadow-lg">
-            <table className="w-full text-sm text-left">
+            <table aria-label="Team performance across recorded weeks" className="w-full text-sm text-left">
                 <thead className="bg-ocean-deep/80 backdrop-blur-md text-foreground font-semibold uppercase tracking-wider text-xs border-b border-border/30 dark:border-white/10 sticky top-0 z-20">
                     <tr>
-                        <th className="sticky left-0 z-30 bg-ocean-deep px-6 py-4 rounded-tl-xl">Group</th>
+                        <th className="sticky left-0 z-30 bg-ocean-deep px-6 py-4 rounded-tl-xl">Team</th>
                         <th className="px-6 py-4 text-right font-mono">Total Points</th>
                         <th className="px-6 py-4 text-right font-mono">Weight Loss</th>
                         <th className="px-6 py-4 text-right font-mono">Avg KM / Wk</th>

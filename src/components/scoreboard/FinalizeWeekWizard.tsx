@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PremiumCard } from '@/components/ui/PremiumCard';
+import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import {
@@ -56,6 +57,7 @@ const categories = [
 ];
 
 export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFinalized }: FinalizeWeekWizardProps) {
+    const [confirmUnlock, setConfirmUnlock] = useState(false);
     const [step, setStep] = useState<WizardStep>('check');
     const [isPending, startTransition] = useTransition();
     const [completeness, setCompleteness] = useState<CompletenessData | null>(null);
@@ -65,40 +67,50 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
 
     const loadCompleteness = () => {
         setIsOpen(true);
+        setCompleteness(null);
+        setFeedback(null);
         startTransition(async () => {
-            const data = await fetchWeekDataCompleteness(weekId);
-            if (data) {
-                setCompleteness(data);
-                setIsFinalized(data.isFinalized);
-            }
+            try {
+                const result = await fetchWeekDataCompleteness(weekId);
+                if (result.success) {
+                    setCompleteness(result.data);
+                    setIsFinalized(result.data.isFinalized);
+                } else {
+                    setFeedback({ type: 'error', message: result.message });
+                }
+            } catch { setFeedback({ type: 'error', message: 'Could not load data status. Please try again.' }); }
         });
     };
 
     const handleFinalize = () => {
         startTransition(async () => {
-            const result = await finalizeWeek(weekId);
-            if (result.success) {
-                setIsFinalized(true);
-                setStep('done');
-                setFeedback({ type: 'success', message: result.message });
-            } else {
-                setFeedback({ type: 'error', message: result.message });
-            }
-            setTimeout(() => setFeedback(null), 4000);
+            setFeedback(null);
+            try {
+                const result = await finalizeWeek(weekId);
+                if (result.success) {
+                    setIsFinalized(true);
+                    setStep('done');
+                    setFeedback({ type: 'success', message: result.message });
+                } else {
+                    setFeedback({ type: 'error', message: result.message });
+                }
+            } catch { setFeedback({ type: 'error', message: 'Could not update this week. Please try again.' }); }
         });
     };
 
     const handleUnfinalize = () => {
         startTransition(async () => {
-            const result = await unfinalizeWeek(weekId);
-            if (result.success) {
-                setIsFinalized(false);
-                setStep('check');
-                setFeedback({ type: 'success', message: result.message });
-            } else {
-                setFeedback({ type: 'error', message: result.message });
-            }
-            setTimeout(() => setFeedback(null), 4000);
+            setFeedback(null);
+            try {
+                const result = await unfinalizeWeek(weekId);
+                if (result.success) {
+                    setIsFinalized(false);
+                    setStep('check');
+                    setFeedback({ type: 'success', message: result.message });
+                } else {
+                    setFeedback({ type: 'error', message: result.message });
+                }
+            } catch { setFeedback({ type: 'error', message: 'Could not update this week. Please try again.' }); }
         });
     };
 
@@ -106,12 +118,17 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
     if (isFinalized && !isOpen) {
         return (
             <div className="flex items-center gap-3 flex-wrap">
+                <Sheet isOpen={confirmUnlock} onClose={() => { if (!isPending) setConfirmUnlock(false); }} title={`Reopen Week ${weekNumber}?`}>
+                    <p className="mb-4 text-sm">This unlocks data entry for this week. Review the updated data and finalize it again to confirm awards and points.</p>
+                    <Button type="button" isLoading={isPending} onClick={() => { handleUnfinalize(); setConfirmUnlock(false); }}>Reopen week</Button>
+                    <Button type="button" variant="ghost" disabled={isPending} onClick={() => setConfirmUnlock(false)}>Cancel</Button>
+                </Sheet>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                     <Lock className="w-3.5 h-3.5 text-emerald-400" />
                     <span className="text-xs font-bold text-emerald-400">Week {weekNumber} Finalized</span>
                 </div>
                 <Button
-                    onClick={handleUnfinalize}
+                    onClick={() => setConfirmUnlock(true)}
                     disabled={isPending}
                     className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs"
                 >
@@ -121,6 +138,7 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                 <AnimatePresence>
                     {feedback && (
                         <motion.span
+                            role={feedback.type === 'error' ? 'alert' : 'status'}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0 }}
@@ -179,7 +197,13 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                                     Week {weekNumber} Data Completeness
                                 </h3>
 
-                                {isPending || !completeness ? (
+                                {!isPending && !completeness && feedback?.type === 'error' ? (
+                                    <div className="space-y-3">
+                                        <p role="alert" className="text-sm text-red-600 dark:text-red-300">{feedback.message}</p>
+                                        <Button type="button" onClick={loadCompleteness}>Retry</Button>
+                                        <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>Cancel</Button>
+                                    </div>
+                                ) : isPending || !completeness ? (
                                     <div className="flex items-center gap-2 text-foreground/50 text-sm py-4">
                                         <Loader2 className="w-4 h-4 animate-spin" /> Loading data status...
                                     </div>
@@ -212,7 +236,7 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                                                 <CalendarCheck className="w-4 h-4 text-foreground/40 shrink-0" />
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-xs text-foreground/70">Attendance</span>
+                                                        <span className="text-xs text-foreground/70">Attendance sessions with records</span>
                                                         <span className={cn("text-xs font-mono font-bold",
                                                             getPercentage(completeness.attendance.sessionsWithData, completeness.attendance.totalSessions) >= 90 ? "text-emerald-400" : "text-amber-400"
                                                         )}>
@@ -232,7 +256,7 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                                         </div>
 
                                         {/* Warning if incomplete */}
-                                        {categories.some(c => getPercentage(completeness[c.key].entered, completeness[c.key].total) < 100) && (
+                                        {(categories.some(c => getPercentage(completeness[c.key].entered, completeness[c.key].total) < 100) || completeness.attendance.sessionsWithData < completeness.attendance.totalSessions) && (
                                             <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
                                                 <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                                                 <p className="text-xs text-amber-300">
@@ -327,6 +351,7 @@ export function FinalizeWeekWizard({ weekId, weekNumber, isFinalized: initialFin
                 <AnimatePresence>
                     {feedback && (
                         <motion.div
+                            role={feedback.type === 'error' ? 'alert' : 'status'}
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}

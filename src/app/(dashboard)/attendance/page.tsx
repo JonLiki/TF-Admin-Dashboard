@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function AttendancePage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="Create or activate a training block to start tracking." actionLabel="Manage blocks" actionHref="/blocks" /></div>;
 
     if (!block.weeks || block.weeks.length === 0) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={CalendarCheck} title="No Weeks Found" description="No weeks have been created for this block yet." /></div>;
 
@@ -38,7 +38,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: {
                 <WeekSelector
                     weeks={block.weeks.map((w) => ({
                         value: w.id,
-                        label: `Week ${w.weekNumber} (${format(w.startDate, 'MMM d')} - ${format(w.endDate, 'MMM d')})`
+                        label: `Week ${w.weekNumber} (${format(w.startDate, 'MMM d')} - ${format(w.endDate, 'MMM d')}) · ${w.isFinalized ? 'Finalized' : 'Open'}`
                     }))}
                     selectedWeekId={selectedWeek.id}
                 />

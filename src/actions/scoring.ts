@@ -2,10 +2,10 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { addDays } from 'date-fns';
 import {
     calculateTeamMetrics,
     determineWinners,
+    weightLossWindow,
     ScorableTeam
 } from '@/lib/scoring-logic';
 import { requireAdmin } from '@/lib/auth-guard';
@@ -31,6 +31,7 @@ export async function calculateWeekResults(
     // Weight loss is calculated directly by calculateTeamMetrics as:
     //   (weight logged during this week) - (weight logged during next week)
     // So we need weigh-in data that extends into the next week's date range.
+    const wlWindow = weightLossWindow(blockWeek.startDate);
     const currentTeams = await prisma.team.findMany({
         include: {
             members: {
@@ -39,11 +40,7 @@ export async function calculateWeekResults(
                     kmLogs: { where: { blockWeekId } },
                     lifestyleLogs: { where: { blockWeekId } },
                     weighIns: {
-                        where: {
-                            date: {
-                                lte: addDays(blockWeek.endDate, 14) // Lookahead to cover next week's weigh-in
-                            }
-                        },
+                        where: { date: { gte: wlWindow.start, lt: wlWindow.end } },
                         orderBy: { date: 'asc' }
                     },
                     attendance: {

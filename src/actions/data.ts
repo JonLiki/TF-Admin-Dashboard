@@ -7,6 +7,7 @@ import { WeighInSchema, KmLogSchema, LifestyleLogSchema, BenchmarkLogSchema } fr
 import { requireAdmin } from '@/lib/auth-guard';
 import { writeAuditLog } from '@/lib/audit';
 import { toUtcDateOnly } from '@/lib/dates';
+import { getWeighInLockCheck } from '@/lib/queries';
 
 // --- WEIGH-INS ---
 export async function submitWeighIn(prevState: unknown, formData: FormData) {
@@ -41,6 +42,9 @@ export async function submitWeighIn(prevState: unknown, formData: FormData) {
     const dateObj = toUtcDateOnly(validated.data.date);
 
     try {
+        const isLocked = await getWeighInLockCheck(dateObj, dateObj);
+        if (isLocked(dateObj)) return { success: false, message: "This weigh-in counts toward a finalized week. Unfinalize that week to edit." };
+
         const weighIn = await prisma.weighIn.upsert({
             where: {
                 memberId_date: {
@@ -99,6 +103,10 @@ export async function submitWeighInsBulk(prevState: unknown, formData: FormData)
     if (ops.length === 0) {
         return { success: false, message: invalid > 0 ? "No valid weights to save" : "No weights entered" };
     }
+
+    // Checked after validation so dateObj is known to be a real date.
+    const isLocked = await getWeighInLockCheck(dateObj, dateObj);
+    if (isLocked(dateObj)) return { success: false, message: "This weigh-in counts toward a finalized week. Unfinalize that week to edit." };
 
     try {
         await prisma.$transaction(

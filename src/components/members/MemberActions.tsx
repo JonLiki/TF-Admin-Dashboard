@@ -2,118 +2,48 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MoreHorizontal, CheckCircle, Trash2, Ban } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { MoreHorizontal, Trash2, Ban, CheckCircle } from 'lucide-react';
 import { deleteMember, toggleMemberActive } from '@/actions';
-import { toast } from 'sonner';
+import { Sheet } from '@/components/ui/Sheet';
+import { Button } from '@/components/ui/Button';
 
-interface MemberActionsProps {
-    memberId: string;
-    isActive: boolean;
-}
-
-export function MemberActions({ memberId, isActive }: MemberActionsProps) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isPending, setIsPending] = useState(false);
+export function MemberActions({ memberId, memberName, isActive }: { memberId: string; memberName: string; isActive: boolean }) {
+    const [open, setOpen] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [pending, setPending] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-
-    const handleToggleActive = async () => {
-        setIsPending(true);
+    const run = async (remove: boolean) => {
+        setPending(true); setError(null);
         try {
-            const result = await toggleMemberActive(memberId, isActive);
-            if (result.success) {
-                toast.success(result.message);
-                router.refresh();
-            } else {
-                toast.error(result.message);
-            }
-        } catch {
-            toast.error("An error occurred");
-        } finally {
-            setIsPending(false);
-            setIsOpen(false);
-        }
+            const result = remove ? await deleteMember(memberId) : await toggleMemberActive(memberId, isActive);
+            if (!result.success) { setError(result.message); return; }
+            setOpen(false);
+            if (remove) router.push('/members'); else router.refresh();
+        } catch { setError('Could not update this member. Please try again.'); }
+        finally { setPending(false); }
     };
-
-    const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this member? This action cannot be undone.")) return;
-
-        setIsPending(true);
-        try {
-            const result = await deleteMember(memberId);
-            if (result.success) {
-                toast.success("Member deleted");
-                router.push('/members'); // Redirect to list
-            } else {
-                toast.error(result.message);
-            }
-        } catch {
-            toast.error("Failed to delete member");
-        } finally {
-            setIsPending(false);
-            setIsOpen(false);
-        }
-    };
-
-    return (
-        <div className="relative">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                disabled={isPending}
-                className="p-2 rounded-lg hover:bg-white/5 text-foreground/60 hover:text-foreground transition-colors"
-                title="Manage Member"
-            >
-                <MoreHorizontal className="w-5 h-5" />
-            </button>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <>
-                        {/* Backdrop */}
-                        <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-
-                        {/* Dropdown */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            transition={{ duration: 0.1 }}
-                            className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-20 overflow-hidden"
-                        >
-                            <div className="py-1">
-                                <button
-                                    onClick={handleToggleActive}
-                                    disabled={isPending}
-                                    className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors gap-2"
-                                >
-                                    {isActive ? (
-                                        <>
-                                            <Ban className="w-4 h-4 text-orange-500" />
-                                            <span>Deactivate Member</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle className="w-4 h-4 text-green-500" />
-                                            <span>Activate Member</span>
-                                        </>
-                                    )}
-                                </button>
-
-                                <div className="h-px bg-gray-100 my-1" />
-
-                                <button
-                                    onClick={handleDelete}
-                                    disabled={isPending}
-                                    className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors gap-2"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                    <span>Delete Member</span>
-                                </button>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
-        </div>
-    );
+    return <>
+        <Button type="button" variant="secondary" aria-haspopup="dialog" aria-expanded={open}
+            aria-label={`Manage ${memberName}`} onClick={() => { setOpen(true); setConfirmDelete(false); setError(null); }}>
+            <MoreHorizontal className="mr-2 h-5 w-5" /> Manage member
+        </Button>
+        <Sheet isOpen={open} onClose={() => { if (!pending) setOpen(false); }} title={`Manage ${memberName}`}>
+            <div className="space-y-4">
+                <p className="text-sm">Deactivating a member keeps their history and removes them from active participation.</p>
+                <Button type="button" variant="secondary" isLoading={pending} onClick={() => run(false)}>
+                    {isActive ? <Ban className="mr-2 h-4 w-4" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                    {isActive ? 'Deactivate member' : 'Activate member'}
+                </Button>
+                <div className="border-t border-border pt-4 space-y-3">
+                    {confirmDelete ? <>
+                        <p>Delete {memberName} permanently? This cannot be undone. Deactivate them instead to keep their history.</p>
+                        <Button type="button" variant="danger" isLoading={pending} onClick={() => run(true)}>Permanently delete member</Button>
+                        <Button type="button" variant="ghost" disabled={pending} onClick={() => setConfirmDelete(false)}>Cancel deletion</Button>
+                    </> : <Button type="button" variant="danger" disabled={pending} onClick={() => setConfirmDelete(true)}><Trash2 className="mr-2 h-4 w-4" /> Delete member</Button>}
+                </div>
+                {error && <p role="alert" className="text-sm text-red-600 dark:text-red-300">{error}</p>}
+            </div>
+        </Sheet>
+    </>;
 }

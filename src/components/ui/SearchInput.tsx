@@ -20,11 +20,13 @@ export function SearchInput({
     debounceMs = 300
 }: SearchInputProps) {
     const [internalValue, setInternalValue] = useState(value);
+    const [prevValue, setPrevValue] = useState(value);
 
-    // Sync internal value with external value
-    useEffect(() => {
+    // Sync internal value when the external value changes (during render, not in an effect)
+    if (value !== prevValue) {
+        setPrevValue(value);
         setInternalValue(value);
-    }, [value]);
+    }
 
     // Debounce the onChange callback
     useEffect(() => {
@@ -49,7 +51,7 @@ export function SearchInput({
 
             {/* Input */}
             <input
-                type="text"
+                type="search"
                 value={internalValue}
                 onChange={(e) => setInternalValue(e.target.value)}
                 placeholder={placeholder}
@@ -69,8 +71,8 @@ export function SearchInput({
                 <button
                     onClick={handleClear}
                     className={cn(
-                        "absolute right-3 top-1/2 -translate-y-1/2",
-                        "p-1 rounded-lg transition-colors duration-150",
+                        "absolute right-0 top-1/2 -translate-y-1/2",
+                        "h-11 w-11 flex items-center justify-center rounded-lg transition-colors duration-150",
                         "text-foreground/60 hover:text-foreground hover:bg-foreground/10",
                         "focus:outline-none focus:ring-2 focus:ring-lagoon/50"
                     )}

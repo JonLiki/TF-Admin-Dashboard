@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function WeighInPage({ searchParams }: { searchParams: { date?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="Create or activate a training block to start tracking." actionLabel="Manage blocks" actionHref="/blocks" /></div>;
 
     const selectedDateStr = (await searchParams)?.date || block.weeks[0].startDate.toISOString();
     const selectedDate = new Date(selectedDateStr);
@@ -26,7 +26,7 @@ export default async function WeighInPage({ searchParams }: { searchParams: { da
     // Note: WeighIn only has weight field, not startWeight/currentWeight
     // We'll show participation stats instead of weight loss for now
     const totalRecorded = members.filter(m => m.weighIns.length > 0).length;
-    const avgWeight = members.length > 0 ? members.reduce((sum, m) => sum + (m.weighIns[0]?.weight || 0), 0) / totalRecorded : 0;
+    const avgWeight = totalRecorded > 0 ? members.reduce((sum, m) => sum + (m.weighIns[0]?.weight || 0), 0) / totalRecorded : 0;
     const participation = members.length > 0 ? (totalRecorded / members.length) * 100 : 0;
 
     return (

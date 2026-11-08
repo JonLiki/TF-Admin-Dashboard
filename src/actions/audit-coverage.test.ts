@@ -27,7 +27,7 @@ const { prismaMock, txMock } = vi.hoisted(() => {
         lifestyleLog: { upsert: vi.fn() },
         benchmarkLog: { upsert: vi.fn() },
         attendance: { upsert: vi.fn() },
-        blockWeek: { findUnique: vi.fn() },
+        blockWeek: { findUnique: vi.fn(), findMany: vi.fn() },
         session: { findUnique: vi.fn() },
         team: { findMany: vi.fn() },
         auditLog: { create: vi.fn() },
@@ -85,6 +85,7 @@ beforeEach(() => {
     prismaMock.benchmarkLog.upsert.mockResolvedValue({ id: 'bm1' });
     prismaMock.attendance.upsert.mockResolvedValue({ id: 'att1' });
     prismaMock.blockWeek.findUnique.mockResolvedValue(openWeek);
+    prismaMock.blockWeek.findMany.mockResolvedValue([]); // no finalized weeks
     prismaMock.session.findUnique.mockResolvedValue({ id: SESSION_ID, date: new Date('2026-01-20T00:00:00.000Z'), block: { weeks: [] } });
     prismaMock.team.findMany.mockResolvedValue([]);
     prismaMock.auditLog.create.mockResolvedValue({ id: 'a1' });
@@ -169,5 +170,19 @@ describe('gated scoring action writes an audit entry on success', () => {
     it('calculateWeekResults (lock) → FINALIZE_SCORES', async () => {
         await calculateWeekResults(BLOCK_WEEK_ID, { lockWeek: true });
         expectAudit('FINALIZE_SCORES');
+    });
+});
+
+describe('weigh-ins are locked by finalized weeks', () => {
+    // Monday 2026-01-26 weigh-in closes out week 1 (starts 2026-01-19), so it's in week 1's window.
+    it.each([
+        ['submitWeighIn', () => submitWeighIn(undefined, form({ memberId: MEMBER_ID, weight: '80.5', date: '2026-01-26' }))],
+        ['submitWeighInsBulk', () => submitWeighInsBulk(undefined, form({ date: '2026-01-26', [`weight_${MEMBER_ID}`]: '80' }))],
+    ])('%s refuses a date inside a finalized week window', async (_name, invoke) => {
+        prismaMock.blockWeek.findMany.mockResolvedValue([{ startDate: openWeek.startDate }]);
+        const result = await invoke();
+        expect(result.success).toBe(false);
+        expect(result.message).toMatch(/finalized/i);
+        expect(prismaMock.weighIn.upsert).not.toHaveBeenCalled();
     });
 });

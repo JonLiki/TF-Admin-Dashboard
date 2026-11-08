@@ -275,7 +275,12 @@ export async function unfinalizeWeek(blockWeekId: string) {
 // --- FETCH WEEK DATA COMPLETENESS (Server Action wrapper) ---
 
 export async function fetchWeekDataCompleteness(blockWeekId: string) {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false as const, message: guard.message };
+
     const { getWeekDataCompleteness } = await import('@/lib/queries');
-    return await getWeekDataCompleteness(blockWeekId);
+    const data = await getWeekDataCompleteness(blockWeekId);
+    if (!data) return { success: false as const, message: 'Week not found.' };
+    return { success: true as const, data };
 }
 

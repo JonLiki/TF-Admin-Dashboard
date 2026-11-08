@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draftFormData, entryError, updateEntryDraft } from './entry-drafts';
+import { benchmarkDraftFormData, draftFormData, entryError, updateEntryDraft } from './entry-drafts';
 
 describe('entry drafts', () => {
     it('saves edits to multiple members independently of which row is visible', () => {
@@ -31,5 +31,32 @@ describe('entry drafts', () => {
     it('submits only edited members and the selected week', () => {
         expect(Object.fromEntries(draftFormData({ b: '12' }, 'km', 'blockWeekId', 'week-2')))
             .toEqual({ blockWeekId: 'week-2', km_b: '12' });
+    });
+});
+
+
+describe('benchmark drafts', () => {
+    const members = [
+        { id: 'a', benchmarkLogs: [{ squats: 12, pushups: 7, burpees: 3 }] },
+        { id: 'b', benchmarkLogs: [] },
+        { id: 'c', benchmarkLogs: [{ squats: 5, pushups: 4, burpees: 2 }] },
+    ];
+    it('preserves unchanged scores when one score is edited, including zero', () => {
+        const data = benchmarkDraftFormData({ squats_a: '0' }, members, 'week-8', '2026-03-09');
+        expect(Object.fromEntries(data)).toEqual({
+            blockWeekId: 'week-8', date: '2026-03-09', squats_a: '0', pushups_a: '7', burpees_a: '3',
+        });
+    });
+    it('includes edits to filtered-out rows and excludes untouched members', () => {
+        const data = benchmarkDraftFormData({ pushups_a: '10', burpees_b: '8' }, members, 'week-1', '2026-01-19');
+        expect(data.get('squats_a')).toBe('12');
+        expect(data.get('pushups_a')).toBe('10');
+        expect(data.get('squats_b')).toBe('0');
+        expect(data.get('burpees_b')).toBe('8');
+        expect(data.has('squats_c')).toBe(false);
+    });
+    it('normalizes scientific notation to avoid truncation by integer parsing', () => {
+        const data = benchmarkDraftFormData({ squats_a: '1e2' }, members, 'week-1', '2026-01-19');
+        expect(data.get('squats_a')).toBe('100');
     });
 });

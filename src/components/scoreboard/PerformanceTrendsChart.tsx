@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ChartDataTable } from '@/components/ui/ChartDataTable';
 import {
     LineChart,
     Line,
@@ -13,7 +14,7 @@ import {
 } from 'recharts';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { CHART_SERIES } from '@/lib/theme';
-import { animated, useSpring } from 'react-spring';
+import { animated, useSpring } from '@react-spring/web';
 
 import { TrendDataPoint } from '@/lib/transformers/scoreboard';
 
@@ -55,12 +56,13 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
                     </div>
 
                     {/* Metric Selector Toggles */}
-                    <div className="flex bg-black/40 backdrop-blur-md rounded-lg p-1 border border-white/10 mt-4 md:mt-0">
+                    <div className="flex flex-wrap bg-surface-deep backdrop-blur-md rounded-lg p-1 border border-white/10 mt-4 md:mt-0">
                         {metrics.map((m) => (
                             <button
                                 key={m.id}
+                                type="button" aria-pressed={activeMetric === m.id}
                                 onClick={() => setActiveMetric(m.id as TrendMetric)}
-                                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-300 ${activeMetric === m.id
+                                className={`min-h-11 px-4 py-1.5 focus-visible:outline-2 focus-visible:outline-lagoon text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-300 ${activeMetric === m.id
                                     ? 'bg-tongan text-white shadow-[0_0_15px_rgba(200,16,46,0.3)]'
                                     : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
                                     }`}
@@ -126,6 +128,7 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
+                <ChartDataTable rows={data[activeMetric]} columns={[{ key: 'name', label: 'Week' }, ...teams.map(team => ({ key: team, label: team }))]} caption={`${metrics.find(metric => metric.id === activeMetric)?.label}: ${activeMetric === 'kmAverage' ? 'kilometres per member' : activeMetric === 'weightLossTotal' ? 'total kilograms lost' : activeMetric === 'attendanceAverage' ? 'attendance percentage' : 'posts per member'}, by week.`} />
             </PremiumCard>
         </animated.div>
     );

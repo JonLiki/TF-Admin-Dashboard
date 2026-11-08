@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { format } from 'date-fns';
 import { requireAdmin } from '@/lib/auth-guard';
+import { addUtcDays, utcDayRange } from '@/lib/dates';
 
 /** Escape a CSV field: wrap in double quotes if it contains commas, quotes, or newlines (RFC 4180) */
 function csvEscape(value: string): string {
@@ -239,7 +240,10 @@ export async function exportBlockData(
         const headers = ['First Name', 'Last Name', 'Team', 'Start Weight', 'Current Weight', 'Overall Change'];
         const weeks = block.weeks;
         weeks.forEach(w => headers.push(`Week ${w.weekNumber} (${format(w.startDate, 'MMM d')})`));
-        headers.push(`Final (${format(block.endDate, 'MMM d')})`);
+        // Final weigh-in lands on the Monday after the block's Sunday endDate.
+        const finalDay = utcDayRange(addUtcDays(block.endDate, 1));
+        const isFinalWeighIn = (d: Date) => d >= finalDay.start && d < finalDay.end;
+        headers.push(`Final (${format(finalDay.start, 'MMM d')})`);
 
         csvContent += csvRow(headers) + '\n';
 
@@ -276,8 +280,7 @@ export async function exportBlockData(
                 ];
 
                 weeks.forEach((week, idx) => {
-                    const weekEnd = new Date(week.startDate);
-                    weekEnd.setDate(weekEnd.getDate() + 7); // extend to next Monday
+                    const weekEnd = addUtcDays(week.startDate, 7); // extend to next Monday
 
                     const log = member.weighIns.find(w => {
                         const wDate = new Date(w.date);
@@ -292,23 +295,14 @@ export async function exportBlockData(
                     let nextLog = undefined;
 
                     if (nextWeek) {
-                        const nextWeekEnd = new Date(nextWeek.startDate);
-                        nextWeekEnd.setDate(nextWeekEnd.getDate() + 7);
+                        const nextWeekEnd = addUtcDays(nextWeek.startDate, 7);
                         nextLog = member.weighIns.find(w => {
                             const wDate = new Date(w.date);
                             return wDate >= nextWeek.startDate && wDate <= nextWeekEnd;
                         });
                     } else {
-                        // For the last week (idx === weeks.length - 1), 
-                        // the "nextLog" is the final weigh-in on block.endDate
-                        const blockEndStart = new Date(block.endDate);
-                        blockEndStart.setHours(0, 0, 0, 0);
-                        const blockEndEnd = new Date(block.endDate);
-                        blockEndEnd.setHours(23, 59, 59, 999);
-                        nextLog = member.weighIns.find(w => {
-                            const wDate = new Date(w.date);
-                            return wDate >= blockEndStart && wDate <= blockEndEnd;
-                        });
+                        // Last week: "next" is the final weigh-in.
+                        nextLog = member.weighIns.find(w => isFinalWeighIn(new Date(w.date)));
                     }
 
                     if (log && log.weight > 0 && nextLog && nextLog.weight > 0) {
@@ -320,14 +314,7 @@ export async function exportBlockData(
                 });
 
                 // Final weigh-in column
-                const finalLog = member.weighIns.find(w => {
-                    const wDate = new Date(w.date);
-                    const blockEndStart = new Date(block.endDate);
-                    blockEndStart.setHours(0, 0, 0, 0);
-                    const blockEndEnd = new Date(block.endDate);
-                    blockEndEnd.setHours(23, 59, 59, 999);
-                    return wDate >= blockEndStart && wDate <= blockEndEnd;
-                });
+                const finalLog = member.weighIns.find(w => isFinalWeighIn(new Date(w.date)));
                 row.push(finalLog ? finalLog.weight.toString() : '-');
 
                 csvContent += csvRow(row) + '\n';
@@ -343,12 +330,9 @@ export async function exportBlockData(
                 teamTotalWeightLoss > 0 ? `-${teamTotalWeightLoss.toFixed(1)}` : '0.0'
             ];
 
-            teamWeekTotals.forEach((total, idx) => {
-                if (idx === 0) {
-                    totalRow.push(total > 0 ? total.toFixed(1) : '-');
-                } else {
-                    totalRow.push(total < 0 ? total.toFixed(1) : (total === 0 ? '0.0' : `+${total.toFixed(1)}`));
-                }
+            // Weekly totals are losses (always >= 0); show them like Overall Change: "-x.x".
+            teamWeekTotals.forEach(total => {
+                totalRow.push(total > 0 ? `-${total.toFixed(1)}` : '0.0');
             });
 
             // Final total (not technically a delta total, but for consistency we can leave blank or sum)

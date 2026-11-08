@@ -23,7 +23,7 @@ export function MemberProgressHero({ progress }: { progress: MemberProgress }) {
                     <div className="flex items-center gap-2 text-tongan-light">
                         {lost ? <TrendingDown className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
                         <span className="text-micro font-bold uppercase tracking-widest">
-                            {hasWeighIns ? (lost ? "Total Lost" : "Since Start") : "Your Progress"}
+                            {hasWeighIns ? (lost ? "Weight lost" : (kgLost ?? 0) < 0 ? "Weight gained" : "No weight change") : "Your Progress"}
                         </span>
                     </div>
 
@@ -56,6 +56,7 @@ export function MemberProgressHero({ progress }: { progress: MemberProgress }) {
                         <LineChart className="w-4 h-4 text-lagoon-100" />
                         <h3 className="text-sm font-bold text-foreground tracking-tight">Weight Trend</h3>
                     </div>
+                    {trend.length > 0 && <p className="mb-3 text-sm text-foreground/80">Latest measurement: {trend[trend.length - 1].date}</p>}
                     {weighInCount >= 2 ? (
                         <MemberWeightChart data={trend} />
                     ) : (

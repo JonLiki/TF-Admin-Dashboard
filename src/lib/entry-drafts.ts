@@ -24,3 +24,23 @@ export function draftFormData(drafts: EntryDrafts, prefix: string, contextName: 
     for (const [id, value] of Object.entries(drafts)) data.set(`${prefix}_${id}`, value);
     return data;
 }
+
+
+export const benchmarkFields = ['squats', 'pushups', 'burpees'] as const;
+type BenchmarkScores = Record<typeof benchmarkFields[number], number>;
+
+export function benchmarkDraftFormData(drafts: EntryDrafts,
+    members: { id: string; benchmarkLogs: BenchmarkScores[] }[], weekId: string, date: string): FormData {
+    const data = new FormData();
+    data.set('blockWeekId', weekId);
+    data.set('date', date);
+    for (const member of members) {
+        if (!benchmarkFields.some(field => `${field}_${member.id}` in drafts)) continue;
+        for (const field of benchmarkFields) {
+            const value = drafts[`${field}_${member.id}`] ?? String(member.benchmarkLogs[0]?.[field] ?? 0);
+            // Normalize scientific notation before the server's integer parsing.
+            data.set(`${field}_${member.id}`, String(Number(value)));
+        }
+    }
+    return data;
+}

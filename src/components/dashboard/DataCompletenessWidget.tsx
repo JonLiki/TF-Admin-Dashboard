@@ -25,6 +25,8 @@ export interface DataCompletenessData {
 interface DataCompletenessWidgetProps {
     data: DataCompletenessData;
     currentWeekNumber: number;
+    weekId?: string;
+    weighInDate?: string;
 }
 
 interface CategoryConfig {
@@ -57,7 +59,7 @@ function getBgColor(pct: number) {
     return 'bg-red-500/10 border-red-500/20 text-red-400';
 }
 
-export function DataCompletenessWidget({ data, currentWeekNumber }: DataCompletenessWidgetProps) {
+export function DataCompletenessWidget({ data, currentWeekNumber, weekId, weighInDate }: DataCompletenessWidgetProps) {
     const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
     const weighPct = getPercentage(data.weighIns.entered, data.weighIns.total);
@@ -72,7 +74,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
             key: 'weighIns',
             label: 'Weigh-ins',
             icon: Scale,
-            href: '/weigh-in',
+            href: `/weigh-in?status=missing${weighInDate ? `&date=${encodeURIComponent(weighInDate)}` : ''}`,
             strokeColor: 'var(--color-lagoon)', // Lagoon Blue
             radius: 74,
             circumference: 2 * Math.PI * 74, // ~465
@@ -84,7 +86,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
             key: 'km',
             label: 'KM Logs',
             icon: Activity,
-            href: '/km',
+            href: `/km?status=missing${weekId ? `&weekId=${weekId}` : ''}`,
             strokeColor: 'var(--color-primary)', // Bio-Cyan
             radius: 58,
             circumference: 2 * Math.PI * 58, // ~364
@@ -96,7 +98,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
             key: 'lifestyle',
             label: 'Lifestyle',
             icon: Heart,
-            href: '/lifestyle',
+            href: `/lifestyle?status=missing${weekId ? `&weekId=${weekId}` : ''}`,
             strokeColor: 'var(--color-secondary)', // Volcanic Red
             radius: 42,
             circumference: 2 * Math.PI * 42, // ~263
@@ -108,7 +110,7 @@ export function DataCompletenessWidget({ data, currentWeekNumber }: DataComplete
             key: 'attendance',
             label: 'Attendance',
             icon: CalendarCheck,
-            href: '/attendance',
+            href: `/attendance${weekId ? `?weekId=${weekId}` : ''}`,
             strokeColor: '#10B981', // Emerald Green
             radius: 26,
             circumference: 2 * Math.PI * 26, // ~163

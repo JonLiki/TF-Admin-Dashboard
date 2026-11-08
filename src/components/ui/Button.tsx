@@ -20,7 +20,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         };
 
         const sizes = {
-            sm: "h-9 px-[var(--spacing-md)] text-xs uppercase tracking-wider", // 36px height
+            sm: "h-11 px-[var(--spacing-md)] text-xs uppercase tracking-wider", // 44px touch target
             md: "h-11 px-[var(--spacing-lg)] py-2 text-sm",                    // 44px height (Standard touch target)
             lg: "h-14 px-[var(--spacing-xl)] text-base font-bold",             // 56px height
         };
@@ -34,6 +34,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                     sizes[size],
                     className
                 )}
+                aria-busy={isLoading || undefined}
                 disabled={disabled || isLoading}
                 {...props}
             >

@@ -1,16 +1,17 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { authenticate } from '@/actions/auth-actions';
 import { Button } from '@/components/ui/Button';
 import { TonganNgatu } from '@/components/ui/Patterns';
-import { Loader2, LockKeyhole, ArrowRight, Waves } from 'lucide-react';
+import { Loader2, LockKeyhole, ArrowRight, Waves, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
+    const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
 
     return (
-        <div className="fixed inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-ocean-deep via-surface-ocean to-black overflow-hidden p-4">
+        <div className="relative min-h-dvh w-full flex flex-col items-center justify-center bg-gradient-to-br from-ocean-deep via-surface-ocean to-black overflow-x-hidden py-8 px-4">
             {/* Animated Tapa Pattern Overlay */}
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-overlay">
                 <TonganNgatu />
@@ -52,7 +53,7 @@ export default function LoginPage() {
                                 {/* Subtitle */}
                                 <div className="flex items-center justify-center gap-2 text-lagoon-100/70">
                                     <LockKeyhole className="w-3.5 h-3.5" />
-                                    <p className="text-xs font-bold uppercase tracking-[0.25em]">Admin Sign In</p>
+                                    <p className="text-xs font-bold uppercase tracking-[0.25em]">Sign in</p>
                                 </div>
                                 <p className="text-foreground/60 mt-2">Enter your credentials to access the To&apos;a Fatalona dashboard.</p>
 
@@ -80,9 +81,11 @@ export default function LoginPage() {
                                             id="email"
                                             type="email"
                                             name="email"
-                                            placeholder="admin@toafatalona.com"
+                                            placeholder="you@example.com"
                                             required
-                                            autoComplete="email"
+                                            autoComplete="username"
+                                            autoCapitalize="none"
+                                            spellCheck={false}
                                         />
                                     </div>
                                 </div>
@@ -97,21 +100,26 @@ export default function LoginPage() {
                                     </label>
                                     <div className="relative group/input">
                                         <input
-                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-foreground focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-foreground/40 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep"
+                                            className="w-full bg-surface-deep/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3.5 text-foreground focus:ring-2 focus:ring-lagoon/50 focus:border-lagoon/50 outline-none transition-all placeholder:text-foreground/40 text-sm shadow-inner group-hover/input:border-white/20 group-hover/input:bg-surface-deep pr-14"
                                             id="password"
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             name="password"
                                             placeholder="••••••••"
                                             required
-                                            minLength={6}
-                                            autoComplete="current-password"
+                                                                                        autoComplete="current-password"
+                                            aria-describedby={errorMessage ? "login-error" : undefined}
                                         />
+                                        <button type="button" onClick={() => setShowPassword(value => !value)}
+                                            aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword}
+                                            className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-lagoon">
+                                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                        </button>
                                     </div>
                                 </div>
 
                                 {/* Error Message */}
                                 {errorMessage && (
-                                    <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-bold tracking-wide animate-in fade-in slide-in-from-top-2 backdrop-blur-sm">
+                                    <div id="login-error" role="alert" className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-bold tracking-wide animate-in fade-in slide-in-from-top-2 backdrop-blur-sm">
                                         {errorMessage}
                                     </div>
                                 )}
@@ -123,7 +131,7 @@ export default function LoginPage() {
                                     className="w-full bg-gradient-to-r from-tongan to-red-800 hover:from-red-600 hover:to-red-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-tongan/30 hover:shadow-tongan/50 hover:shadow-xl active:scale-[0.98] transition-all duration-200 mt-6 border border-white/10 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isPending ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        <span role="status" className="flex items-center gap-2"><Loader2 aria-hidden="true" className="w-5 h-5 animate-spin" /> Signing in...</span>
                                     ) : (
                                         <span className="flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                                             Sign In
@@ -142,7 +150,7 @@ export default function LoginPage() {
                 {/* Footer */}
                 <div className="mt-8 text-center space-y-2">
                     <p className="text-[11px] text-foreground/60 font-medium tracking-wide">
-                        For team administrators
+                        For team members and administrators
                     </p>
                     <p className="text-foreground/50 text-xs text-center mt-8">
                         &copy; 2026 To&apos;a Fatalona. All rights reserved.

@@ -1,6 +1,7 @@
 'use client';
 
 import { Select, SelectOption } from "@/components/ui/Select";
+import { navigateWithDraftCheck } from '@/components/ui/UnsavedChangesGuard';
 import { useRouter } from "next/navigation";
 
 interface SessionSelectorProps {
@@ -12,11 +13,12 @@ export function SessionSelector({ sessions, selectedSessionId }: SessionSelector
     const router = useRouter();
 
     const handleSessionChange = (sessionId: string) => {
-        router.push(`/attendance?sessionId=${sessionId}`);
+        navigateWithDraftCheck(() => router.push(`/attendance?sessionId=${sessionId}`));
     };
 
     return (
         <Select
+            label="Attendance session"
             options={sessions}
             value={selectedSessionId}
             onChange={handleSessionChange}

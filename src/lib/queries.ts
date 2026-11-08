@@ -8,7 +8,8 @@
  */
 
 import prisma from '@/lib/prisma';
-import { utcDayRange } from '@/lib/dates';
+import { utcDayRange, addUtcDays } from '@/lib/dates';
+import { weightLossWindow } from '@/lib/scoring-logic';
 import { getLeaderboardStandings } from '@/lib/transformers/scoreboard';
 import { TeamWeekMetric } from '@prisma/client';
 
@@ -37,6 +38,23 @@ export async function getBlocks() {
         },
         orderBy: { createdAt: 'desc' }
     });
+}
+
+// ─── Finalized-week locks ───────────────────────────────────────────────────
+
+/**
+ * Weigh-ins aren't tied to a week ID, so "locked" means: the date falls inside
+ * the weight-loss window of a finalized week (editing it would change that
+ * week's locked result). Returns a predicate for dates in [from, to].
+ */
+export async function getWeighInLockCheck(from: Date, to: Date): Promise<(date: Date) => boolean> {
+    // date ∈ [weekStart - 1, weekStart + 10)  ⇔  weekStart ∈ (date - 10, date + 1]
+    const weeks = await prisma.blockWeek.findMany({
+        where: { isFinalized: true, startDate: { gt: addUtcDays(from, -10), lte: addUtcDays(to, 1) } },
+        select: { startDate: true },
+    });
+    const windows = weeks.map(w => weightLossWindow(w.startDate));
+    return (date) => windows.some(w => date >= w.start && date < w.end);
 }
 
 // ─── Week Data Completeness ─────────────────────────────────────────────────
