@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const routeMap: Record<string, { label: string; icon: LucideIcon }> = {
+    '/check-in': { label: 'Weekly check-in', icon: CalendarCheck },
     '/blocks': { label: 'Blocks', icon: Calendar },
     '/benchmarks': { label: 'Benchmarks', icon: Dumbbell },
     '/': { label: 'Dashboard', icon: LayoutDashboard },

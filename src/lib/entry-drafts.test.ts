@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { benchmarkDraftFormData, draftFormData, entryError, updateEntryDraft } from './entry-drafts';
+import { benchmarkDraftFormData, draftFormData, entryError, updateEntryDraft, updateEntryDraftBatch } from './entry-drafts';
 
 describe('entry drafts', () => {
     it('saves edits to multiple members independently of which row is visible', () => {
@@ -58,5 +58,19 @@ describe('benchmark drafts', () => {
     it('normalizes scientific notation to avoid truncation by integer parsing', () => {
         const data = benchmarkDraftFormData({ squats_a: '1e2' }, members, 'week-1', '2026-01-19');
         expect(data.get('squats_a')).toBe('100');
+    });
+});
+
+
+describe('pasted draft batches', () => {
+    it('applies a range without losing hidden edits or mutating the previous draft', () => {
+        const previous = { hidden: '5', revert: '12', changed: '9' };
+        const next = updateEntryDraftBatch(previous, [
+            { id: 'revert', value: '2.0', saved: '2' },
+            { id: 'changed', value: '0', saved: '' },
+            { id: 'attendance', value: 'absent', saved: '' },
+        ]);
+        expect(next).toEqual({ hidden: '5', changed: '0', attendance: 'absent' });
+        expect(previous).toEqual({ hidden: '5', revert: '12', changed: '9' });
     });
 });

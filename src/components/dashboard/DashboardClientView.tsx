@@ -64,7 +64,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-lg font-bold">This week&apos;s tasks</h3>
                     <div className="flex flex-wrap gap-2">
-                        {[[`/weigh-in?date=${encodeURIComponent(stats.currentWeekStartDate ?? '')}`, 'Log weigh-ins'], [`/attendance?weekId=${stats.currentWeekId ?? ''}`, 'Take attendance'], [`/km?weekId=${stats.currentWeekId ?? ''}`, 'Log KM']].map(([href, label]) => (
+                        {[[`/check-in?weekId=${stats.currentWeekId ?? ''}`, 'Open weekly check-in'], [`/weigh-in?date=${encodeURIComponent(stats.currentWeekStartDate ?? '')}`, 'Log weigh-ins'], [`/attendance?weekId=${stats.currentWeekId ?? ''}`, 'Take attendance'], [`/km?weekId=${stats.currentWeekId ?? ''}`, 'Log KM']].map(([href, label]) => (
                             <Link key={href} href={href} className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface-ocean px-4 text-sm font-semibold hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-lagoon">{label}</Link>
                         ))}
                     </div>

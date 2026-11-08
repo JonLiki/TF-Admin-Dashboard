@@ -44,3 +44,13 @@ export function benchmarkDraftFormData(drafts: EntryDrafts,
     }
     return data;
 }
+
+
+export function updateEntryDraftBatch(drafts: EntryDrafts, updates: { id: string; value: string; saved: string }[]): EntryDrafts {
+    const next = { ...drafts };
+    for (const { id, value, saved } of updates) {
+        if (value === saved || (value.trim() !== '' && saved !== '' && Number(value) === Number(saved))) delete next[id];
+        else next[id] = value;
+    }
+    return next;
+}

@@ -17,6 +17,7 @@ import * as blockActions from '@/actions/block-actions';
 import * as dataActions from '@/actions/data';
 import * as importActions from '@/actions/import-actions';
 import * as exportActions from '@/actions/export-actions';
+import { saveWeeklyCheckIn } from '@/actions/check-in';
 import * as scoringActions from '@/actions/scoring';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,6 +38,7 @@ const fileForm = () => {
 
 /** Every mutating action returns { success: false, message } on rejection */
 const resultStyleActions: [string, () => Promise<{ success?: boolean; message?: string } | undefined | void>][] = [
+    ['saveWeeklyCheckIn', () => saveWeeklyCheckIn(undefined, emptyForm())],
     ['createTeam', () => memberTeamActions.createTeam(emptyForm())],
     ['updateTeam', () => memberTeamActions.updateTeam('t1', emptyForm())],
     ['createMember', () => memberTeamActions.createMember(emptyForm())],

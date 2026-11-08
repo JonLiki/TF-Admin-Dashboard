@@ -45,6 +45,7 @@ const navSections: NavSection[] = [
         label: 'OVERVIEW',
         items: [
             { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+            { name: 'Weekly check-in', href: '/check-in', icon: CalendarCheck },
         ],
     },
     {

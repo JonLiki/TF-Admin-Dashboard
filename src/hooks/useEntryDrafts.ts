@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { draftFormData, entryError, updateEntryDraft, type EntryDrafts } from '@/lib/entry-drafts';
+import { draftFormData, entryError, updateEntryDraft, updateEntryDraftBatch, type EntryDrafts } from '@/lib/entry-drafts';
 
 // Memory-only drafts also survive client-side back/forward navigation.
 const draftCache = new Map<string, EntryDrafts>();
@@ -10,7 +10,7 @@ export function clearEntryDraftCache() { draftCache.clear(); }
 type Result = { success: boolean; message: string };
 
 export function useEntryDrafts(action: (previous: unknown, data: FormData) => Promise<Result>,
-    prefix: string, contextName: string, context: string, max?: number, integer = false, serialize?: (drafts: EntryDrafts) => FormData) {
+    prefix: string, contextName: string, context: string, max?: number, integer = false, serialize?: (drafts: EntryDrafts) => FormData, validate?: (value: string, id: string) => string | undefined) {
     const cacheKey = `${prefix}:${contextName}:${context}`;
     const [drafts, setDrafts] = useState<EntryDrafts>(() => draftCache.get(cacheKey) ?? {});
     const afterSave = useRef<(() => void) | null>(null);
@@ -18,7 +18,7 @@ export function useEntryDrafts(action: (previous: unknown, data: FormData) => Pr
     const discard = () => { dirtyRef.current = false; draftCache.delete(cacheKey); setDrafts({}); };
     const formRef = useRef<HTMLFormElement>(null);
     const errors = Object.fromEntries(Object.entries(drafts)
-        .map(([id, value]) => [id, entryError(value, max, integer)])
+        .map(([id, value]) => [id, validate ? validate(value, id) : entryError(value, max, integer)])
         .filter(([, error]) => error));
     const count = Object.keys(drafts).length;
     const [state, formAction, isPending] = useActionState(async () => {
@@ -65,6 +65,13 @@ export function useEntryDrafts(action: (previous: unknown, data: FormData) => Pr
     }, [count, state]);
 
     return { drafts, errors, count, state, formAction, isPending, formRef, discard,
+        cancelSaveNavigation: () => { afterSave.current = null; },
+        applyChanges: (updates: { id: string; value: string; saved: string }[]) => setDrafts(current => {
+            const next = updateEntryDraftBatch(current, updates);
+            dirtyRef.current = Object.keys(next).length > 0;
+            draftCache.set(cacheKey, next);
+            return next;
+        }),
         saveBeforeLeaving: (navigate: () => void) => { afterSave.current = navigate; formRef.current?.requestSubmit(); },
         change: (id: string, value: string, saved: string) => setDrafts(current => {
             const next = updateEntryDraft(current, id, value, saved);
