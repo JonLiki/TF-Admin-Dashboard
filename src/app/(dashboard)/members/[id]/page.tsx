@@ -145,7 +145,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
                     </Button>
                 </Link>
 
-                <MemberActions memberId={member.id} isActive={member.isActive} />
+                <MemberActions memberName={`${member.firstName} ${member.lastName}`} memberId={member.id} isActive={member.isActive} />
             </div>
 
             <PageHeader title={`${member.firstName} ${member.lastName}`} subtitle={member.team?.name || "Unassigned"}>

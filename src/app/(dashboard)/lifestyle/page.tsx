@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { getActiveBlock, getMembersWithLogs } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Heart, TrendingUp, Award, CheckCircle, AlertCircle } from "lucide-react";
@@ -11,7 +12,7 @@ import { formatDecimal, formatInteger } from "@/lib/formatters";
 
 export default async function LifestylePage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="Create or activate a training block to start tracking." actionLabel="Manage blocks" actionHref="/blocks" /></div>;
 
     const selectedWeekId = (await searchParams)?.weekId || block.weeks[0].id;
     const selectedWeek = block.weeks.find(w => w.id === selectedWeekId) || block.weeks[0];
@@ -32,7 +33,7 @@ export default async function LifestylePage({ searchParams }: { searchParams: { 
                 <SimpleWeekSelector
                     weeks={block.weeks.map((w) => ({
                         value: w.id,
-                        label: `Week ${w.weekNumber}`
+                        label: `Week ${w.weekNumber} · ${format(w.startDate, 'MMM d')}–${format(w.endDate, 'MMM d')} · ${w.isFinalized ? 'Finalized' : 'Open'}`
                     }))}
                     selectedWeekId={selectedWeekId}
                     basePath="/lifestyle"

@@ -18,6 +18,15 @@ A production-quality fitness team management system for administering "TO'A FATA
 - **Audit Trail**: All mutations are logged with user, entity type, entity ID, action, and timestamp.
 - **Security**: Role-based authorization (ADMIN / PARTICIPANT), login throttling with lockout, and production-safe seed credentials.
 
+## Entry workflow
+
+- Filter entry lists by missing, recorded, edited, or invalid entries. Searching keeps edits to hidden rows.
+- Save with **Save changes** or **Ctrl/Cmd+S**. Leaving through navigation, selectors, or sign-out offers Save, Discard, or Stay.
+- Drafts are held in browser memory during client navigation; save before refreshing or closing the tab. A browser warning protects unsaved edits.
+- Attendance saves per person/session, with an inline retry message if a save fails. On small screens, choose one session at a time.
+- Preview CSV files before importing. Templates use the active block's columns; imports may update multiple weeks, and finalized weeks are skipped.
+- Use **View chart data** for exact values on supported charts, and **View compact standings** for a table of overall scores.
+
 ## Tech Stack
 
 | Layer | Technology |

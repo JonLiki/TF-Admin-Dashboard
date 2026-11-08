@@ -21,7 +21,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                 type="button"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                className="flex h-11 w-11 items-center justify-center focus-visible:outline-2 focus-visible:outline-lagoon rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
                 aria-label="Previous page"
             >
                 <ChevronLeft className="w-4 h-4" />
@@ -40,7 +40,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                         aria-current={currentPage === page ? 'page' : undefined}
                         onClick={() => onPageChange(page as number)}
                         className={cn(
-                            "min-w-[36px] h-9 px-2 rounded-lg text-sm font-medium transition-all duration-200",
+                            "min-w-11 h-11 px-2 rounded-lg text-sm font-medium focus-visible:outline-2 focus-visible:outline-lagoon transition-all duration-200",
                             currentPage === page
                                 ? "bg-lagoon/20 text-foreground border border-lagoon/40 shadow-[0_0_10px_-4px_rgba(28,114,147,0.4)]"
                                 : "text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5"
@@ -55,7 +55,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
                 type="button"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                className="flex h-11 w-11 items-center justify-center focus-visible:outline-2 focus-visible:outline-lagoon rounded-lg text-lagoon-100/60 hover:text-foreground hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
                 aria-label="Next page"
             >
                 <ChevronRight className="w-4 h-4" />

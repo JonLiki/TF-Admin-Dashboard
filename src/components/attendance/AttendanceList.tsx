@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
-import { Button } from "@/components/ui/Button";
-import { CalendarCheck, Check, X, Filter } from "lucide-react";
+
+import { CalendarCheck, Filter } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { cn } from "@/lib/utils";
-import { toggleAttendance } from "@/actions/data";
+import { AttendanceToggle } from './AttendanceToggle';
 import { format } from "date-fns";
 import { ImportButton } from "@/components/ui/ImportButton";
-import { toast } from 'sonner';
+
 
 interface Member {
     id: string;
@@ -76,7 +76,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                 {/* Headers */}
                 <div className="hidden md:flex px-6 py-2 text-xs font-bold text-lagoon-100/50 uppercase tracking-widest opacity-80">
                     <div className="w-1/3">Member</div>
-                    <div className="w-1/4">Group</div>
+                    <div className="w-1/4">Team</div>
                     <div className="w-1/4">Status</div>
                     <div className="ml-auto">Action</div>
                 </div>
@@ -121,7 +121,7 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
                                 </div>
                             </div>
 
-                            {/* Group */}
+                            {/* Team */}
                             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
                                 <span className={cn(
                                     "text-sm font-medium",
@@ -145,34 +145,9 @@ export function AttendanceList({ members, session, attendanceMap }: AttendanceLi
 
                             {/* Actions */}
                             <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
-                                <form action={async () => {
-                                    const res = await toggleAttendance(session.id, member.id, !isPresent);
-                                    if (!res.success) toast.error(res.message);
-                                }}>
-                                    <Button
-                                        size="sm"
-                                        type="submit"
-                                        variant="secondary"
-                                        className={cn(
-                                            "h-10 px-4 rounded-lg transition-all font-bold uppercase tracking-wider text-xs border duration-300",
-                                            isPresent
-                                                ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30"
-                                                : "bg-ocean-deep text-lagoon-100/60 border-white/5 hover:bg-lagoon/10 hover:text-foreground hover:border-lagoon/30"
-                                        )}
-                                    >
-                                        {isPresent ? (
-                                            <>
-                                                <Check className="w-4 h-4 mr-2" />
-                                                Present
-                                            </>
-                                        ) : (
-                                            <>
-                                                <X className="w-4 h-4 mr-2" />
-                                                Mark Present
-                                            </>
-                                        )}
-                                    </Button>
-                                </form>
+                                <AttendanceToggle sessionId={session.id} memberId={member.id}
+                                    memberName={`${member.firstName} ${member.lastName}`}
+                                    sessionLabel={`${session.type}, ${format(session.date, 'MMM d')}`} isPresent={isPresent} />
                             </div>
                         </div>
                     );

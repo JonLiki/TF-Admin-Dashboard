@@ -123,9 +123,10 @@ export function MembersList({ members, teams }: MembersListProps) {
 
                         {/* Team Filter */}
                         <Select
+                            label="Filter by team"
                             options={[
-                                { value: 'all', label: 'All Groups' },
-                                { value: 'none', label: 'No Group' },
+                                { value: 'all', label: 'All Teams' },
+                                { value: 'none', label: 'No Team' },
                                 ...teams.map(t => ({ value: t.id, label: t.name }))
                             ]}
                             value={selectedTeam}
@@ -137,7 +138,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                         />
 
                         {/* Status Filter */}
-                        <Select
+                        <Select label="Filter by member status"
                             options={[
                                 { value: 'all', label: 'All Status' },
                                 { value: 'active', label: 'Active Only' },
@@ -181,7 +182,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                     {/* Column Headers (Visual Only) */}
                     <div className="hidden md:flex px-6 py-2 text-xs font-bold text-lagoon-100/50 uppercase tracking-widest opacity-80">
                         <div className="w-1/3">Member</div>
-                        <div className="w-1/4">Group</div>
+                        <div className="w-1/4">Team</div>
                         <div className="w-1/4">Status</div>
                         <div className="ml-auto">Actions</div>
                     </div>
@@ -218,7 +219,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                 </div>
                             </div>
 
-                            {/* Group */}
+                            {/* Team */}
                             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
                                 <div className="flex items-center gap-2">
                                     <div className={cn("w-2 h-2 rounded-full", member.team ? "bg-tongan-red shadow-[0_0_8px_rgba(200,16,46,0.5)]" : "bg-slate-600")} />
@@ -255,7 +256,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                         setIsEditSheetOpen(true);
                                     }}
                                     className="text-lagoon-100/60 hover:text-lagoon hover:bg-white/5 transition-colors duration-300"
-                                    title="Edit"
+                                    aria-label={`Edit ${member.firstName} ${member.lastName}`} title="Edit"
                                 >
                                     <Pencil className="w-4 h-4 pointer-events-none" />
                                 </Button>
@@ -272,6 +273,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                             "hover:bg-white/5 transition-colors duration-300",
                                             member.isActive ? "text-lagoon-100/60 hover:text-tongan-red" : "text-lagoon-100/60 hover:text-lagoon"
                                         )}
+                                        aria-label={`${member.isActive ? 'Deactivate' : 'Activate'} ${member.firstName} ${member.lastName}`}
                                         title={member.isActive ? "Deactivate" : "Activate"}
                                     >
                                         {member.isActive ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
@@ -279,7 +281,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                 </form>
                                 <form action={async () => {
                                     // Make this safer, ideally confirmed
-                                    if (confirm('Are you sure?')) {
+                                    if (confirm(`Delete ${member.firstName} ${member.lastName}? This permanently removes their member record and cannot be undone. Deactivate instead to keep their history.`)) {
                                         const res = await deleteMember(member.id);
                                         if (res.success) toast.success(res.message);
                                         else toast.error(res.message);
@@ -290,7 +292,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                         size="sm"
                                         type="submit"
                                         className="text-lagoon-100/60 hover:text-tongan-red hover:bg-tongan/10 transition-colors duration-300"
-                                        title="Delete"
+                                        aria-label={`Delete ${member.firstName} ${member.lastName}`} title="Delete"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </Button>
@@ -381,15 +383,15 @@ export function MembersList({ members, teams }: MembersListProps) {
                                     className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 focus:border-lagoon/60 focus:ring-lagoon/20" 
                                 />
                                 <div className="space-y-1.5 mt-4">
-                                    <label className="text-xs font-bold text-foreground/60 uppercase tracking-wide ml-1">Assign Group</label>
+                                    <label className="text-xs font-bold text-foreground/60 uppercase tracking-wide ml-1">Assign Team</label>
                                     <Select
                                         options={[
-                                            { value: '', label: 'No Group' },
+                                            { value: '', label: 'No Team' },
                                             ...teams.map(t => ({ value: t.id, label: t.name }))
                                         ]}
                                         defaultValue={editingMember.team?.id || ''}
                                         name="teamId"
-                                        placeholder="Select a group"
+                                        label="Assign team" placeholder="Select a team"
                                         className="w-full bg-ocean-deep text-lagoon-100 border-lagoon/30"
                                     />
                                 </div>

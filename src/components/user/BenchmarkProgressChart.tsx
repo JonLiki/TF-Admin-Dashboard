@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { ChartDataTable } from '@/components/ui/ChartDataTable';
 import {
     LineChart,
     Line,
@@ -126,6 +127,7 @@ export function BenchmarkProgressChart({ logs }: BenchmarkProgressChartProps) {
                     </LineChart>
                 </ResponsiveContainer>
             </div>
+            <ChartDataTable rows={chartData} columns={[{ key: 'week', label: 'Week' }, { key: 'Squats', label: 'Squats (reps)' }, { key: 'Pushups', label: 'Push-ups (reps)' }, { key: 'Burpees', label: 'Burpees (reps)' }]} caption="Recorded benchmark repetitions by week." />
         </PremiumCard>
     );
 }

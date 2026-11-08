@@ -27,9 +27,9 @@ export function ThemeToggle({ className }: { className?: string }) {
 
     return (
         <button
-            onClick={cycleTheme}
+            type="button" onClick={cycleTheme}
             className={cn(
-                "relative p-2 rounded-lg transition-all duration-200",
+                "relative flex h-11 w-11 items-center justify-center rounded-lg transition-all duration-200",
                 "text-foreground/60 hover:text-foreground",
                 "hover:bg-foreground/5",
                 "focus:outline-none focus:ring-2 focus:ring-lagoon/50",

@@ -1,105 +1,35 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, FileText, Table } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { generateScoreboardPDF, generateScoreboardCSV, ScoreboardExportData } from '@/lib/exportUtils';
+import { Download } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from './Button';
+import { Sheet } from './Sheet';
+import { generateScoreboardPDF, generateScoreboardCSV, type ScoreboardExportData } from '@/lib/exportUtils';
 
-interface ExportButtonProps {
-    data: ScoreboardExportData;
-    className?: string;
-}
-
-export function ExportButton({ data, className }: ExportButtonProps) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isExporting, setIsExporting] = useState(false);
-
-    const handleExport = async (format: 'pdf' | 'csv') => {
-        setIsExporting(true);
-        setIsOpen(false);
-
+export function ExportButton({ data, className }: { data: ScoreboardExportData; className?: string }) {
+    const [open, setOpen] = useState(false);
+    const [pending, setPending] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const download = async (format: 'pdf' | 'csv') => {
+        setPending(true); setError(null);
         try {
-            if (format === 'pdf') {
-                generateScoreboardPDF(data);
-            } else {
-                generateScoreboardCSV(data);
-            }
-        } catch (error) {
-            console.error('Export failed:', error);
-            // Could add toast notification here
-        } finally {
-            setTimeout(() => setIsExporting(false), 1000);
-        }
+            if (format === 'pdf') await generateScoreboardPDF(data); else await generateScoreboardCSV(data);
+            toast.success('Report download started.'); setOpen(false);
+        } catch { setError('Could not create the report. Please try again.'); }
+        finally { setPending(false); }
     };
-
-    return (
-        <div className={cn("relative", className)}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                disabled={isExporting}
-                className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200",
-                    "bg-ocean text-foreground hover:bg-ocean-light",
-                    "border border-white/10 shadow-sm",
-                    "disabled:opacity-50 disabled:cursor-not-allowed",
-                    "focus:outline-none focus:ring-2 focus:ring-lagoon/50"
-                )}
-            >
-                <Download className={cn(
-                    "w-4 h-4",
-                    isExporting && "animate-bounce"
-                )} />
-                <span className="text-sm font-medium">
-                    {isExporting ? 'Exporting...' : 'Export'}
-                </span>
-            </button>
-
-            {/* Dropdown Menu */}
-            {isOpen && (
-                <>
-                    {/* Backdrop */}
-                    <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setIsOpen(false)}
-                    />
-
-                    {/* Menu */}
-                    <div className={cn(
-                        "absolute right-0 mt-2 w-48 z-50",
-                        "bg-obsidian border border-white/10 rounded-xl shadow-2xl",
-                        "py-1",
-                        "animate-in fade-in-0 zoom-in-95 duration-200"
-                    )}>
-                        <button
-                            onClick={() => handleExport('pdf')}
-                            className={cn(
-                                "w-full px-4 py-2.5 text-left flex items-center gap-3",
-                                "text-foreground hover:bg-ocean transition-colors duration-150"
-                            )}
-                        >
-                            <FileText className="w-4 h-4 text-lagoon-100" />
-                            <div>
-                                <div className="text-sm font-medium">Download PDF</div>
-                                <div className="text-xs text-foreground/60">Formatted report</div>
-                            </div>
-                        </button>
-
-                        <button
-                            onClick={() => handleExport('csv')}
-                            className={cn(
-                                "w-full px-4 py-2.5 text-left flex items-center gap-3",
-                                "text-foreground hover:bg-ocean transition-colors duration-150"
-                            )}
-                        >
-                            <Table className="w-4 h-4 text-lagoon-100" />
-                            <div>
-                                <div className="text-sm font-medium">Download CSV</div>
-                                <div className="text-xs text-foreground/60">Raw data</div>
-                            </div>
-                        </button>
-                    </div>
-                </>
-            )}
-        </div>
-    );
+    return <div className={className}>
+        <Button type="button" variant="secondary" aria-haspopup="dialog" aria-expanded={open} onClick={() => { setOpen(true); setError(null); }}>
+            <Download className="mr-2 h-4 w-4" /> Export
+        </Button>
+        <Sheet isOpen={open} onClose={() => { if (!pending) setOpen(false); }} title="Export scoreboard">
+            <div className="space-y-4">
+                <p>Overall block standings for {data.standings.length} teams, plus saved Week {data.weekNumber} awards in the PDF.</p>
+                <p className="text-sm text-foreground/80">Report date: {data.date}. CSV contains overall standings.</p>
+                <div className="flex flex-wrap gap-2"><Button type="button" isLoading={pending} onClick={() => download('pdf')}>Download PDF</Button><Button type="button" variant="secondary" disabled={pending} onClick={() => download('csv')}>Download CSV</Button></div>
+                {error && <p role="alert">{error}</p>}
+            </div>
+        </Sheet>
+    </div>;
 }

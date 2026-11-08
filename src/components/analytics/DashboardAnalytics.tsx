@@ -29,7 +29,7 @@ interface WeekData {
     count: number;
 }
 
-export default function DashboardAnalytics({ metrics, teams, attendanceData, weeklyTotals, title = "Group Performance Matrix" }: DashboardAnalyticsProps) {
+export default function DashboardAnalytics({ metrics, teams, attendanceData, weeklyTotals, title = "Team performance" }: DashboardAnalyticsProps) {
     const [activeMetric, setActiveMetric] = useState<MetricType>('weight');
     const [viewMode, setViewMode] = useState<'charts' | 'radar'>('charts');
 
@@ -46,7 +46,7 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
 
         const weekMap = new Map<number, WeekData>();
 
-        // Group metrics by week
+        // Team metrics by week
         const sortedMetrics = [...metrics].sort((a, b) => a.blockWeek.weekNumber - b.blockWeek.weekNumber);
 
         sortedMetrics.forEach(m => {
@@ -131,24 +131,24 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
                 <div className="flex items-center gap-4">
                     <div>
                         <h3 className="text-xl font-semibold text-foreground tracking-tight">{title}</h3>
-                        <p className="text-xs font-normal text-foreground/60 mt-1">Weekly Metrics Breakdown</p>
+                        <p className="text-xs font-normal text-foreground/60 mt-1">Across recorded weeks; averages exclude weeks without calculated metrics.</p>
                     </div>
 
                     {/* View Toggle */}
                     <div className="flex bg-ocean/20 rounded-lg p-0.5 border border-border/30 dark:border-white/5 ml-4">
                         <button
-                            onClick={() => setViewMode('charts')}
+                            type="button" aria-pressed={viewMode === 'charts'} onClick={() => setViewMode('charts')}
                             className={cn(
-                                "px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all",
+                                "min-h-11 px-3 py-1.5 rounded-md focus-visible:outline-2 focus-visible:outline-lagoon text-xs font-bold uppercase tracking-wider transition-all",
                                 viewMode === 'charts' ? "bg-lagoon text-white shadow-sm" : "text-foreground/60 hover:text-foreground dark:text-slate-400 dark:hover:text-white"
                             )}
                         >
                             Trends
                         </button>
                         <button
-                            onClick={() => setViewMode('radar')}
+                            type="button" aria-pressed={viewMode === 'radar'} onClick={() => setViewMode('radar')}
                             className={cn(
-                                "px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all",
+                                "min-h-11 px-3 py-1.5 rounded-md focus-visible:outline-2 focus-visible:outline-lagoon text-xs font-bold uppercase tracking-wider transition-all",
                                 viewMode === 'radar' ? "bg-tongan text-white shadow-sm" : "text-foreground/60 hover:text-foreground dark:text-slate-400 dark:hover:text-white"
                             )}
                         >

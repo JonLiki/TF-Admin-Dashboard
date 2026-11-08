@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { getActiveBlock } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Award, CheckCircle, AlertCircle, Activity, TrendingUp } from "lucide-react";
@@ -119,7 +120,7 @@ async function getMembersWithLogs(blockWeekId: string) {
 
 export default async function BenchmarksPage({ searchParams }: { searchParams: { weekId?: string } }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="Create or activate a training block to start tracking." actionLabel="Manage blocks" actionHref="/blocks" /></div>;
 
     const benchmarkWeeks = block.weeks.filter(w => w.weekNumber === 1 || w.weekNumber === 8);
     const selectedWeekId = (await searchParams)?.weekId || benchmarkWeeks[0]?.id;
@@ -170,7 +171,7 @@ export default async function BenchmarksPage({ searchParams }: { searchParams: {
                 <SimpleWeekSelector
                     weeks={benchmarkWeeks.map((w) => ({
                         value: w.id,
-                        label: `Week ${w.weekNumber}`
+                        label: `Week ${w.weekNumber} · ${format(w.startDate, 'MMM d')}–${format(w.endDate, 'MMM d')} · ${w.isFinalized ? 'Finalized' : 'Open'}`
                     }))}
                     selectedWeekId={selectedWeekId}
                     basePath="/benchmarks"

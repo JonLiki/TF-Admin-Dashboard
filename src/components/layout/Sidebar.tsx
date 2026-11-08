@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/utils';
 import {
@@ -20,6 +20,8 @@ import {
     Menu,
     LogOut
 } from 'lucide-react';
+import { clearEntryDraftCache } from '@/hooks/useEntryDrafts';
+import { navigateWithDraftCheck } from '@/components/ui/UnsavedChangesGuard';
 import { logout } from '@/actions/auth-actions';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from '../ui/ThemeToggle';
@@ -29,7 +31,6 @@ import { TonganNgatu } from '../ui/Patterns';
 
 interface NavItem {
     name: string;
-    subtitle: string;
     href: string;
     icon: React.ComponentType<{ className?: string }>;
 }
@@ -43,33 +44,34 @@ const navSections: NavSection[] = [
     {
         label: 'OVERVIEW',
         items: [
-            { name: 'Dashboard', subtitle: 'Overview', href: '/', icon: LayoutDashboard },
+            { name: 'Dashboard', href: '/', icon: LayoutDashboard },
         ],
     },
     {
-        label: 'DATA ENTRY',
+        label: 'PEOPLE & TRACKING',
         items: [
-            { name: 'Teams', subtitle: 'Groups', href: '/teams', icon: Users },
-            { name: 'Members', subtitle: 'Participants', href: '/members', icon: UserPlus },
-            { name: 'Weigh-in', subtitle: 'Weekly Check', href: '/weigh-in', icon: Scale },
-            { name: 'Km Logs', subtitle: 'Weekly KM', href: '/km', icon: Activity },
-            { name: 'Lifestyle', subtitle: 'Habits', href: '/lifestyle', icon: Heart },
-            { name: 'Attendance', subtitle: 'Sessions', href: '/attendance', icon: CalendarCheck },
+            { name: 'Teams', href: '/teams', icon: Users },
+            { name: 'Members', href: '/members', icon: UserPlus },
+            { name: 'Weigh-in', href: '/weigh-in', icon: Scale },
+            { name: 'Km Logs', href: '/km', icon: Activity },
+            { name: 'Lifestyle', href: '/lifestyle', icon: Heart },
+            { name: 'Attendance', href: '/attendance', icon: CalendarCheck },
         ],
     },
     {
-        label: 'ANALYTICS',
+        label: 'REPORTS & SETUP',
         items: [
-            { name: 'Benchmarks', subtitle: 'Progress', href: '/benchmarks', icon: Dumbbell },
-            { name: 'Summary', subtitle: 'Reports', href: '/summary', icon: FileText },
-            { name: 'Scoreboard', subtitle: 'Leaderboard', href: '/scoreboard', icon: Trophy },
-            { name: 'Blocks', subtitle: 'Training Periods', href: '/blocks', icon: Calendar },
+            { name: 'Benchmarks', href: '/benchmarks', icon: Dumbbell },
+            { name: 'Summary', href: '/summary', icon: FileText },
+            { name: 'Scoreboard', href: '/scoreboard', icon: Trophy },
+            { name: 'Blocks', href: '/blocks', icon: Calendar },
         ],
     },
 ];
 
 export function Sidebar({ user }: { user?: { name?: string | null; email?: string | null } }) {
     const pathname = usePathname();
+    const [signingOut, startSignOut] = useTransition();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -179,12 +181,6 @@ export function Sidebar({ user }: { user?: { name?: string | null; email?: strin
                                                     <span className={cn("text-sm font-bold tracking-wide", isActive ? "text-foreground" : "text-offwhite/80 group-hover:text-lagoon-100")}>
                                                         {item.name}
                                                     </span>
-                                                    <span className={cn(
-                                                        "text-xs tracking-wider uppercase transition-colors font-medium",
-                                                        isActive ? "text-foreground/80" : "text-foreground/70 group-hover:text-foreground/80"
-                                                    )}>
-                                                        {item.subtitle}
-                                                    </span>
                                                 </div>
                                             </div>
                                         </Link>
@@ -213,15 +209,14 @@ export function Sidebar({ user }: { user?: { name?: string | null; email?: strin
 
                     <div className="flex items-center gap-1 shrink-0">
                         <ThemeToggle />
-                        <form action={logout}>
                             <button
-                                type="submit"
-                                className="p-2 rounded-lg text-foreground/60 hover:text-red-400 hover:bg-white/5 transition-colors"
+                                type="button" disabled={signingOut} aria-busy={signingOut}
+                                onClick={() => navigateWithDraftCheck(() => { clearEntryDraftCache(); startSignOut(async () => { await logout(); }); })}
+                                className="flex h-11 w-11 items-center justify-center rounded-lg text-foreground/60 hover:text-red-400 hover:bg-white/5 transition-colors"
                                 aria-label="Sign Out"
                             >
                                 <LogOut className="w-5 h-5" />
                             </button>
-                        </form>
                     </div>
                 </div>
 </>;

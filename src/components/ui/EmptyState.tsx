@@ -1,6 +1,5 @@
 import { LucideIcon, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "./Button";
 import { OceanWaves } from "./Patterns";
 import Link from "next/link";
 
@@ -52,11 +51,9 @@ export function EmptyState({
 
             {/* Action Button with arrow bounce */}
             {actionLabel && actionHref && (
-                <Link href={actionHref}>
-                    <Button variant="primary" size="md" className="group/btn">
+                <Link href={actionHref} className="group/btn inline-flex min-h-11 items-center justify-center rounded-lg bg-tongan px-5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lagoon">
                         {actionLabel}
                         <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
                 </Link>
             )}
 

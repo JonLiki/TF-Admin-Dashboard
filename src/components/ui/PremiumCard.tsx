@@ -38,8 +38,8 @@ export function PremiumCard({ children, className, variant = 'quiet', ...props }
             <div
                 className={cn(
                     "relative h-full flex flex-col justify-between p-5 rounded-2xl",
-                    "bg-surface-ocean/80 backdrop-blur-md border border-white/10",
-                    "shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+                    isInteractive ? "bg-surface-ocean/90 backdrop-blur-md border border-border" : "bg-surface-ocean border border-border",
+                    isInteractive ? "shadow-lg" : "shadow-sm",
                     "transition-all duration-300 ease-out",
                     "text-card-foreground",
                     "overflow-hidden",

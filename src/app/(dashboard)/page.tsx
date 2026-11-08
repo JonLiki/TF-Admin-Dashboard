@@ -59,6 +59,8 @@ export async function getStats() {
     weeksCompleted: weeks.filter(w => w.endDate < now).length,
     totalLoss,
     currentWeekNumber,
+    currentWeekId: currentWeek?.id,
+    currentWeekStartDate: currentWeek?.startDate.toISOString(),
     leaderboard,
     allMetrics,
     teamsList,
@@ -77,7 +79,8 @@ async function DashboardContent() {
       <div className="min-h-full pb-10 flex items-center justify-center">
         <div className="text-center p-10 bg-ocean-deep/80 backdrop-blur-md rounded-xl shadow-2xl border border-lagoon/20">
           <h2 className="text-xl font-bold text-foreground">No Active Block Found</h2>
-          <p className="text-lagoon-100/60 mt-2">Please initialize a training block in the database.</p>
+          <p className="text-foreground/80 mt-2">Create or activate a training block to start tracking.</p>
+          <a href="/blocks" className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-tongan px-4 font-semibold text-white">Manage blocks</a>
         </div>
       </div>
     );

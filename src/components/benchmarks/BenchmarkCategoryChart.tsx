@@ -9,6 +9,7 @@ import {
     ResponsiveContainer,
     Cell,
 } from 'recharts';
+import { ChartDataTable } from '@/components/ui/ChartDataTable';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { cn } from '@/lib/utils';
 
@@ -107,6 +108,7 @@ function CategoryChart({ title, icon, color, gradientTo, bg, border, data }: {
                     </ResponsiveContainer>
                 </div>
             </div>
+            <ChartDataTable rows={data} columns={[{ key: 'name', label: 'Member' }, { key: 'value', label: 'Repetitions' }]} caption={`${title}: top recorded scores in repetitions.`} />
         </PremiumCard>
     );
 }

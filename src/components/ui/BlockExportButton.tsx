@@ -33,6 +33,7 @@ export function BlockExportButton({ blockId, type, className }: BlockExportButto
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
 
             toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully`);
         } catch (error) {
@@ -45,6 +46,8 @@ export function BlockExportButton({ blockId, type, className }: BlockExportButto
 
     return (
         <Button
+            type="button"
+            title="Export all active members and all dates in this block"
             variant="outline"
             size="sm"
             onClick={handleExport}
@@ -52,7 +55,7 @@ export function BlockExportButton({ blockId, type, className }: BlockExportButto
             className={className}
         >
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            Export block CSV
         </Button>
     );
 }

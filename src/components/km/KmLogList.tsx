@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { submitKmLogsBulk } from "@/actions/data";
 import { ImportButton } from "@/components/ui/ImportButton";
 import { toast } from "sonner";
+import { EntryFilters, type EntryFilter } from '@/components/ui/EntryFilters';
+import { UnsavedChangesGuard } from '@/components/ui/UnsavedChangesGuard';
 import { useEntryDrafts } from '@/hooks/useEntryDrafts';
 
 interface Member {
@@ -34,7 +37,9 @@ export function KmLogList({ members, weekId }: KmLogListProps) {
 
 function KmLogListForm({ members, weekId }: KmLogListProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const { drafts, errors, count, state, formAction, isPending, formRef, change } = useEntryDrafts(submitKmLogsBulk, 'km', 'blockWeekId', weekId, 200);
+    const params = useSearchParams();
+    const [filter, setFilter] = useState<EntryFilter>(params.get('status') === 'missing' ? 'missing' : 'all');
+    const { drafts, errors, count, state, formAction, isPending, formRef, change, discard, saveBeforeLeaving } = useEntryDrafts(submitKmLogsBulk, 'km', 'blockWeekId', weekId, 200);
 
     useEffect(() => {
         if (state?.message) {
@@ -43,15 +48,19 @@ function KmLogListForm({ members, weekId }: KmLogListProps) {
         }
     }, [state]);
 
-    const filteredMembers = members.filter(member =>
-        `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (member.team?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredMembers = members.filter(member => {
+        const matches = `${member.firstName} ${member.lastName} ${member.team?.name ?? ''}`.toLowerCase().includes(searchTerm.toLowerCase());
+        return matches && (filter === 'all' || (filter === 'missing' && !member.kmLogs.length) ||
+            (filter === 'recorded' && !!member.kmLogs.length) || (filter === 'edited' && member.id in drafts) ||
+            (filter === 'errors' && member.id in errors));
+    });
 
     const hasResults = filteredMembers.length > 0;
     const recordedCount = members.filter(m => m.kmLogs[0] !== undefined).length;
 
     return (
+        <>
+        <UnsavedChangesGuard dirty={count > 0} isPending={isPending} onSave={saveBeforeLeaving} onDiscard={discard} message={state?.success === false ? state.message : undefined} />
         <form ref={formRef} action={formAction} noValidate className="space-y-4 entry-form">
             <input type="hidden" name="blockWeekId" value={weekId} />
 
@@ -65,7 +74,7 @@ function KmLogListForm({ members, weekId }: KmLogListProps) {
                             <h2 className="text-lg font-bold text-foreground">Weekly KM</h2>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <ImportButton type="km" disabled={isPending || count > 0} />
                         <SearchInput
                             value={searchTerm}
@@ -76,11 +85,16 @@ function KmLogListForm({ members, weekId }: KmLogListProps) {
                     </div>
                 </div>
 
+                <div className="flex flex-wrap items-center gap-3 px-4 pt-4">
+                    <EntryFilters value={filter} onChange={setFilter} errorCount={Object.keys(errors).length}
+                        onShowErrors={() => { setSearchTerm(''); setFilter('errors'); }} />
+                    <p role="status" className="text-sm text-foreground/80">{filteredMembers.length} of {members.length} members shown</p>
+                </div>
                 <div className="p-4 space-y-3 bg-ocean-deep/30 min-h-[400px]">
                     {/* Headers */}
                     <div className="hidden md:flex px-6 py-2 text-xs font-bold text-foreground/70 uppercase tracking-widest opacity-80">
                         <div className="w-1/3">Member</div>
-                        <div className="w-1/4">Group</div>
+                        <div className="w-1/4">Team</div>
                         <div className="w-1/4">Log Distance</div>
                         <div className="ml-auto">Status</div>
                     </div>
@@ -89,23 +103,25 @@ function KmLogListForm({ members, weekId }: KmLogListProps) {
                         <KmRow key={member.id} member={member}
                             value={drafts[member.id] ?? String(member.kmLogs[0]?.totalKm ?? '')}
                             onChange={value => change(member.id, value, String(member.kmLogs[0]?.totalKm ?? ''))}
-                            error={errors[member.id]} disabled={isPending} />
+                            edited={member.id in drafts} error={errors[member.id]} disabled={isPending} />
                     ))}
 
                     {!hasResults && (
                         <div className="flex flex-col items-center justify-center py-12 text-center text-foreground/70">
                             <Filter className="w-8 h-8 opacity-20 mb-2" />
                             <p>No members found</p>
+                            <Button type="button" variant="ghost" onClick={() => { setSearchTerm(''); setFilter('all'); }}>Clear filters</Button>
                         </div>
                     )}
                 </div>
             </PremiumCard>
 
             {/* Floating save bar — sticks to the bottom of the page scroll area */}
-            <div className="sticky bottom-4 z-30 flex items-center justify-between gap-4 px-5 py-3 rounded-xl border border-lagoon/30 bg-ocean-deep/90 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            <div className="sticky bottom-4 z-30 flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-xl border border-lagoon/30 bg-ocean-deep/90 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                 <span className="text-sm font-semibold text-foreground/80">
                     {count ? `${count} unsaved change${count === 1 ? '' : 's'}` : `${recordedCount} of ${members.length} recorded`}
                 </span>
+                <Button type="button" variant="ghost" disabled={!count || isPending} onClick={discard}>Discard changes</Button>
                 <Button type="submit" isLoading={isPending} disabled={!count} className="min-w-[150px]">
                     {isPending ? (
                         'Saving...'
@@ -119,10 +135,11 @@ function KmLogListForm({ members, weekId }: KmLogListProps) {
                 {state?.message ?? 'Changes stay here while you search. Save before switching dates, weeks, or pages.'}
             </p>
         </form>
+        </>
     );
 }
 
-function KmRow({ member, value, onChange, error, disabled }: { member: Member; value: string; onChange: (value: string) => void; error?: string; disabled: boolean }) {
+function KmRow({ member, value, onChange, error, disabled, edited }: { member: Member; value: string; onChange: (value: string) => void; error?: string; disabled: boolean; edited: boolean }) {
     const currentKm = member.kmLogs[0]?.totalKm;
     const hasLog = currentKm !== undefined;
 
@@ -155,7 +172,7 @@ function KmRow({ member, value, onChange, error, disabled }: { member: Member; v
                 </div>
             </div>
 
-            {/* Group */}
+            {/* Team */}
             <div className="w-full md:w-1/4 z-10 mb-2 md:mb-0 pl-14 md:pl-0">
                 <span className={cn(
                     "text-sm font-medium",
@@ -197,7 +214,7 @@ function KmRow({ member, value, onChange, error, disabled }: { member: Member; v
 
             {/* Status Indicator */}
             <div className="flex items-center gap-2 md:ml-auto z-10 pl-14 md:pl-0">
-                {hasLog && (
+                {(hasLog || edited) && (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-lagoon/10 text-lagoon-100 border border-lagoon/20 shadow-[0_0_10px_rgba(28,114,147,0.15)]">
                         Logged
                     </span>

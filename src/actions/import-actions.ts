@@ -10,6 +10,7 @@ import { requireAdmin } from '@/lib/auth-guard';
 import { getWeighInLockCheck } from '@/lib/queries';
 import { addUtcDays } from '@/lib/dates';
 import { z } from 'zod';
+import { exportBlockData } from './export-actions';
 
 const lockedNote = (n: number) =>
     n > 0 ? ` ${n} column${n === 1 ? '' : 's'} skipped (finalized week).` : '';
@@ -71,6 +72,7 @@ export async function importAttendance(formData: FormData) {
 
         let successCount = 0;
         const errors: string[] = [];
+        const issues: string[] = [];
 
         // 2. Process Rows inside a transaction for atomicity
         await prisma.$transaction(async (tx) => {
@@ -104,7 +106,8 @@ export async function importAttendance(formData: FormData) {
                 const memberId = memberMap.get(key);
 
                 if (!memberId) {
-                    continue; // Skip unknown members without erroring loudly
+                    if (firstName !== 'TEAM TOTAL' && lastName) issues.push(`Row ${i + 1}: member ${firstName} ${lastName} was not found.`);
+                    continue;
                 }
 
                 for (const [colIndex, sessionId] of sessionColMap.entries()) {
@@ -116,6 +119,7 @@ export async function importAttendance(formData: FormData) {
                     const result = ImportAttendanceRowSchema.safeParse(cellValue);
 
                     if (!result.success) {
+                        issues.push(`Row ${i + 1}, ${header[colIndex]}: invalid attendance value "${cellValue}".`);
                         continue;
                     }
 
@@ -162,6 +166,7 @@ export async function importAttendance(formData: FormData) {
         revalidateTag('dashboard-stats', 'max');
         return {
             success: true,
+            issues,
             message: `Imported ${successCount} records. ${errors.length > 0 ? `(${errors.length} errors)` : ''}${lockedNote(lockedCols)}`
         };
 
@@ -211,6 +216,7 @@ async function importWeeklyData({
 
         let successCount = 0;
         let errors = 0;
+        const issues: string[] = [];
 
         await prisma.$transaction(async (tx) => {
             const weekIds = Array.from(weekColMap.values());
@@ -244,7 +250,10 @@ async function importWeeklyData({
                 const lastName = row[1].trim();
                 const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
                 const memberId = memberMap.get(key);
-                if (!memberId) continue;
+                if (!memberId) {
+                    if (firstName !== 'TEAM TOTAL' && lastName) issues.push(`Row ${i + 1}: member ${firstName} ${lastName} was not found.`);
+                    continue;
+                }
 
                 for (const [colIndex, blockWeekId] of weekColMap.entries()) {
                     if (colIndex >= row.length) continue;
@@ -255,6 +264,7 @@ async function importWeeklyData({
                     const result = rowSchema.safeParse(cellValue);
                     if (!result.success) {
                         errors++;
+                        issues.push(`Row ${i + 1}, ${header[colIndex]}: invalid value "${cellValue}".`);
                         continue;
                     }
                     const value = result.data as number;
@@ -321,7 +331,7 @@ async function importWeeklyData({
 
         revalidatePath(revalidatePathName);
         revalidateTag('dashboard-stats', 'max');
-        return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}${lockedNote(lockedCols)}` };
+        return { success: true, issues, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}${lockedNote(lockedCols)}` };
 
     } catch (e) {
         return { success: false, message: 'Import failed: ' + (e as Error).message };
@@ -375,6 +385,7 @@ export async function importWeighIn(formData: FormData) {
 
         let successCount = 0;
         let errors = 0;
+        const issues: string[] = [];
         let lockedCells = 0;
         const isLocked = await getWeighInLockCheck(block.startDate, addUtcDays(block.endDate, 1));
 
@@ -413,7 +424,10 @@ export async function importWeighIn(formData: FormData) {
                 const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
                 const memberId = memberMap.get(key);
 
-                if (!memberId) continue;
+                if (!memberId) {
+                    if (firstName !== 'TEAM TOTAL' && lastName) issues.push(`Row ${i + 1}: member ${firstName} ${lastName} was not found.`);
+                    continue;
+                }
 
                 for (const [colIndex, week] of weekColMap.entries()) {
                     if (colIndex >= row.length) continue;
@@ -424,6 +438,7 @@ export async function importWeighIn(formData: FormData) {
                     const result = ImportWeighInRowSchema.safeParse(cellValue);
                     if (!result.success) {
                         errors++;
+                        issues.push(`Row ${i + 1}, ${header[colIndex]}: invalid value "${cellValue}".`);
                         continue;
                     }
                     const weight = result.data;
@@ -487,9 +502,20 @@ export async function importWeighIn(formData: FormData) {
         revalidatePath('/weigh-in');
         revalidateTag('dashboard-stats', 'max');
         const lockedMsg = lockedCells > 0 ? ` ${lockedCells} skipped (finalized week).` : '';
-        return { success: true, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}${lockedMsg}` };
+        return { success: true, issues, message: `Imported ${successCount} entries. ${errors > 0 ? `${errors} skipped (invalid)` : ''}${lockedMsg}` };
 
     } catch (e) {
         return { success: false, message: 'Import failed: ' + (e as Error).message };
     }
+}
+
+
+export async function getImportTemplate(type: 'attendance' | 'km' | 'lifestyle' | 'weigh-in') {
+    const guard = await requireAdmin();
+    if (!guard.success) return { success: false as const, message: guard.message };
+    const block = await prisma.block.findFirst({ where: { isActive: true }, select: { id: true } });
+    if (!block) return { success: false as const, message: 'Create or activate a training block first.' };
+    const result = await exportBlockData(block.id, type);
+    if (!result.success) return result;
+    return { success: true as const, data: result.data.split('\n')[0] + '\n' };
 }

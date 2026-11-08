@@ -1,26 +1,6 @@
 'use client';
-
-import { Select, SelectOption } from "@/components/ui/Select";
-import { useRouter } from "next/navigation";
-
-interface WeekSelectorProps {
-    weeks: SelectOption[];
-    selectedWeekId: string;
-}
-
-export function WeekSelector({ weeks, selectedWeekId }: WeekSelectorProps) {
-    const router = useRouter();
-
-    const handleWeekChange = (weekId: string) => {
-        router.push(`/attendance?weekId=${weekId}`);
-    };
-
-    return (
-        <Select
-            options={weeks}
-            value={selectedWeekId}
-            onChange={handleWeekChange}
-            className="w-64"
-        />
-    );
+import { WeekSelector as SharedWeekSelector } from '@/components/ui/WeekSelector';
+import type { SelectOption } from '@/components/ui/Select';
+export function WeekSelector(props: { weeks: SelectOption[]; selectedWeekId: string }) {
+    return <SharedWeekSelector {...props} basePath="/attendance" />;
 }

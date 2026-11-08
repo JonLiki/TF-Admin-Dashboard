@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { getActiveBlock } from "@/lib/queries";
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -20,7 +21,7 @@ import { ScoringRulesPanel } from "@/components/scoreboard/ScoringRulesPanel";
 
 export default async function ScoreboardPage({ searchParams }: { searchParams: Promise<{ weekId?: string }> }) {
     const block = await getActiveBlock();
-    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="There is no active competition block. Please create one from the admin settings." /></div>;
+    if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="Create or activate a training block to start tracking." actionLabel="Manage blocks" actionHref="/blocks" /></div>;
 
     const resolvedParams = await searchParams;
     const selectedWeekId = resolvedParams?.weekId || block.weeks[0].id;
@@ -67,17 +68,17 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
     return (
         <div className="min-h-full pb-10">
             <PageHeader title="Scoreboard" subtitle={`Scoreboard • Week ${selectedWeek.weekNumber}`}>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <WeekSelector
                         weeks={block.weeks.map((w: BlockWeek) => ({
                             value: w.id,
-                            label: `Week ${w.weekNumber}`
+                            label: `Week ${w.weekNumber} · ${format(w.startDate, 'MMM d')}–${format(w.endDate, 'MMM d')} · ${w.isFinalized ? 'Finalized' : 'Open'}`
                         }))}
                         selectedWeekId={selectedWeekId}
                         basePath="/scoreboard"
                     />
 
-                    <FinalizeWeekWizard
+                    <FinalizeWeekWizard key={selectedWeekId}
                         weekId={selectedWeekId}
                         weekNumber={selectedWeek.weekNumber}
                         isFinalized={selectedWeek.isFinalized || false}
@@ -116,6 +117,17 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
             </PageHeader>
 
             <div className="px-6 md:px-10 mt-6 space-y-8">
+                <p role="status" className="rounded-xl border border-border bg-surface-ocean p-4 text-sm">
+                    Week {selectedWeek.weekNumber}: {selectedWeek.isFinalized ? 'Finalized — entries are locked.' : 'Open — weekly results can change until finalized.'} Overall standings include points recorded across the block.
+                </p>
+                <details className="rounded-xl border border-border bg-surface-ocean p-4">
+                    <summary className="min-h-11 cursor-pointer font-semibold focus-visible:outline-2 focus-visible:outline-lagoon">View compact standings</summary>
+                    <div className="overflow-auto"><table className="w-full text-left text-sm">
+                        <caption className="py-3 text-left">Overall block standings. Equal points follow the scoring engine&apos;s category-rank tie-break order.</caption>
+                        <thead><tr><th scope="col" className="p-2">Position</th><th scope="col" className="p-2">Team</th><th scope="col" className="p-2">Points</th></tr></thead>
+                        <tbody>{overallLeaderboard.map((team, index) => <tr key={team.id} className="border-t border-border"><td className="p-2">{index + 1}</td><td className="p-2">{team.name}</td><td className="p-2 tabular-nums">{team.points}</td></tr>)}</tbody>
+                    </table></div>
+                </details>
 
                 {/* OVERALL LEADERBOARD */}
                 <PremiumCard className="relative overflow-hidden p-0">

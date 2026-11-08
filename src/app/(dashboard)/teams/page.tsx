@@ -16,7 +16,7 @@ export default async function TeamsPage() {
                 <TonganNgatu />
             </div>
 
-            <PageHeader title="Teams" subtitle="Manage Groups" />
+            <PageHeader title="Teams" subtitle="Manage Teams" />
 
             <div className="px-6 md:px-10 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
 
@@ -30,7 +30,7 @@ export default async function TeamsPage() {
                             <div className="p-2.5 bg-gradient-to-br from-[#C8102E] to-[#8B0000] text-white rounded-xl shadow-lg shadow-tongan/20 ring-1 ring-white/10">
                                 <Shield className="w-5 h-5" />
                             </div>
-                            <h3 className="text-lg font-bold text-foreground tracking-tight">Create New Group</h3>
+                            <h3 className="text-lg font-bold text-foreground tracking-tight">Create New Team</h3>
                         </div>
                         <CreateTeamForm />
                     </PremiumCard>
