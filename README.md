@@ -18,6 +18,14 @@ A production-quality fitness team management system for administering "TO'A FATA
 - **Audit Trail**: All mutations are logged with user, entity type, entity ID, action, and timestamp.
 - **Security**: Role-based authorization (ADMIN / PARTICIPANT), login throttling with lockout, and production-safe seed credentials.
 
+## Weekly check-in workspace
+
+Open **Weekly check-in** from the sidebar or visit `/check-in`. Choose a week and team to enter start/end Monday weights, weekly KM, lifestyle posts, and attendance in one table. Filter to missing entries or edited rows; filtering preserves drafts across teams.
+
+Paste a rectangle of values from Excel into its first destination cell, matching the visible member order and column headings. Do not include headers or member names. Review the preview and apply it to the draft. Blank cells and dashes leave saved entries unchanged; zero is a recorded value. Attendance accepts Present/Absent, P/A, or 1/0.
+
+Use Tab across cells, Enter/Shift+Enter down/up numeric rows, Alt+arrow keys between editable cells, and Escape to undo one cell. **Review changes** (or Ctrl/Cmd+S) shows every edited cell before saving. Check-ins save in one transaction with an audit record; validation, lock or concurrency failures keep the draft intact. Start/end weights shared with finalized neighboring weeks are locked. No database migration is required.
+
 ## Entry workflow
 
 - Filter entry lists by missing, recorded, edited, or invalid entries. Searching keeps edits to hidden rows.
