@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Scale, Activity, ArrowRight, Crown } from 'lucide-react';
+import { Users, Scale, ArrowRight, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { OceanWaves } from '@/components/ui/Patterns';
@@ -51,22 +51,20 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
             {/* Welcome Banner */}
             <motion.div variants={item} className="flex items-center gap-4">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-gradient">
-                        Team Overview
+                    <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-foreground">
+                        This week
                     </h2>
                     <p className="text-xs md:text-sm text-foreground/60 font-medium mt-1 tracking-wide">
-                        Block Overview &mdash; Week {stats.currentWeekNumber} Active
+                        {stats.blockName} &middot; Week {stats.currentWeekNumber} &middot; {stats.currentWeekStartDate && new Date(stats.currentWeekStartDate).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', timeZone: 'UTC' })} to {stats.currentWeekEndDate && new Date(stats.currentWeekEndDate).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', timeZone: 'UTC' })} &middot; {stats.currentWeekIsFinalized ? 'Finalized' : 'Open'}
                     </p>
                 </div>
             </motion.div>
 
             <section aria-label="Weekly tasks" className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-lg font-bold">This week&apos;s tasks</h3>
+                    <h3 className="text-lg font-bold">Complete weekly records</h3>
                     <div className="flex flex-wrap gap-2">
-                        {[[`/check-in?weekId=${stats.currentWeekId ?? ''}`, 'Open weekly check-in'], [`/weigh-in?date=${encodeURIComponent(stats.currentWeekStartDate ?? '')}`, 'Log weigh-ins'], [`/attendance?weekId=${stats.currentWeekId ?? ''}`, 'Take attendance'], [`/km?weekId=${stats.currentWeekId ?? ''}`, 'Log KM']].map(([href, label]) => (
-                            <Link key={href} href={href} className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface-ocean px-4 text-sm font-semibold hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-lagoon">{label}</Link>
-                        ))}
+                        <Link href={`/check-in?weekId=${stats.currentWeekId ?? ''}`} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-tongan px-4 text-sm font-semibold text-white hover:bg-tongan-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lagoon">{stats.currentWeekIsFinalized ? 'Review weekly check-in' : 'Open weekly check-in'}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
                     </div>
                 </div>
                 <DataCompletenessWidget data={stats.dataCompleteness} currentWeekNumber={stats.currentWeekNumber} weekId={stats.currentWeekId} weighInDate={stats.currentWeekStartDate} />
@@ -75,29 +73,21 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
             {/* BENTO GRID LAYOUT - Mobile Optimized */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-min">
 
-                {/* 1. HERO METRIC: Current Week (Top Left) */}
                 <motion.div variants={item} className="col-span-1">
-                    <StatCard
-                        label="Current week"
-                        value={`Week ${stats.currentWeekNumber}`}
-                        icon={Activity}
-                        colorClass="bg-lagoon/10 text-lagoon-100"
-                        className="border-lagoon/20 hover:border-lagoon/50 h-full"
-                        pattern="waves"
-                    />
+                    <StatCard label="Active members" value={stats.members} icon={Users} colorClass="bg-lagoon/10 text-lagoon-100" isNumber />
                 </motion.div>
 
                 {/* 2. HERO METRIC: Total Loss (Top Mid) - Full width on mobile, 2 cols on desktop */}
                 <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-2">
                     <StatCard
-                        variant="hero"
+                        variant="quiet"
                         label="Block Weight Loss"
                         value={`${stats.totalLoss.toFixed(1)} kg`}
                         icon={Scale}
                         colorClass="bg-tongan/20 text-tongan-red"
                         subtext="Total"
                         borderClass="border-tongan/30"
-                        className="bg-gradient-to-r from-tongan-dark/80 to-ocean-deep hover:border-tongan/50 h-full shadow-[0_4px_20px_rgba(200,16,46,0.15)]"
+                        className="h-full"
                         pattern="ngatu"
                     />
                 </motion.div>
@@ -107,7 +97,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                         label="Active Teams"
                         value={stats.teams}
                         icon={Users}
-                        colorClass="bg-ocean/30 text-blue-200"
+                        colorClass="bg-lagoon/10 text-lagoon-100"
                         className="border-white/5 hover:border-white/20 h-full"
                         pattern="waves"
                         isNumber={true}
@@ -129,13 +119,13 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
 
                 {/* 5. LEADERBOARD (Middle Right) - Stack on mobile, 1 col on desktop */}
                 <motion.div variants={item} className="col-span-1 sm:col-span-2 md:col-span-1 md:row-span-2 flex flex-col h-full space-y-4">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <div className="flex items-center gap-2">
                             <Crown className="w-5 h-5 text-tongan drop-shadow-[0_0_6px_rgba(197,0,0,0.4)]" />
-                            <h3 className="text-lg font-bold font-display tracking-wide text-foreground">Top Ranks</h3>
+                            <h3 className="text-lg font-bold font-display tracking-wide text-foreground">Block standings</h3>
                         </div>
                         <Link href="/scoreboard" className="text-micro font-bold text-tongan hover:text-foreground uppercase tracking-widest transition-colors flex items-center gap-1 group">
-                            Full Board <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                            Scoreboard <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
 
@@ -155,7 +145,7 @@ export function DashboardClientView({ stats }: DashboardClientViewProps) {
                                     <div className={cn(
                                         "flex items-center justify-between p-3 rounded-xl border transition-all duration-300 relative overflow-hidden",
                                         rankStyle,
-                                        "hover:scale-[1.02] hover:shadow-xl group-hover:bg-ocean/40"
+                                        "group-hover:bg-foreground/5"
                                     )}>
                                         {/* Texture */}
                                         {index < 3 && <div className="absolute inset-0 opacity-[0.05] pointer-events-none"><OceanWaves /></div>}

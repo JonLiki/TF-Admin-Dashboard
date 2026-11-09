@@ -34,10 +34,10 @@ export function StatCard({ label, value, subtext, icon: Icon, colorClass, border
 
     return (
         <PremiumCard variant={isHero ? 'hero' : 'quiet'} className={cn(
-            "p-6 flex flex-col justify-between h-32 md:h-40 group relative overflow-hidden",
+            "min-h-44 h-full group relative overflow-hidden",
             borderClass,
             className
-        )}>
+        )} contentClassName="justify-between gap-4">
             {/* Texture Overlay — hero only */}
             {isHero && (
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-blend-overlay mix-blend-overlay">
@@ -66,10 +66,10 @@ export function StatCard({ label, value, subtext, icon: Icon, colorClass, border
             </div>
 
             <div className="z-10">
-                <h3 className={cn("font-mono text-3xl font-black text-foreground tracking-tighter mt-4 drop-shadow-md", isHero && "group-hover:translate-x-1 transition-transform duration-300")}>
+                <h3 className={cn("font-mono text-3xl font-black text-foreground tracking-tight break-words", isHero && "group-hover:translate-x-1 transition-transform duration-300")}>
                     {isNumber && typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
                 </h3>
-                <p className={cn("text-micro font-bold font-display uppercase tracking-widest text-foreground/50 mt-1", isHero && "group-hover:text-foreground transition-colors")}>{label}</p>
+                <p className={cn("text-sm font-medium text-foreground/70 mt-1", isHero && "group-hover:text-foreground transition-colors")}>{label}</p>
             </div>
         </PremiumCard>
     );

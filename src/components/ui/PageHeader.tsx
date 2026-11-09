@@ -10,13 +10,13 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, showDivider = true, children }: PageHeaderProps) {
     return (
-        <div className="relative z-20 flex flex-col md:flex-row md:items-end justify-between gap-4 py-10 px-6 md:px-10 bg-surface-deep border-b border-white/5">
+        <div className="relative z-20 flex flex-col xl:flex-row xl:items-center justify-between gap-4 py-6 px-4 sm:px-6 md:px-10 bg-surface-deep border-b border-border">
             {/* Ambient gradient behind header */}
             <div className="absolute inset-0 bg-gradient-to-r from-tongan/[0.03] via-transparent to-lagoon/[0.03] pointer-events-none" />
 
-            <div className="relative z-10 w-full">
-                <h1 className="text-3xl font-bold tracking-tight text-foreground font-display hover:text-gradient transition-all duration-300 cursor-default">{title}</h1>
-                {subtitle && <p className="text-foreground/50 font-normal mt-1 text-sm">{subtitle}</p>}
+            <div className="relative z-10 min-w-0 flex-1">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground font-display ">{title}</h1>
+                {subtitle && <p className="text-foreground/70 font-normal mt-1 text-sm">{subtitle}</p>}
 
                 {/* Visual Anchor conditionally rendered */}
                 {showDivider && (
@@ -28,7 +28,7 @@ export function PageHeader({ title, subtitle, showDivider = true, children }: Pa
                     </div>
                 )}
             </div>
-            {children && <div className="flex items-center gap-3 relative z-10">{children}</div>}
+            {children && <div className="flex flex-wrap items-center gap-3 relative z-10 shrink-0">{children}</div>}
         </div>
     );
 }

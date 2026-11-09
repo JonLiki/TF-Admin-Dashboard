@@ -1,19 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { PremiumCard } from '@/components/ui/PremiumCard';
-import { cn } from '@/lib/utils';
-import {
-    Scale,
-    Activity,
-    Heart,
-    CalendarCheck,
-    ArrowRight,
-    CheckCircle2,
-    AlertCircle,
-} from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export interface DataCompletenessData {
     weighIns: { entered: number; total: number };
@@ -21,255 +9,32 @@ export interface DataCompletenessData {
     lifestyle: { entered: number; total: number };
     attendance: { sessionsWithData: number; totalSessions: number };
 }
-
-interface DataCompletenessWidgetProps {
+interface Props {
     data: DataCompletenessData;
     currentWeekNumber: number;
     weekId?: string;
     weighInDate?: string;
 }
-
-interface CategoryConfig {
-    key: 'weighIns' | 'km' | 'lifestyle' | 'attendance';
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-    href: string;
-    strokeColor: string;
-    radius: number;
-    circumference: number;
-    value: string;
-    pct: number;
-    colorClass: string;
-}
-
-function getPercentage(entered: number, total: number) {
-    if (total === 0) return 100;
-    return Math.round((entered / total) * 100);
-}
-
-function getTextColor(pct: number) {
-    if (pct >= 90) return 'text-emerald-400';
-    if (pct >= 50) return 'text-amber-400';
-    return 'text-red-400';
-}
-
-function getBgColor(pct: number) {
-    if (pct >= 90) return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400';
-    if (pct >= 50) return 'bg-amber-500/10 border-amber-500/20 text-amber-400';
-    return 'bg-red-500/10 border-red-500/20 text-red-400';
-}
-
-export function DataCompletenessWidget({ data, currentWeekNumber, weekId, weighInDate }: DataCompletenessWidgetProps) {
-    const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-
-    const weighPct = getPercentage(data.weighIns.entered, data.weighIns.total);
-    const kmPct = getPercentage(data.km.entered, data.km.total);
-    const lifePct = getPercentage(data.lifestyle.entered, data.lifestyle.total);
-    const attPct = getPercentage(data.attendance.sessionsWithData, data.attendance.totalSessions);
-
-    const allComplete = weighPct >= 100 && kmPct >= 100 && lifePct >= 100 && attPct >= 100;
-
-    const categoriesList: CategoryConfig[] = [
-        {
-            key: 'weighIns',
-            label: 'Weigh-ins',
-            icon: Scale,
-            href: `/weigh-in?status=missing${weighInDate ? `&date=${encodeURIComponent(weighInDate)}` : ''}`,
-            strokeColor: 'var(--color-lagoon)', // Lagoon Blue
-            radius: 74,
-            circumference: 2 * Math.PI * 74, // ~465
-            value: `${data.weighIns.entered}/${data.weighIns.total}`,
-            pct: weighPct,
-            colorClass: 'text-lagoon'
-        },
-        {
-            key: 'km',
-            label: 'KM Logs',
-            icon: Activity,
-            href: `/km?status=missing${weekId ? `&weekId=${weekId}` : ''}`,
-            strokeColor: 'var(--color-primary)', // Bio-Cyan
-            radius: 58,
-            circumference: 2 * Math.PI * 58, // ~364
-            value: `${data.km.entered}/${data.km.total}`,
-            pct: kmPct,
-            colorClass: 'text-bio-cyan'
-        },
-        {
-            key: 'lifestyle',
-            label: 'Lifestyle',
-            icon: Heart,
-            href: `/lifestyle?status=missing${weekId ? `&weekId=${weekId}` : ''}`,
-            strokeColor: 'var(--color-secondary)', // Volcanic Red
-            radius: 42,
-            circumference: 2 * Math.PI * 42, // ~263
-            value: `${data.lifestyle.entered}/${data.lifestyle.total}`,
-            pct: lifePct,
-            colorClass: 'text-tongan-red'
-        },
-        {
-            key: 'attendance',
-            label: 'Attendance',
-            icon: CalendarCheck,
-            href: `/attendance${weekId ? `?weekId=${weekId}` : ''}`,
-            strokeColor: '#10B981', // Emerald Green
-            radius: 26,
-            circumference: 2 * Math.PI * 26, // ~163
-            value: `${data.attendance.sessionsWithData}/${data.attendance.totalSessions}`,
-            pct: attPct,
-            colorClass: 'text-emerald-400'
-        }
+export function DataCompletenessWidget({ data, currentWeekNumber, weekId, weighInDate }: Props) {
+    const categories = [
+        { label: 'Weigh-ins', ...data.weighIns, unit: 'members need weigh-ins', href: `/weigh-in?status=missing${weighInDate ? `&date=${encodeURIComponent(weighInDate)}` : ''}` },
+        { label: 'Distance', ...data.km, unit: 'members need distance entries', href: `/km?status=missing${weekId ? `&weekId=${weekId}` : ''}` },
+        { label: 'Lifestyle', ...data.lifestyle, unit: 'members need lifestyle entries', href: `/lifestyle?status=missing${weekId ? `&weekId=${weekId}` : ''}` },
+        { label: 'Attendance', entered: data.attendance.sessionsWithData, total: data.attendance.totalSessions, unit: 'sessions have no attendance recorded', href: `/attendance${weekId ? `?weekId=${weekId}` : ''}` },
     ];
-
-    const avgPercentage = Math.round((weighPct + kmPct + lifePct + attPct) / 4);
-    const activeCat = categoriesList.find(c => c.key === hoveredCategory);
-    const centerPct = activeCat ? activeCat.pct : avgPercentage;
-    const centerLabel = activeCat ? activeCat.label : 'Complete';
-
-    return (
-        <PremiumCard className="overflow-hidden p-0 border-white/5 bg-ocean-deep/80 backdrop-blur-sm">
-            <div className="p-5">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-5 border-b border-white/5 pb-3">
-                    <div className="flex items-center gap-2">
-                        {allComplete ? (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.4)]" />
-                        ) : (
-                            <AlertCircle className="w-4 h-4 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
-                        )}
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground">
-                            Week {currentWeekNumber} Status
-                        </h3>
-                    </div>
-                    <span className={cn("text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded border shadow-inner transition-colors duration-300", getBgColor(avgPercentage))}>
-                        {allComplete ? 'Ready' : `${avgPercentage}%`}
-                    </span>
-                </div>
-
-                {/* Concentric rings & Legend grid */}
-                <div className="flex flex-col sm:flex-row items-center gap-6 justify-center">
-                    {/* SVG Progress Rings */}
-                    <div className="relative w-36 h-36 shrink-0 hidden md:flex items-center justify-center">
-                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 170 170">
-                            <defs>
-                                <filter id="glow-effect" x="-10%" y="-10%" width="120%" height="120%">
-                                    <feGaussianBlur stdDeviation="2" result="blur" />
-                                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                                </filter>
-                            </defs>
-                            {categoriesList.map(cat => {
-                                const isHovered = hoveredCategory === cat.key;
-                                const isAnyHovered = hoveredCategory !== null;
-                                const fadeOpacity = isAnyHovered && !isHovered ? 0.15 : 0.85;
-
-                                return (
-                                    <g key={cat.key} className="transition-all duration-300">
-                                        {/* Background track circle */}
-                                        <circle
-                                            cx="85"
-                                            cy="85"
-                                            r={cat.radius}
-                                            fill="transparent"
-                                            stroke="var(--border)"
-                                            strokeWidth={isHovered ? 7.5 : 6}
-                                            className="transition-all duration-300"
-                                        />
-                                        {/* Progress arc */}
-                                        <motion.circle
-                                            cx="85"
-                                            cy="85"
-                                            r={cat.radius}
-                                            fill="transparent"
-                                            stroke={cat.strokeColor}
-                                            strokeWidth={isHovered ? 7.5 : 6}
-                                            strokeDasharray={cat.circumference}
-                                            initial={{ strokeDashoffset: cat.circumference }}
-                                            animate={{ strokeDashoffset: cat.circumference - (cat.pct / 100) * cat.circumference }}
-                                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                                            strokeLinecap="round"
-                                            style={{
-                                                opacity: fadeOpacity,
-                                                filter: isHovered ? 'url(#glow-effect)' : 'none',
-                                            }}
-                                            className="transition-all duration-300 cursor-pointer"
-                                            onMouseEnter={() => setHoveredCategory(cat.key)}
-                                            onMouseLeave={() => setHoveredCategory(null)}
-                                    onFocus={() => setHoveredCategory(cat.key)}
-                                    onBlur={() => setHoveredCategory(null)}
-                                        />
-                                    </g>
-                                );
-                            })}
-                        </svg>
-
-                        {/* Center Statistics Overlay */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                            <motion.span 
-                                key={centerPct}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="text-xl font-black font-mono text-foreground tracking-tighter"
-                            >
-                                {centerPct}%
-                            </motion.span>
-                            <motion.span 
-                                key={centerLabel}
-                                initial={{ opacity: 0, y: 3 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="text-xs font-bold uppercase tracking-widest text-foreground/70 mt-0.5"
-                            >
-                                {centerLabel}
-                            </motion.span>
-                        </div>
-                    </div>
-
-                    {/* Legend Rows */}
-                    <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                        {categoriesList.map(cat => {
-                            const isHovered = hoveredCategory === cat.key;
-                            const isAnyHovered = hoveredCategory !== null;
-
-                            return (
-                                <div
-                                    key={cat.key}
-                                    onMouseEnter={() => setHoveredCategory(cat.key)}
-                                    onMouseLeave={() => setHoveredCategory(null)}
-                                    onFocus={() => setHoveredCategory(cat.key)}
-                                    onBlur={() => setHoveredCategory(null)}
-                                    className={cn(
-                                        "transition-all duration-300",
-                                        isAnyHovered && !isHovered ? "opacity-35" : "opacity-100"
-                                    )}
-                                >
-                                    <Link href={cat.href} className="group block bg-ocean/10 hover:bg-ocean/20 border border-white/5 hover:border-white/10 rounded-lg p-2.5 transition-all">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className={cn("p-1.5 rounded bg-black/30 border border-white/5 group-hover:scale-105 transition-transform", cat.colorClass)}>
-                                                    <cat.icon className="w-3.5 h-3.5" />
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-foreground/90 group-hover:text-foreground transition-colors">
-                                                        {cat.label}
-                                                    </span>
-                                                    <span className="text-xs text-foreground/70 uppercase tracking-widest font-semibold mt-0.5 leading-none">
-                                                        {cat.value}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-1.5">
-                                                <span className={cn("text-[11px] font-bold font-mono", getTextColor(cat.pct))}>
-                                                    {cat.pct}%
-                                                </span>
-                                                <ArrowRight className="w-3 h-3 text-foreground/40 group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            </div>
-        </PremiumCard>
-    );
+    return <section aria-label={`Week ${currentWeekNumber} missing data`} className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            {categories.map(category => {
+                const missing = Math.max(0, category.total - category.entered);
+                const pct = category.total ? Math.min(100, Math.round(category.entered / category.total * 100)) : 0;
+                return <Link key={category.label} href={category.href} className="rounded-xl border border-border bg-surface-ocean p-4 transition-colors hover:border-lagoon focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lagoon">
+                    <div className="flex items-center justify-between gap-2"><h4 className="text-sm font-semibold">{category.label}</h4><ArrowRight aria-hidden="true" className="h-4 w-4 text-foreground/60" /></div>
+                    <p className="mt-3 text-sm font-semibold">{category.total === 0 ? 'Nothing scheduled' : missing ? `${missing} ${category.unit}` : <span className="inline-flex items-center gap-2"><CheckCircle2 aria-hidden="true" className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />{category.label === 'Attendance' ? 'Every session has records' : 'All entries recorded'}</span>}</p>
+                    <p className="mt-1 text-xs text-foreground/70">{category.entered} of {category.total} {category.label === 'Attendance' ? 'sessions with records' : 'members recorded'}</p>
+                    <div aria-hidden="true" className="mt-3 h-1 rounded-full bg-foreground/10"><div className="h-full rounded-full bg-lagoon" style={{ width: `${pct}%` }} /></div>
+                </Link>;
+            })}
+        </div>
+        <p className="text-xs text-foreground/70">Attendance tracks sessions with at least one record. Open attendance to check every member.</p>
+    </section>;
 }

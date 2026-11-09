@@ -1,9 +1,7 @@
 import { format } from "date-fns";
 import { getActiveBlock } from "@/lib/queries";
-import { PremiumCard } from "@/components/ui/PremiumCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Trophy, AlertCircle } from "lucide-react";
-import { PremiumTrophy } from "@/components/ui/PremiumTrophy";
 import prisma from "@/lib/prisma";
 import { BlockWeek, Team, TeamWeekAward } from "@prisma/client";
 import { FinalizeWeekWizard } from "@/components/scoreboard/FinalizeWeekWizard";
@@ -24,8 +22,10 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
     if (!block) return <div className="min-h-screen flex items-center justify-center p-6"><EmptyState icon={AlertCircle} title="No Active Block" description="Create or activate a training block to start tracking." actionLabel="Manage blocks" actionHref="/blocks" /></div>;
 
     const resolvedParams = await searchParams;
-    const selectedWeekId = resolvedParams?.weekId || block.weeks[0].id;
-    const selectedWeek = block.weeks.find((w: BlockWeek) => w.id === selectedWeekId) || block.weeks[0];
+    const today = new Date();
+    const defaultWeek = block.weeks.find((week: BlockWeek) => today >= week.startDate && today <= week.endDate) ?? block.weeks[0];
+    const selectedWeek = block.weeks.find((week: BlockWeek) => week.id === resolvedParams?.weekId) ?? defaultWeek;
+    const selectedWeekId = selectedWeek.id;
 
     // ... (Data fetching logic)
     const metrics = await prisma.teamWeekMetric.findMany({
@@ -116,54 +116,26 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                 </div>
             </PageHeader>
 
-            <div className="px-6 md:px-10 mt-6 space-y-8">
+            <div className="px-4 sm:px-6 md:px-10 mt-6 space-y-8">
                 <p role="status" className="rounded-xl border border-border bg-surface-ocean p-4 text-sm">
                     Week {selectedWeek.weekNumber}: {selectedWeek.isFinalized ? 'Finalized — entries are locked.' : 'Open — weekly results can change until finalized.'} Overall standings include points recorded across the block.
                 </p>
-                <details className="rounded-xl border border-border bg-surface-ocean p-4">
-                    <summary className="min-h-11 cursor-pointer font-semibold focus-visible:outline-2 focus-visible:outline-lagoon">View compact standings</summary>
+                <section aria-labelledby="overall-standings-heading" className="rounded-xl border border-border bg-surface-ocean p-4 sm:p-6">
+                    <h2 id="overall-standings-heading" className="text-xl font-bold">Overall block standings</h2>
+                    <p className="mt-1 text-sm text-foreground/70">{block.name} &middot; Points across all weeks. The week selector changes weekly results below.</p>
                     <div className="overflow-auto"><table className="w-full text-left text-sm">
                         <caption className="py-3 text-left">Overall block standings. Equal points follow the scoring engine&apos;s category-rank tie-break order.</caption>
                         <thead><tr><th scope="col" className="p-2">Position</th><th scope="col" className="p-2">Team</th><th scope="col" className="p-2">Points</th></tr></thead>
                         <tbody>{overallLeaderboard.map((team, index) => <tr key={team.id} className="border-t border-border"><td className="p-2">{index + 1}</td><td className="p-2">{team.name}</td><td className="p-2 tabular-nums">{team.points}</td></tr>)}</tbody>
                     </table></div>
-                </details>
+                    <details className="mt-4 border-t border-border pt-3">
+                        <summary className="flex min-h-11 cursor-pointer items-center font-semibold focus-visible:outline-2 focus-visible:outline-lagoon">Show podium presentation</summary>
+                        <div className="mt-4"><Podium standings={overallLeaderboard.slice(0, 3)} /><LeaderboardList items={overallLeaderboard.slice(3)} startIndex={3} /></div>
+                    </details>
+                </section>
 
-                {/* OVERALL LEADERBOARD */}
-                <PremiumCard className="relative overflow-hidden p-0">
-                    <div className="p-8 relative z-10">
-                        <div className="flex items-center space-x-4 mb-6 p-4 rounded-2xl bg-ocean-deep/40 backdrop-blur-md border border-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] relative group cursor-default">
-                            {/* Inner Glow Map */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-tongan/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rounded-2xl pointer-events-none" />
-                            
-                            <div className="relative p-3 bg-gradient-to-br from-tongan/20 to-transparent rounded-xl border border-tongan/30 shadow-[0_0_15px_rgba(200,16,46,0.15)] flex items-center justify-center">
-                                <PremiumTrophy className="w-10 h-10 group-hover:scale-110 transition-transform duration-500" variant="tongan" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-black uppercase tracking-widest text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Overall Standings</h2>
-                                <p className="text-tongan-light text-micro font-bold tracking-[0.2em] uppercase mt-1 opacity-80">Block Leaderboard</p>
-                            </div>
-                        </div>
-
-                        {/* PODIUM LAYOUT */}
-                        <Podium standings={overallLeaderboard.slice(0, 3)} />
-
-                        {/* Remaining List (4th onwards) */}
-                        <LeaderboardList
-                            items={overallLeaderboard.slice(3)}
-                            startIndex={3}
-                        />
-                    </div>
-                </PremiumCard>
-
-                <ScoringRulesPanel />
-
-                {/* PERFORMANCE TRENDS CHART */}
-                <PerformanceTrendsChart
-                    data={trendData}
-                    teams={topTeamsForTrend.length > 0 ? topTeamsForTrend : allTeams.map(t => t.name)}
-                />
-
+                <section aria-labelledby="weekly-results-heading" className="space-y-6">
+                    <div><h2 id="weekly-results-heading" className="text-xl font-bold">Weekly results &middot; Week {selectedWeek.weekNumber}</h2><p className="mt-1 text-sm text-foreground/70">{format(selectedWeek.startDate, 'd MMM')} to {format(selectedWeek.endDate, 'd MMM')} &middot; {selectedWeek.isFinalized ? 'Finalized results' : 'Provisional results until finalized'}</p></div>
                 {/* WEEKLY WINNERS CARDS */}
                 {awards.length > 0 && (
                     <div className="space-y-4">
@@ -189,6 +161,7 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                     </div>
                 )}
 
+                {!awards.length && <p className="text-sm text-foreground/70">No awards recorded for this week yet. Finalizing the week calculates results and locks entries.</p>}
                 {/* METRIC CARDS */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <MetricList
@@ -224,6 +197,17 @@ export default async function ScoreboardPage({ searchParams }: { searchParams: P
                         weekId={selectedWeek.id}
                     />
                 </div>
+                </section>
+
+                <ScoringRulesPanel />
+
+                {/* PERFORMANCE TRENDS CHART */}
+                <PerformanceTrendsChart
+                    data={trendData}
+                    teams={topTeamsForTrend.length > 0 ? topTeamsForTrend : allTeams.map(t => t.name)}
+                />
+
+
             </div>
         </div>
     );

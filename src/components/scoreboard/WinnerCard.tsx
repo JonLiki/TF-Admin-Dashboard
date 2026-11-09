@@ -34,7 +34,7 @@ const CATEGORY_CONFIG = {
     LIFESTYLE_AVG: {
         label: 'Lifestyle Guru',
         icon: Activity,
-        color: 'text-green-500',
+        color: 'text-emerald-700 dark:text-emerald-300',
         bg: 'bg-green-500/10',
         border: 'border-green-500/20',
         gradient: 'from-green-500/20 to-green-500/5',
@@ -43,11 +43,11 @@ const CATEGORY_CONFIG = {
     ATTENDANCE_AVG: {
         label: 'Attendance Star',
         icon: Trophy,
-        color: 'text-sand',
-        bg: 'bg-sand/10',
-        border: 'border-sand/20',
-        gradient: 'from-sand/20 to-sand/5',
-        shadow: 'shadow-sand/10'
+        color: 'text-amber-800 dark:text-amber-200',
+        bg: 'bg-amber-500/10',
+        border: 'border-amber-500/20',
+        gradient: 'from-amber-500/20 to-amber-500/5',
+        shadow: 'shadow-amber-500/10'
     }
 };
 

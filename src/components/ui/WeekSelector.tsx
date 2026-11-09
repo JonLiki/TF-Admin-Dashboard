@@ -14,9 +14,9 @@ export function WeekSelector({ weeks, selectedWeekId, basePath }: WeekSelectorPr
         params.set('weekId', id);
         router.push(`${basePath}?${params}`);
     });
-    return <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+    return <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
         <Button type="button" variant="secondary" disabled={index <= 0} onClick={() => go(weeks[index - 1].value)} aria-label="Previous week">Previous</Button>
-        <Select label="Training week" options={weeks} value={selectedWeekId} onChange={go} className="min-w-40 flex-1" />
+        <Select label="Training week" options={weeks} value={selectedWeekId} onChange={go} className="order-first col-span-2 min-w-0 sm:order-none sm:min-w-40 sm:flex-1" />
         <Button type="button" variant="secondary" disabled={index < 0 || index >= weeks.length - 1} onClick={() => go(weeks[index + 1].value)} aria-label="Next week">Next</Button>
     </div>;
 }

@@ -107,6 +107,9 @@ Visit [http://localhost:3000](http://localhost:3000)
 
 ### 6. Testing & Quality Checks
 
+See [weekly check-in workflow verification](docs/check-in-workflow-verification.md)
+for browser checks and the opt-in PostgreSQL test that rolls back all fixture data.
+
 ```bash
 npm test -- --run  # Run all Vitest tests once
 npm run lint      # ESLint v9

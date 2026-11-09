@@ -26,7 +26,6 @@ import { logout } from '@/actions/auth-actions';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from '../ui/ThemeToggle';
 
-import { TonganNgatu } from '../ui/Patterns';
 
 
 interface NavItem {
@@ -41,33 +40,26 @@ interface NavSection {
 }
 
 const navSections: NavSection[] = [
-    {
-        label: 'OVERVIEW',
-        items: [
-            { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-            { name: 'Weekly check-in', href: '/check-in', icon: CalendarCheck },
-        ],
-    },
-    {
-        label: 'PEOPLE & TRACKING',
-        items: [
-            { name: 'Teams', href: '/teams', icon: Users },
-            { name: 'Members', href: '/members', icon: UserPlus },
-            { name: 'Weigh-in', href: '/weigh-in', icon: Scale },
-            { name: 'Km Logs', href: '/km', icon: Activity },
-            { name: 'Lifestyle', href: '/lifestyle', icon: Heart },
-            { name: 'Attendance', href: '/attendance', icon: CalendarCheck },
-        ],
-    },
-    {
-        label: 'REPORTS & SETUP',
-        items: [
-            { name: 'Benchmarks', href: '/benchmarks', icon: Dumbbell },
-            { name: 'Summary', href: '/summary', icon: FileText },
-            { name: 'Scoreboard', href: '/scoreboard', icon: Trophy },
-            { name: 'Blocks', href: '/blocks', icon: Calendar },
-        ],
-    },
+    { label: 'CHECK-IN', items: [
+        { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+        { name: 'Weekly check-in', href: '/check-in', icon: CalendarCheck },
+        { name: 'Weigh-ins', href: '/weigh-in', icon: Scale },
+        { name: 'Distance logs', href: '/km', icon: Activity },
+        { name: 'Lifestyle', href: '/lifestyle', icon: Heart },
+        { name: 'Attendance', href: '/attendance', icon: CalendarCheck },
+    ] },
+    { label: 'PEOPLE', items: [
+        { name: 'Teams', href: '/teams', icon: Users },
+        { name: 'Members', href: '/members', icon: UserPlus },
+    ] },
+    { label: 'RESULTS', items: [
+        { name: 'Scoreboard', href: '/scoreboard', icon: Trophy },
+        { name: 'Benchmarks', href: '/benchmarks', icon: Dumbbell },
+        { name: 'Summary', href: '/summary', icon: FileText },
+    ] },
+    { label: 'SETUP', items: [
+        { name: 'Training blocks', href: '/blocks', icon: Calendar },
+    ] },
 ];
 
 export function Sidebar({ user }: { user?: { name?: string | null; email?: string | null } }) {
@@ -82,38 +74,24 @@ export function Sidebar({ user }: { user?: { name?: string | null; email?: strin
         return () => desktop.removeEventListener('change', closeOnDesktop);
     }, []);
 
-    const content = <>                {/* --- TONGAN WARRIOR VISUALS (CSS FALLBACK) --- */}
-
-                {/* 1. Translucent Obsidian Base with Glass effect */}
-                <div className="absolute inset-0 bg-obsidian/45 backdrop-blur-xl z-0" />
-
-                {/* 2. Atmospheric Glow (Volcanic — Tongan red, the identity color) */}
-                <div className="absolute bottom-[-10%] right-[-20%] w-[120%] h-[60%] bg-[radial-gradient(circle,rgba(197,0,0,0.08)_0%,transparent_70%)] blur-3xl z-0 pointer-events-none" />
-
-                {/* 3. Warrior Silhouette Concept (Central Shadow) */}
-                <div className="absolute inset-0 bg-gradient-to-t dark:from-black/40 dark:via-transparent dark:to-black/20 z-0 pointer-events-none" />
-
-                {/* 4. Tapa Pattern Overlay */}
-                <div className="absolute inset-0 z-0 pointer-events-none mix-blend-overlay opacity-40">
-                    <TonganNgatu opacity={0.3} />
-                </div>
-
+    const content = <>
+                <div className="absolute inset-0 bg-surface-deep z-0" />
                 <div className="hidden">
                     To&apos;a Fatalona &copy; 2026
                 </div>
 
                 {/* Brand Header */}
-                <div className="min-h-24 shrink-0 flex items-center px-6 z-10 border-b border-tapa-brown/20 bg-ocean-deep/90 backdrop-blur-sm relative">
+                <div className="min-h-24 shrink-0 flex items-center px-6 z-10 border-b border-tapa-brown/20 bg-surface-deep relative">
                     <div className="flex items-center space-x-3">
                         <div className="relative group/brand">
                             {/* Pulsing glow ring */}
-                            <div className="absolute -inset-1 rounded-lg bg-tongan/30 blur-md breathing-glow" />
+                            <div className="absolute -inset-1 rounded-lg bg-tongan/10" />
                             <div className="relative w-10 h-10 rounded-lg bg-tongan shadow-lg shadow-tongan/30 flex items-center justify-center text-white font-bold transform -rotate-1 border border-tapa/30">
                                 TF
                             </div>
                         </div>
                         <div>
-                            <h1 className="text-lg font-bold leading-none tracking-tight font-display text-gradient">TO&apos;A FATALONA</h1>
+                            <h1 className="text-lg font-bold leading-none tracking-tight font-display text-foreground">TO&apos;A FATALONA</h1>
                             <p className="text-xs text-foreground/60 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-80">Team Admin</p>
                         </div>
                     </div>
@@ -141,13 +119,13 @@ export function Sidebar({ user }: { user?: { name?: string | null; email?: strin
                                                 "group relative flex items-center px-4 py-3 rounded-lg transition-all duration-200 ease-out overflow-hidden my-0.5",
                                                 isActive
                                                     ? "text-foreground"
-                                                    : "text-tapa-cream/70 hover:bg-ocean-light/10 hover:text-foreground"
+                                                    : "text-foreground/70 hover:bg-ocean-light/10 hover:text-foreground"
                                             )}
                                         >
                                             {/* Active State Background Animation */}
                                             {isActive && (
                                                 <motion.div
-                                                    className="absolute inset-0 bg-gradient-to-r from-tongan/20 via-tongan/5 to-transparent border-r-2 border-tongan shadow-[inset_0_0_12px_rgba(200,16,46,0.15)]"
+                                                    className="absolute inset-0 bg-tongan/10 border-r-2 border-tongan"
                                                     initial={false}
                                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                                 />
@@ -162,7 +140,7 @@ export function Sidebar({ user }: { user?: { name?: string | null; email?: strin
                                                 <motion.div
                                                     initial={{ opacity: 0, scaleY: 0 }}
                                                     animate={{ opacity: 1, scaleY: 1 }}
-                                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tongan rounded-r-sm shadow-[0_0_12px_#C8102E,0_0_4px_#C8102E]"
+                                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tongan rounded-r-sm "
                                                 />
                                             )}
 
@@ -174,12 +152,12 @@ export function Sidebar({ user }: { user?: { name?: string | null; email?: strin
                                                     <item.icon
                                                         className={cn(
                                                             "mr-3 h-5 w-5 transition-colors duration-200 block",
-                                                            isActive ? "text-tongan drop-shadow-[0_0_8px_rgba(200,16,46,0.6)]" : "text-foreground/60 group-hover:text-lagoon-100"
+                                                            isActive ? "text-tongan" : "text-foreground/60 group-hover:text-lagoon-100"
                                                         )}
                                                     />
                                                 </motion.div>
                                                 <div className="flex flex-col">
-                                                    <span className={cn("text-sm font-bold tracking-wide", isActive ? "text-foreground" : "text-offwhite/80 group-hover:text-lagoon-100")}>
+                                                    <span className={cn("text-sm font-bold tracking-wide", isActive ? "text-foreground" : "text-foreground/80 group-hover:text-lagoon-100")}>
                                                         {item.name}
                                                     </span>
                                                 </div>
@@ -203,8 +181,8 @@ export function Sidebar({ user }: { user?: { name?: string | null; email?: strin
                             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-obsidian shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
                         </div>
                         <div className="ml-3 overflow-hidden">
-                            <p className="text-sm font-bold text-offwhite group-hover:text-sand transition-colors truncate">{user?.name || 'Administrator'}</p>
-                            <p className="text-xs text-offwhite/60 group-hover:opacity-100 truncate">{user?.email || 'Signed in'}</p>
+                            <p className="text-sm font-bold text-foreground group-hover:text-sand transition-colors truncate">{user?.name || 'Administrator'}</p>
+                            <p className="text-xs text-foreground/70 group-hover:opacity-100 truncate">{user?.email || 'Signed in'}</p>
                         </div>
                     </div>
 
