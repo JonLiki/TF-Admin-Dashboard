@@ -14,9 +14,10 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
      *   focal element per view.
      */
     variant?: CardVariant;
+    contentClassName?: string;
 }
 
-export function PremiumCard({ children, className, variant = 'quiet', ...props }: CardProps) {
+export function PremiumCard({ children, className, contentClassName, variant = 'quiet', ...props }: CardProps) {
     const isHero = variant === 'hero';
     const isInteractive = variant === 'interactive' || isHero;
 
@@ -65,7 +66,7 @@ export function PremiumCard({ children, className, variant = 'quiet', ...props }
                 )}
 
                 {/* Content */}
-                <div className="relative z-10 w-full h-full flex flex-col">
+                <div className={cn("relative z-10 w-full h-full flex flex-col", contentClassName)}>
                     {children}
                 </div>
             </div>

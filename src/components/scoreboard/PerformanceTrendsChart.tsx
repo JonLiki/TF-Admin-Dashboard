@@ -45,7 +45,7 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
 
     return (
         <animated.div style={props}>
-            <PremiumCard className="p-6 relative overflow-visible">
+            <PremiumCard className="relative overflow-visible">
                 {/* Decorative Background Glow */}
                 <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-tongan/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -75,7 +75,7 @@ export function PerformanceTrendsChart({ data, teams, title = "Performance Trend
 
                 <div className="h-[350px] w-full relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data[activeMetric]} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                        <LineChart data={data[activeMetric]} margin={{ top: 20, right: 8, left: 0, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                             <XAxis
                                 dataKey="name"

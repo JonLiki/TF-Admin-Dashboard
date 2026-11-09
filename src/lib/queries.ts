@@ -378,7 +378,7 @@ export async function getCurrentWeekCompleteness(
             where: {
                 member: { isActive: true },
                 blockWeekId: currentWeek.id,
-                totalKm: { gt: 0 }
+                totalKm: { gte: 0 }
             },
             distinct: ['memberId'],
             select: { memberId: true }
@@ -387,7 +387,7 @@ export async function getCurrentWeekCompleteness(
             where: {
                 member: { isActive: true },
                 blockWeekId: currentWeek.id,
-                postCount: { gt: 0 }
+                postCount: { gte: 0 }
             },
             distinct: ['memberId'],
             select: { memberId: true }
@@ -401,7 +401,7 @@ export async function getCurrentWeekCompleteness(
                 _count: {
                     select: {
                         attendance: {
-                            where: { isPresent: true }
+                            where: { member: { isActive: true } }
                         }
                     }
                 }

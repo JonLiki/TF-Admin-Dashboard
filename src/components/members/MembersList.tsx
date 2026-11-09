@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
+import { useState, useMemo, useCallback } from 'react';
+import { Sheet } from '@/components/ui/Sheet';
 import { PremiumCard } from "@/components/ui/PremiumCard";
 import { Button } from "@/components/ui/Button";
 import { UserX, UserCheck, Trash2, Filter, Pencil, Save } from "lucide-react";
@@ -44,12 +44,14 @@ export function MembersList({ members, teams }: MembersListProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
     const [editingMember, setEditingMember] = useState<Member | null>(null);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setMounted(true);
-    }, []);
+    const [editPending, setEditPending] = useState(false);
+    const [editError, setEditError] = useState('');
+    const closeEdit = () => {
+        if (editPending) return;
+        setIsEditSheetOpen(false);
+        setEditingMember(null);
+        setEditError('');
+    };
 
     // Filter members based on search and filters
     const filteredMembers = useMemo(() => {
@@ -252,6 +254,7 @@ export function MembersList({ members, teams }: MembersListProps) {
                                     size="sm"
                                     onClick={(e) => {
                                         e.preventDefault();
+                                        setEditError('');
                                         setEditingMember(member);
                                         setIsEditSheetOpen(true);
                                     }}
@@ -336,85 +339,71 @@ export function MembersList({ members, teams }: MembersListProps) {
                 }
             </PremiumCard >
 
-            {/* Native Edit Member Modal Overlay (Portaled safely out of CSS layout bounds) */}
-            {mounted && isEditSheetOpen && editingMember && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    {/* Backdrop */}
-                    <div 
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
-                        onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
-                    />
-                    
-                    {/* Modal Content */}
-                    <div className="relative z-10 w-full min-w-[320px] sm:min-w-[400px] max-w-lg bg-ocean-deep border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-                        <div className="flex items-center justify-between p-5 border-b border-white/5 bg-ocean-deep/50 rounded-t-2xl">
-                            <h3 className="text-xl font-bold text-foreground tracking-wide">Edit Member</h3>
-                            <button 
-                                onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
-                                className="text-foreground/60 hover:text-foreground p-1 rounded-md hover:bg-foreground/10 transition-colors"
+            <Sheet isOpen={isEditSheetOpen} onClose={closeEdit} title="Edit member">
+                {editingMember && <div className="mt-4">
+                    <form key={editingMember.id} action={async (formData) => {
+                        setEditPending(true);
+                        setEditError('');
+                        try {
+                            const res = await updateMember(editingMember.id, formData);
+                            if (res?.success) {
+                                toast.success(res.message);
+                                setIsEditSheetOpen(false);
+                                setEditingMember(null);
+                            } else {
+                                setEditError(res?.message || 'Failed to update member');
+                            }
+                        } catch {
+                            setEditError('Could not update this member. Please try again.');
+                        } finally {
+                            setEditPending(false);
+                        }
+                    }} className="space-y-4 relative z-10">
+                        <Input disabled={editPending}
+                            name="firstName"
+                            label="First Name"
+                            defaultValue={editingMember.firstName}
+                            required
+                            className="bg-surface-ocean border-border focus:border-lagoon"
+                        />
+                        <Input disabled={editPending}
+                            name="lastName"
+                            label="Last Name"
+                            defaultValue={editingMember.lastName}
+                            required
+                            className="bg-surface-ocean border-border focus:border-lagoon"
+                        />
+                        <div className="space-y-1.5 mt-4">
+                            <label className="text-xs font-bold text-foreground/60 uppercase tracking-wide ml-1">Assign Team</label>
+                            <Select disabled={editPending}
+                                options={[
+                                    { value: '', label: 'No Team' },
+                                    ...teams.map(t => ({ value: t.id, label: t.name }))
+                                ]}
+                                defaultValue={editingMember.team?.id || ''}
+                                name="teamId"
+                                label="Assign team" placeholder="Select a team"
+                                className="w-full bg-ocean-deep text-lagoon-100 border-lagoon/30"
+                            />
+                        </div>
+                        {editError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{editError}</p>}
+                        <div className="flex flex-wrap gap-3 mt-6">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={closeEdit} disabled={editPending}
+                                className="text-foreground/60 hover:text-foreground"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                            </button>
+                                Cancel
+                            </Button>
+                            <Button type="submit" isLoading={editPending} className="flex-1 whitespace-nowrap">
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Changes
+                            </Button>
                         </div>
-                        
-                        <div className="p-6">
-                            <form key={editingMember.id} action={async (formData) => {
-                                const res = await updateMember(editingMember.id, formData);
-                                if (res?.success) {
-                                    toast.success(res.message);
-                                    setIsEditSheetOpen(false);
-                                    setEditingMember(null);
-                                } else {
-                                    toast.error(res?.message || "Failed to update member");
-                                }
-                            }} className="space-y-4 relative z-10">
-                                <Input 
-                                    name="firstName" 
-                                    label="First Name" 
-                                    defaultValue={editingMember.firstName} 
-                                    required 
-                                    className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 focus:border-lagoon/60 focus:ring-lagoon/20" 
-                                />
-                                <Input 
-                                    name="lastName" 
-                                    label="Last Name" 
-                                    defaultValue={editingMember.lastName} 
-                                    required 
-                                    className="bg-ocean-deep/50 border-lagoon/30 text-lagoon-100 focus:border-lagoon/60 focus:ring-lagoon/20" 
-                                />
-                                <div className="space-y-1.5 mt-4">
-                                    <label className="text-xs font-bold text-foreground/60 uppercase tracking-wide ml-1">Assign Team</label>
-                                    <Select
-                                        options={[
-                                            { value: '', label: 'No Team' },
-                                            ...teams.map(t => ({ value: t.id, label: t.name }))
-                                        ]}
-                                        defaultValue={editingMember.team?.id || ''}
-                                        name="teamId"
-                                        label="Assign team" placeholder="Select a team"
-                                        className="w-full bg-ocean-deep text-lagoon-100 border-lagoon/30"
-                                    />
-                                </div>
-                                <div className="flex gap-3 justify-end mt-8">
-                                    <Button 
-                                        type="button" 
-                                        variant="ghost" 
-                                        onClick={() => { setIsEditSheetOpen(false); setEditingMember(null); }}
-                                        className="text-foreground/60 hover:text-foreground"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button type="submit" className="bg-lagoon hover:bg-lagoon-light text-white shadow-lagoon/20 px-6">
-                                        <Save className="w-4 h-4 mr-2" />
-                                        Save Changes
-                                    </Button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
+                    </form>
+                </div>}
+            </Sheet>
         </div >
     );
 }

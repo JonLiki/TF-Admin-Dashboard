@@ -18,33 +18,33 @@ interface MetricListProps {
 export function MetricList({ title, items, valueKey, unit, weekId, theme }: MetricListProps) {
     const themeConfig = {
         ocean: {
-            headerBg: "bg-ocean border-ocean-light",
-            iconColor: "text-blue-200",
+            headerBg: "bg-lagoon/10 border-border",
+            iconColor: "text-lagoon-100",
             accent: "text-lagoon",
             border: "hover:border-lagoon",
             glow: "hover:shadow-[0_0_15px_rgba(28,114,147,0.2)]",
             Icon: Medal
         },
         tongan: {
-            headerBg: "bg-tongan-dark border-tongan",
-            iconColor: "text-red-200",
+            headerBg: "bg-tongan/10 border-border",
+            iconColor: "text-tongan-red",
             accent: "text-tongan-red",
             border: "hover:border-tongan-red",
             glow: "hover:shadow-[0_0_15px_rgba(200,16,46,0.2)]",
             Icon: Scale
         },
         lifestyle: {
-            headerBg: "bg-pink-900 border-pink-700",
-            iconColor: "text-pink-200",
-            accent: "text-pink-500",
+            headerBg: "bg-pink-500/10 border-border",
+            iconColor: "text-pink-700 dark:text-pink-300",
+            accent: "text-pink-700 dark:text-pink-300",
             border: "hover:border-pink-500",
             glow: "hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]",
             Icon: Heart
         },
         attendance: {
-            headerBg: "bg-green-900 border-green-700",
-            iconColor: "text-green-200",
-            accent: "text-green-500",
+            headerBg: "bg-emerald-500/10 border-border",
+            iconColor: "text-emerald-700 dark:text-emerald-300",
+            accent: "text-emerald-700 dark:text-emerald-300",
             border: "hover:border-green-500",
             glow: "hover:shadow-[0_0_15px_rgba(34,197,94,0.2)]",
             Icon: CalendarCheck
@@ -63,7 +63,7 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
             </div>
 
             {/* List */}
-            <div className="flex-1 p-3 space-y-2 bg-ocean-deep/30 min-h-[300px]">
+            <div className={cn("flex-1 p-3 space-y-2", items.length > 0 && "sm:min-h-[300px]")}>
                 {items.map((m, i) => (
                     <div key={m.id} className={cn(
                         "relative flex justify-between items-center p-3 rounded-lg border transition-all duration-300 ease-out group",
@@ -77,7 +77,7 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
                             <div className={cn(
                                 "w-6 text-center font-bold text-xs flex items-center justify-center h-6 rounded shadow-inner",
                                 i === 0
-                                    ? "bg-gradient-to-br from-yellow-300/20 to-yellow-600/20 text-yellow-200 border border-yellow-500/30 scale-110 shadow-yellow-500/10"
+                                    ? "bg-gradient-to-br from-yellow-300/20 to-yellow-600/20 text-amber-800 dark:text-amber-200 border border-yellow-500/30 scale-110 shadow-yellow-500/10"
                                     : "text-lagoon-100/50 bg-ocean-deep border border-white/5"
                             )}>
                                 {i + 1}
@@ -92,7 +92,7 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
                                         {m.team.name}
                                     </span>
                                 </Link>
-                                {i === 0 && <span className="text-micro text-yellow-500/80 uppercase tracking-wider font-semibold">Leader</span>}
+                                {i === 0 && <span className="text-micro text-amber-800 dark:text-amber-200 uppercase tracking-wider font-semibold">Leader</span>}
                             </div>
                         </div>
 
@@ -105,14 +105,14 @@ export function MetricList({ title, items, valueKey, unit, weekId, theme }: Metr
                             )}>
                                 {(Number(m[valueKey]) || 0).toFixed(valueKey === 'lifestyleAverage' ? 1 : 2)}
                             </span>
-                            <span className="text-micro text-tapa uppercase font-semibold opacity-60">{unit}</span>
+                            <span className="text-micro text-foreground/70 uppercase font-semibold">{unit}</span>
                         </div>
                     </div>
                 ))}
 
                 {items.length === 0 && (
-                    <div className="h-full flex flex-col items-center justify-center text-lagoon-100/30 text-xs uppercase tracking-widest mt-10">
-                        <span>No Data</span>
+                    <div className="py-5 text-sm text-foreground/70">
+                        <span>No results calculated for this week yet.</span>
                     </div>
                 )}
             </div>

@@ -127,15 +127,15 @@ export default function DashboardAnalytics({ metrics, teams, attendanceData, wee
 
     return (
         <PremiumCard className="p-0 overflow-hidden">
-            <div className="p-6 border-b border-border/30 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-ocean-deep">
-                <div className="flex items-center gap-4">
+            <div className="p-6 border-b border-border/30 dark:border-white/5 flex flex-col items-stretch gap-4 bg-ocean-deep">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h3 className="text-xl font-semibold text-foreground tracking-tight">{title}</h3>
                         <p className="text-xs font-normal text-foreground/60 mt-1">Across recorded weeks; averages exclude weeks without calculated metrics.</p>
                     </div>
 
                     {/* View Toggle */}
-                    <div className="flex bg-ocean/20 rounded-lg p-0.5 border border-border/30 dark:border-white/5 ml-4">
+                    <div className="flex bg-ocean/20 rounded-lg p-0.5 border border-border/30 dark:border-white/5 shrink-0">
                         <button
                             type="button" aria-pressed={viewMode === 'charts'} onClick={() => setViewMode('charts')}
                             className={cn(
